@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio — UX·UI Designer</title>
+<meta name="description" content="산업디자인 기반의 UX·UI 디자이너 포트폴리오. 의료 VR 시뮬레이터, 웹 서비스 IA·UX/UI, 이커머스 비주얼.">
+<meta property="og:title" content="Portfolio — UX·UI Designer">
+<meta property="og:description" content="산업디자인 기반의 UX·UI 디자이너 포트폴리오.">
+<meta property="og:type" content="website">
+<!-- <meta property="og:image" content="/assets/img/og.jpg"> -->
+
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a class="skip" href="#works">본문으로 건너뛰기</a>
+
+<div class="layout">
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <header class="rail">
+    <div class="rail__intro">
+      <span class="t-mono muted">PORTFOLIO / 2026</span>
+      <h1 class="t-display rail__hero">Welcome to<br>my Works</h1>
+      <p class="t-body muted rail__desc">
+        산업디자인 기반의 UX·UI 디자이너입니다.<br>
+        의료 VR 시뮬레이터부터 이커머스 비주얼까지,<br>
+        화면 너머의 경험을 설계합니다.
+      </p>
+    </div>
+
+    <section class="career">
+      <span class="t-mono muted career__head">EXPERIENCE</span>
+      <div class="career__item">
+        <span class="t-mono career__period">2024 —</span>
+        <p class="t-body-s">식품기업 · 이커머스 / 생성형 AI 비주얼</p>
+      </div>
+      <div class="career__item">
+        <span class="t-mono career__period">2021 — 2024</span>
+        <p class="t-body-s">의료 VR 기업 · UX 기획 / UI 디자인 / 3D</p>
+      </div>
+      <div class="career__item">
+        <span class="t-mono career__period">PROJECT</span>
+        <p class="t-body-s">TOSEL Lab · 웹 서비스 IA · UX·UI 설계</p>
+      </div>
+    </section>
+
+    <section class="contact">
+      <span class="t-mono muted">CONTACT</span>
+      <p class="t-label"><a href="mailto:lafamila325@gmail.com">lafamila325@gmail.com</a></p>
+      <p class="t-mono muted">
+        <a href="#" target="_blank" rel="noopener">BEHANCE</a> ·
+        <a href="#" target="_blank" rel="noopener">NOTION</a> ·
+        <a href="#" target="_blank" rel="noopener">LINKEDIN</a>
+      </p>
+    </section>
+  </header>
+
+  <!-- ==================== CONTENT ==================== -->
+  <main class="content" id="works">
+
+    <div class="metabar">
+      <nav class="tabs" role="tablist" aria-label="프로젝트 카테고리">
+        <button class="tab t-h-m" role="tab" data-filter="all"    aria-selected="true">ALL <span class="tab__count">09</span></button>
+        <button class="tab t-h-m" role="tab" data-filter="uxui"   aria-selected="false">UX·UI <span class="tab__count">03</span></button>
+        <button class="tab t-h-m" role="tab" data-filter="vr3d"   aria-selected="false">VR·3D <span class="tab__count">02</span></button>
+        <button class="tab t-h-m" role="tab" data-filter="visual" aria-selected="false">VISUAL <span class="tab__count">03</span></button>
+        <button class="tab t-h-m" role="tab" data-filter="lab"    aria-selected="false">LAB <span class="tab__count">01</span></button>
+      </nav>
+      <span class="t-mono muted metabar__period">2021 — 2026</span>
+    </div>
+
+    <div class="grid" data-grid>
+
+      <!-- ---------- CARD ----------
+        · data-category : uxui | vr3d | visual | lab  (필터 키)
+        · 썸네일을 넣을 때는 아래 .card__ph 를 지우고 주석 처리된 <img> 를 살리세요.
+        · 호버용 이미지가 따로 있다면 .card__panel 안에 넣어도 됩니다.
+      -->
+
+      <a class="card reveal" href="lab/index.html" data-category="lab">
+        <div class="card__visual">
+          <img class="card__thumb" src="assets/img/lab/grid-field-thumb.png" alt="" width="768" height="1056" loading="lazy" decoding="async">
+          <div class="card__panel">
+            <span class="t-mono">LAB · INTERACTIVE</span>
+            <div>
+              <h3 class="card__panel-title">Interactive Sketches</h3>
+              <span class="t-mono card__view">ENTER &nbsp;&rarr;</span>
+            </div>
+          </div>
+        </div>
+        <div class="card__caption">
+          <h3 class="t-h-m">Interactive Sketches</h3>
+          <p class="t-mono muted">CANVAS · p5.js · three.js · PROCESSING</p>
+        </div>
+      </a>
+
+      <a class="card reveal" href="projects/medical-vr.html" data-category="uxui">
+        <div class="card__visual">
+          <!-- <img class="card__thumb" src="assets/img/thumb/medicalvr.jpg" alt="" width="768" height="1056" loading="lazy" decoding="async"> -->
+          <div class="card__ph t-mono">PROJECT VISUAL</div>
+          <div class="card__panel">
+            <span class="t-mono">UX·UI DESIGN</span>
+            <div>
+              <h3 class="card__panel-title">Medical VR Simulator</h3>
+              <span class="t-mono card__view">VIEW &nbsp;&rarr;</span>
+            </div>
+          </div>
+        </div>
+        <div class="card__caption">
+          <h3 class="t-h-m">Medical VR Simulator</h3>
+          <p class="t-mono muted">UX·UI DESIGN — 2023</p>
+        </div>
+      </a>
+
+      <a class="card reveal" href="projects/medical-vr.html" data-category="uxui">
+        <div class="card__visual">
+          <div class="card__ph t-mono">PROJECT VISUAL</div>
+          <div class="card__panel">
+            <span class="t-mono">UX·UI · IA</span>
+            <div>
+              <h3 class="card__panel-title">TOSEL Lab Platform</h3>
+              <span class="t-mono card__view">VIEW &nbsp;&rarr;</span>
+            </div>
+          </div>
+        </div>
+        <div class="card__caption">
+          <h3 class="t-h-m">TOSEL Lab Platform</h3>
+          <p class="t-mono muted">UX·UI · IA — 2022</p>
+        </div>
+      </a>
+
+      <a class="card reveal" href="projects/medical-vr.html" data-category="uxui">
+        <div class="card__visual">
+          <div class="card__ph t-mono">PROJECT VISUAL</div>
+          <div class="card__panel">
+            <span class="t-mono">UX·UI DESIGN</span>
+            <div>
+              <h3 class="card__panel-title">Surgical Training UI</h3>
+              <span class="t-mono card__view">VIEW &nbsp;&rarr;</span>
+            </div>
+          </div>
+        </div>
+        <div class="card__caption">
+          <h3 class="t-h-m">Surgical Training UI</h3>
+          <p class="t-mono muted">UX·UI DESIGN — 2023</p>
+        </div>
+      </a>
+
+      <a class="card reveal" href="projects/medical-vr.html" data-category="visual">
+        <div class="card__visual">
+          <div class="card__ph t-mono">PROJECT VISUAL</div>
+          <div class="card__panel">
+            <span class="t-mono">VISUAL · ECOMMERCE</span>
+            <div>
+              <h3 class="card__panel-title">Food Commerce Detail</h3>
+              <span class="t-mono card__view">VIEW &nbsp;&rarr;</span>
+            </div>
+          </div>
+        </div>
+        <div class="card__caption">
+          <h3 class="t-h-m">Food Commerce Detail</h3>
+          <p class="t-mono muted">VISUAL · ECOMMERCE — 2025</p>
+        </div>
+      </a>
+
+      <a class="card reveal" href="projects/medical-vr.html" data-category="visual">
+        <div class="card__visual">
+          <div class="card__ph t-mono">PROJECT VISUAL</div>
+          <div class="card__panel">
+            <span class="t-mono">VISUAL</span>
+            <div>
+              <h3 class="card__panel-title">Generative AI Visual</h3>
+              <span class="t-mono card__view">VIEW &nbsp;&rarr;</span>
+            </div>
+          </div>
+        </div>
+        <div class="card__caption">
+          <h3 class="t-h-m">Generative AI Visual</h3>
+          <p class="t-mono muted">VISUAL — 2026</p>
+        </div>
+      </a>
+
+      <a class="card reveal" href="projects/medical-vr.html" data-category="vr3d">
+        <div class="card__visual">
+          <div class="card__ph t-mono">PROJECT VISUAL</div>
+          <div class="card__panel">
+            <span class="t-mono">VR · 3D</span>
+            <div>
+              <h3 class="card__panel-title">VR Content 3D Asset</h3>
+              <span class="t-mono card__view">VIEW &nbsp;&rarr;</span>
+            </div>
+          </div>
+        </div>
+        <div class="card__caption">
+          <h3 class="t-h-m">VR Content 3D Asset</h3>
+          <p class="t-mono muted">VR · 3D — 2022</p>
+        </div>
+      </a>
+
+      <a class="card reveal" href="projects/medical-vr.html" data-category="visual">
+        <div class="card__visual">
+          <div class="card__ph t-mono">PROJECT VISUAL</div>
+          <div class="card__panel">
+            <span class="t-mono">VISUAL · PRINT</span>
+            <div>
+              <h3 class="card__panel-title">Brand Catalog Renewal</h3>
+              <span class="t-mono card__view">VIEW &nbsp;&rarr;</span>
+            </div>
+          </div>
+        </div>
+        <div class="card__caption">
+          <h3 class="t-h-m">Brand Catalog Renewal</h3>
+          <p class="t-mono muted">VISUAL · PRINT — 2021</p>
+        </div>
+      </a>
+
+      <a class="card reveal" href="projects/medical-vr.html" data-category="vr3d">
+        <div class="card__visual">
+          <div class="card__ph t-mono">PROJECT VISUAL</div>
+          <div class="card__panel">
+            <span class="t-mono">VR · 3D</span>
+            <div>
+              <h3 class="card__panel-title">VR Rehab Interaction</h3>
+              <span class="t-mono card__view">VIEW &nbsp;&rarr;</span>
+            </div>
+          </div>
+        </div>
+        <div class="card__caption">
+          <h3 class="t-h-m">VR Rehab Interaction</h3>
+          <p class="t-mono muted">VR · 3D — 2023</p>
+        </div>
+      </a>
+
+    </div><!-- /.grid -->
+  </main>
+</div><!-- /.layout -->
+
+<!-- 768 이하에서만 노출 (사이드바의 EXPERIENCE·CONTACT 대체) -->
+<footer class="site-footer">
+  <span class="t-mono muted">CONTACT</span>
+  <p class="t-label"><a href="mailto:lafamila325@gmail.com">lafamila325@gmail.com</a></p>
+  <p class="t-mono muted">BEHANCE · NOTION · LINKEDIN</p>
+</footer>
+
+<script src="assets/js/main.js" defer></script>
+</body>
+</html>

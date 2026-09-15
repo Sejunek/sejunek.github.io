@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grid Field — Sketch</title>
+<style>
+  html,body{margin:0;height:100%;background:#fff;overflow:hidden;
+    font-family:"Archivo","Helvetica Neue",Arial,sans-serif;}
+  canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair;}
+  .hint{position:fixed;left:20px;bottom:18px;font-size:11px;letter-spacing:1.2px;
+    color:#8A8A8A;pointer-events:none;user-select:none;}
+  .hint b{color:#2D45FF;font-weight:500;}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<p class="hint">MOVE TO DISTURB &nbsp;·&nbsp; <b>CLICK</b> TO PULSE</p>
+
+<script>
+(function () {
+  'use strict';
+  var c = document.getElementById('c');
+  var ctx = c.getContext('2d', { alpha: false });
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var POINT = [45, 69, 255];      // #2D45FF
+  var IDLE  = [201, 201, 198];    // 쉬고 있는 점
+
+  var W, H, DPR, cols, rows, spacing, pts = [];
+  var pointer = { x: -1e4, y: -1e4, on: false };
+  var ripples = [];
+  var running = true;
+
+  function build() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = c.clientWidth; H = c.clientHeight;
+    c.width = Math.round(W * DPR); c.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    spacing = Math.max(20, Math.min(W, H) / 26);
+    cols = Math.max(2, Math.floor(W / spacing));
+    rows = Math.max(2, Math.floor(H / spacing));
+    var ox = (W - (cols - 1) * spacing) / 2;
+    var oy = (H - (rows - 1) * spacing) / 2;
+
+    pts = new Array(cols * rows);
+    for (var j = 0; j < rows; j++) {
+      for (var i = 0; i < cols; i++) {
+        var x = ox + i * spacing, y = oy + j * spacing;
+        pts[j * cols + i] = { hx: x, hy: y, x: x, y: y, vx: 0, vy: 0, d: 0 };
+      }
+    }
+  }
+
+  /* ---------- input ---------- */
+  function move(e) {
+    var r = c.getBoundingClientRect();
+    pointer.x = e.clientX - r.left;
+    pointer.y = e.clientY - r.top;
+    pointer.on = true;
+  }
+  c.addEventListener('pointermove', move);
+  c.addEventListener('pointerdown', function (e) {
+    move(e);
+    ripples.push({ x: pointer.x, y: pointer.y, r: 0 });
+    if (ripples.length > 4) ripples.shift();
+  });
+  c.addEventListener('pointerleave', function () { pointer.on = false; });
+
+  window.addEventListener('resize', build);
+  document.addEventListener('visibilitychange', function () {
+    running = !document.hidden;
+    if (running) requestAnimationFrame(frame);
+  });
+
+  /* ---------- simulation ---------- */
+  var R = 170;        // 커서 영향 반경
+  var PUSH = 42;      // 밀어내는 세기
+  var K = 0.055;      // 제자리로 돌아오는 스프링
+  var DAMP = 0.86;    // 감쇠
+
+  function step() {
+    var i, p, dx, dy, dist, f;
+    var rad = Math.min(R, Math.min(W, H) * 0.42);
+
+    for (i = 0; i < ripples.length; i++) {
+      ripples[i].r += 14;
+      if (ripples[i].r > Math.max(W, H) * 1.2) { ripples.splice(i, 1); i--; }
+    }
+
+    for (i = 0; i < pts.length; i++) {
+      p = pts[i];
+
+      if (pointer.on) {
+        dx = p.x - pointer.x; dy = p.y - pointer.y;
+        dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+        if (dist < rad) {
+          f = (1 - dist / rad); f = f * f * PUSH;
+          p.vx += (dx / dist) * f * 0.12;
+          p.vy += (dy / dist) * f * 0.12;
+        }
+      }
+
+      for (var k = 0; k < ripples.length; k++) {
+        var rp = ripples[k];
+        dx = p.x - rp.x; dy = p.y - rp.y;
+        dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+        var band = Math.abs(dist - rp.r);
+        if (band < 46) {
+          f = (1 - band / 46) * 3.2;
+          p.vx += (dx / dist) * f;
+          p.vy += (dy / dist) * f;
+        }
+      }
+
+      p.vx += (p.hx - p.x) * K;
+      p.vy += (p.hy - p.y) * K;
+      p.vx *= DAMP; p.vy *= DAMP;
+      p.x += p.vx; p.y += p.vy;
+
+      dx = p.x - p.hx; dy = p.y - p.hy;
+      p.d = Math.min(1, Math.sqrt(dx * dx + dy * dy) / 34);
+    }
+  }
+
+  /* ---------- draw ---------- */
+  function draw() {
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, W, H);
+
+    // 흔들린 점끼리 이어지는 선
+    ctx.lineWidth = 1;
+    for (var j = 0; j < rows; j++) {
+      for (var i = 0; i < cols; i++) {
+        var p = pts[j * cols + i];
+        if (p.d < 0.14) continue;
+        var right = i < cols - 1 ? pts[j * cols + i + 1] : null;
+        var down  = j < rows - 1 ? pts[(j + 1) * cols + i] : null;
+        var a = p.d * 0.55;
+        ctx.strokeStyle = 'rgba(45,69,255,' + a.toFixed(3) + ')';
+        ctx.beginPath();
+        if (right) { ctx.moveTo(p.x, p.y); ctx.lineTo(right.x, right.y); }
+        if (down)  { ctx.moveTo(p.x, p.y); ctx.lineTo(down.x, down.y); }
+        ctx.stroke();
+      }
+    }
+
+    // 점
+    for (var n = 0; n < pts.length; n++) {
+      var q = pts[n], t = q.d;
+      var r = 1.1 + t * 2.6;
+      var cr = Math.round(IDLE[0] + (POINT[0] - IDLE[0]) * t);
+      var cg = Math.round(IDLE[1] + (POINT[1] - IDLE[1]) * t);
+      var cb = Math.round(IDLE[2] + (POINT[2] - IDLE[2]) * t);
+      ctx.fillStyle = 'rgb(' + cr + ',' + cg + ',' + cb + ')';
+      ctx.beginPath();
+      ctx.arc(q.x, q.y, r, 0, 6.2832);
+      ctx.fill();
+    }
+  }
+
+  function frame() {
+    if (!running) return;
+    step();
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  build();
+  if (reduce) { draw(); }
+  else { requestAnimationFrame(frame); }
+})();
+</script>
+</body>
+</html>

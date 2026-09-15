@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Processing Sketch</title>
+<style>
+  html,body{margin:0;height:100%;background:#fff;overflow:hidden;
+    font-family:"Archivo","Helvetica Neue",Arial,sans-serif;}
+  canvas{display:block;margin:0 auto;touch-action:none;}
+  .msg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+    text-align:center;padding:24px;color:#8A8A8A;font-size:12px;letter-spacing:1px;line-height:2;}
+  .msg b{color:#111;font-weight:500;}
+  .hint{position:fixed;left:20px;bottom:18px;font-size:11px;letter-spacing:1.2px;color:#8A8A8A;
+    pointer-events:none;user-select:none;}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     Processing.js 러너
+     예전에 만든 .pde 파일을 그대로 돌립니다.
+
+     사용법
+     1) .pde 파일을 lab/sketches/pde/ 안에 넣습니다.
+     2) 주소 뒤에 파일명을 붙여서 엽니다.
+        _pde.html?file=my-sketch.pde
+
+     주의
+     · .pde 는 XHR 로 읽어오기 때문에 file:// 로 열면 동작하지 않습니다.
+       GitHub Pages 등 http(s) 로 올린 뒤에 확인하세요.
+     · Processing.js 는 2018년 이후 개발이 멈춘 라이브러리입니다.
+       구형 스케치를 "보존해서 보여주는" 용도로는 충분하지만,
+       새로 만드실 거라면 p5.js(_p5.html)를 권합니다.
+     ============================================================ -->
+
+<canvas id="cv"></canvas>
+<p class="hint" id="hint"></p>
+<div class="msg" id="msg"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/processing.js/1.6.6/processing.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var msg = document.getElementById('msg');
+  var cv = document.getElementById('cv');
+
+  function fail(html) {
+    cv.style.display = 'none';
+    msg.style.display = 'flex';
+    msg.innerHTML = html;
+  }
+
+  if (typeof Processing === 'undefined') {
+    fail('Processing.js 를 불러오지 못했습니다.<br>네트워크를 확인해 주세요.');
+    return;
+  }
+
+  var file = new URLSearchParams(location.search).get('file');
+  if (!file) {
+    fail('불러올 스케치가 지정되지 않았습니다.<br><b>_pde.html?file=파일명.pde</b> 형식으로 열어주세요.');
+    return;
+  }
+  // 경로 탈출 차단 — pde 폴더 안의 파일만 허용
+  if (!/^[\w.\-]+\.pde$/.test(file)) {
+    fail('허용되지 않는 파일명입니다.');
+    return;
+  }
+
+  cv.width = window.innerWidth;
+  cv.height = window.innerHeight;
+  document.getElementById('hint').textContent = 'PROCESSING — ' + file;
+
+  try {
+    Processing.loadSketchFromSources(cv, ['pde/' + file]);
+  } catch (e) {
+    fail('스케치를 실행하지 못했습니다.<br><b>' + file + '</b>');
+  }
+
+  // 파일을 못 읽었을 때(404 등) 캔버스가 비어 있으면 안내
+  setTimeout(function () {
+    var p = Processing.getInstanceById(cv.id);
+    if (!p) fail('스케치를 찾을 수 없습니다.<br><b>lab/sketches/pde/' + file + '</b> 경로를 확인해 주세요.');
+  }, 2500);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>p5.js Sketch</title>
+<style>
+  html,body{margin:0;height:100%;background:#fff;overflow:hidden;
+    font-family:"Archivo","Helvetica Neue",Arial,sans-serif;}
+  canvas{display:block;touch-action:none;}
+  .fallback{position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+    text-align:center;padding:24px;color:#8A8A8A;font-size:12px;letter-spacing:1px;line-height:2;}
+</style>
+</head>
+<body>
+<div class="fallback" id="fb">p5.js 를 불러오지 못했습니다.<br>네트워크를 확인하거나 라이브러리를 로컬에 두고 경로를 바꿔주세요.</div>
+
+<!-- ① 라이브러리 -->
+<script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+
+<script>
+/* ============================================================
+   p5.js 스케치 템플릿
+   기존 스케치를 옮길 때는 아래 setup() / draw() 안의 내용만
+   그대로 갈아끼우면 됩니다. (전역 모드 그대로 동작합니다)
+
+   · 이 파일은 iframe 안에서 단독으로 돌아가므로
+     전역 변수 충돌 걱정 없이 예전 코드를 그대로 붙여도 됩니다.
+   · 캔버스 크기는 부모(iframe) 크기를 따라갑니다.
+   ============================================================ */
+
+if (typeof p5 === 'undefined') {
+  document.getElementById('fb').style.display = 'flex';
+} else {
+
+  var POINT = '#2D45FF';
+  var INK   = '#111111';
+
+  function setup() {
+    createCanvas(windowWidth, windowHeight);
+    noFill();
+    strokeWeight(1);
+  }
+
+  function draw() {
+    background(255);
+
+    var cx = width / 2, cy = height / 2;
+    var m = dist(mouseX, mouseY, cx, cy) / max(width, height);
+
+    stroke(POINT);
+    for (var i = 0; i < 40; i++) {
+      var t = i / 40;
+      var r = (min(width, height) * 0.42) * t;
+      var wob = sin(frameCount * 0.02 + t * 8) * (12 + m * 60) * t;
+      push();
+      translate(cx, cy);
+      rotate(t * PI * 0.6 + frameCount * 0.002);
+      ellipse(0, 0, r * 2 + wob, r * 2 - wob);
+      pop();
+    }
+
+    noStroke();
+    fill(INK);
+    textSize(11);
+    textAlign(LEFT, BOTTOM);
+    text('p5.js — MOVE THE CURSOR', 20, height - 18);
+  }
+
+  function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+  }
+}
+</script>
+</body>
+</html>

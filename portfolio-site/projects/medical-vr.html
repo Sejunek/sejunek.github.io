@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Medical VR Simulator — Portfolio</title>
+<meta name="description" content="수술 술기 교육을 위한 VR 시뮬레이터의 UX 기획과 UI 디자인.">
+<meta property="og:title" content="Medical VR Simulator">
+<meta property="og:description" content="수술 술기 교육을 위한 VR 시뮬레이터의 UX 기획과 UI 디자인.">
+<meta property="og:type" content="article">
+
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<header class="detail-header">
+  <a class="t-mono" href="../index.html">&larr; &nbsp;INDEX</a>
+  <span class="t-mono detail-header__title">MEDICAL VR SIMULATOR</span>
+  <a class="t-mono" href="medical-vr.html">NEXT &nbsp;&rarr;</a>
+</header>
+
+<main>
+  <section class="detail-intro">
+    <div>
+      <span class="t-mono detail-intro__cat">UX·UI DESIGN &nbsp;·&nbsp; 2023</span>
+      <h1 class="t-display detail-intro__title">Medical VR<br>Simulator</h1>
+      <p class="t-body muted detail-intro__sum">
+        수술 술기 교육을 위한 VR 시뮬레이터의 UX 기획과 UI 디자인.
+        정보구조 재설계와 인터랙션 정의를 통해 훈련 과정의 인지 부하를 줄였습니다.
+      </p>
+    </div>
+    <dl class="meta">
+      <div class="meta__row"><dt class="t-mono meta__key">ROLE</dt><dd class="t-body-s">UX 기획 · UI 디자인 · 3D</dd></div>
+      <div class="meta__row"><dt class="t-mono meta__key">PERIOD</dt><dd class="t-body-s">2022.09 — 2023.06</dd></div>
+      <div class="meta__row"><dt class="t-mono meta__key">TOOL</dt><dd class="t-body-s">Figma · Unity · Blender</dd></div>
+      <div class="meta__row"><dt class="t-mono meta__key">TYPE</dt><dd class="t-body-s">Medical VR Simulator</dd></div>
+    </dl>
+  </section>
+
+  <!-- ============================================================
+       IMAGE STACK
+       PC 1920w / MO 750w 두 세트를 <picture> 로 스위칭합니다.
+       · 첫 장만 loading="eager", 나머지는 lazy
+       · width / height 는 PC 이미지의 실제 픽셀값을 그대로 (CLS 방지)
+       · 아래 .stack__ph 블록은 실제 이미지를 넣을 때 통째로 지우고
+         주석 처리된 <picture> 를 살리면 됩니다.
+       ============================================================ -->
+  <div class="stack">
+
+    <!--
+    <picture>
+      <source media="(max-width: 767px)" srcset="../assets/img/medicalvr/medicalvr_01_main@mo.jpg">
+      <img src="../assets/img/medicalvr/medicalvr_01_main.jpg"
+           alt="Medical VR Simulator 메인 화면"
+           width="1920" height="1080" loading="eager" decoding="async">
+    </picture>
+    -->
+    <div class="stack__ph t-mono" style="height:54vw">medicalvr_01_main.jpg &nbsp;/&nbsp; 1920 × 1080</div>
+
+    <!--
+    <picture>
+      <source media="(max-width: 767px)" srcset="../assets/img/medicalvr/medicalvr_02_flow@mo.jpg">
+      <img src="../assets/img/medicalvr/medicalvr_02_flow.jpg"
+           alt="정보구조 및 플로우 정리"
+           width="1920" height="1200" loading="lazy" decoding="async">
+    </picture>
+    -->
+    <div class="stack__ph t-mono" style="height:62vw">medicalvr_02_flow.jpg &nbsp;/&nbsp; 1920 × 1200</div>
+
+    <!--
+    <picture>
+      <source media="(max-width: 767px)" srcset="../assets/img/medicalvr/medicalvr_03_ui@mo.jpg">
+      <img src="../assets/img/medicalvr/medicalvr_03_ui.jpg"
+           alt="UI 디자인 시안"
+           width="1920" height="1080" loading="lazy" decoding="async">
+    </picture>
+    -->
+    <div class="stack__ph t-mono" style="height:56vw">medicalvr_03_ui.jpg &nbsp;/&nbsp; 1920 × 1080</div>
+
+    <!-- GIF 대신 video 권장: 용량이 1/10 수준입니다.
+    <video src="../assets/img/medicalvr/medicalvr_04_motion.mp4"
+           width="1920" height="1080"
+           autoplay muted loop playsinline preload="metadata"></video>
+    -->
+    <div class="stack__ph t-mono" style="height:38vw">medicalvr_04_motion.mp4 &nbsp;/&nbsp; 1920 × 720</div>
+
+  </div>
+
+  <a class="next" href="medical-vr.html">
+    <span>
+      <span class="t-mono next__label">NEXT PROJECT</span>
+      <span class="t-display next__title">TOSEL Lab Platform</span>
+    </span>
+    <span class="t-display next__arrow">&rarr;</span>
+  </a>
+</main>
+
+<footer class="detail-footer">
+  <p class="t-label"><a href="mailto:lafamila325@gmail.com">lafamila325@gmail.com</a></p>
+  <p class="t-mono muted">© 2026. ALL RIGHTS RESERVED.</p>
+</footer>
+
+</body>
+</html>

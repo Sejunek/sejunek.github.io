@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>three.js Sketch</title>
+<style>
+  html,body{margin:0;height:100%;background:#fff;overflow:hidden;
+    font-family:"Archivo","Helvetica Neue",Arial,sans-serif;}
+  canvas{display:block;touch-action:none;}
+  .hint{position:fixed;left:20px;bottom:18px;font-size:11px;letter-spacing:1.2px;color:#8A8A8A;
+    pointer-events:none;user-select:none;}
+  .fallback{position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+    text-align:center;padding:24px;color:#8A8A8A;font-size:12px;letter-spacing:1px;line-height:2;}
+</style>
+</head>
+<body>
+<div class="fallback" id="fb">three.js 를 불러오지 못했습니다.<br>네트워크를 확인하거나 라이브러리를 로컬에 두고 경로를 바꿔주세요.</div>
+<p class="hint">three.js — DRAG TO ROTATE</p>
+
+<!-- ① 라이브러리 (UMD 전역 빌드. r128 은 THREE 전역을 그대로 제공합니다) -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+
+<script>
+/* ============================================================
+   three.js 스케치 템플릿
+   · 기존 씬 코드가 있다면 scene / camera / renderer 세팅은 두고
+     mesh 만들고 animate() 안 내용만 갈아끼우면 됩니다.
+   · GLTF 같은 로더가 필요하면 addons 를 추가로 불러오세요.
+     예) https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js
+   ============================================================ */
+
+if (typeof THREE === 'undefined') {
+  document.getElementById('fb').style.display = 'flex';
+} else {
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xffffff);
+
+  var camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
+  camera.position.set(0, 0, 5.2);
+
+  var renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  var geo = new THREE.IcosahedronGeometry(1.6, 1);
+  var mesh = new THREE.LineSegments(
+    new THREE.WireframeGeometry(geo),
+    new THREE.LineBasicMaterial({ color: 0x2d45ff, transparent: true, opacity: 0.9 })
+  );
+  scene.add(mesh);
+
+  var core = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1.58, 1),
+    new THREE.MeshBasicMaterial({ color: 0xffffff })
+  );
+  scene.add(core);
+
+  /* 드래그 회전 (라이브러리 없이) */
+  var drag = false, px = 0, py = 0, tx = 0, ty = 0, rx = 0, ry = 0;
+  renderer.domElement.addEventListener('pointerdown', function (e) {
+    drag = true; px = e.clientX; py = e.clientY;
+  });
+  addEventListener('pointerup', function () { drag = false; });
+  addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    ty += (e.clientX - px) * 0.005;
+    tx += (e.clientY - py) * 0.005;
+    px = e.clientX; py = e.clientY;
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    ty += 0.0016;
+    rx += (tx - rx) * 0.08;
+    ry += (ty - ry) * 0.08;
+    mesh.rotation.set(rx, ry, 0);
+    core.rotation.set(rx, ry, 0);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  addEventListener('resize', function () {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  });
+}
+</script>
+</body>
+</html>
