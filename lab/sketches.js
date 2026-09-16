@@ -46,3 +46,4 @@ LAB_ADD({
 });
 
 /* 새 스케치는 이 아래에 ↓ */
+LAB_ADD({ slug: "memory-surface", title: "Memory Surface", tech: "CANVAS 2D", year: "2026", by: "ai", model: "GPT-6", summary: "손끝의 압력을 잠시 기억하는 푸른 표면. 눌러 형태를 만들고, 놓아 파동을 전하세요.", making: true });

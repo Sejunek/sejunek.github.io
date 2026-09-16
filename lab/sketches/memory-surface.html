@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="description" content="손끝의 압력을 잠시 기억하는 푸른 표면. 눌러 형태를 만들고, 놓아 파동을 전하세요.">
+<title>Memory Surface — Lab</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='white'/%3E%3Cpath d='M3 22Q10 0 16 16T29 10M3 27Q10 5 16 21T29 15' fill='none' stroke='%232D45FF' stroke-width='2'/%3E%3C/svg%3E">
+<style>
+  :root{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;color:#111111;background:#FFFFFF;color-scheme:light}
+  *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}button{font:inherit;color:inherit;cursor:pointer}button:focus-visible,canvas:focus-visible{outline:2px solid #2D45FF;outline-offset:-4px}
+  canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+  .title{position:fixed;top:35px;left:40px;pointer-events:none;user-select:none}.eyebrow{margin:0 0 19px;font-size:11px;letter-spacing:1.8px;color:#8A8A8A}.eyebrow b{font-weight:400;color:#2D45FF;margin-right:17px}h1{margin:0;font-size:clamp(34px,5vw,70px);letter-spacing:-.065em;line-height:.96;font-weight:600}.title p:last-child{margin:20px 0 0;font-size:12px;letter-spacing:-.2px;color:#8A8A8A;line-height:1.7}
+  .controls{position:fixed;right:35px;top:31px;display:flex;gap:8px}.controls button{border:1px solid #e8e8e6;border-radius:0;background:#ffffffed;min-width:74px;min-height:36px;padding:9px 13px;font-size:10px;letter-spacing:1.2px}.controls button:hover{color:#2D45FF;border-color:#2D45FF}.controls button:disabled{color:#8A8A8A;cursor:default}.controls button[aria-pressed="true"]{border-color:#2D45FF;color:#2D45FF}
+  .legend{position:fixed;right:40px;top:101px;text-align:right;pointer-events:none;font-size:10px;letter-spacing:1.2px;line-height:1.8;color:#8A8A8A}.legend span{display:block;color:#2D45FF}.legend:before{content:"";display:block;width:32px;height:2px;background:#2D45FF;margin:0 0 10px auto}
+  .footer{position:fixed;left:40px;right:40px;bottom:26px;border-top:1px solid #e9e9e7;padding-top:16px;display:flex;justify-content:space-between;align-items:center;pointer-events:none;gap:15px}.hint{margin:0;font-size:11px;letter-spacing:1.2px;color:#8A8A8A;line-height:1.7}.state{font-size:10px;letter-spacing:1.4px;color:#2D45FF;white-space:nowrap}.state:before{content:"";display:inline-block;width:5px;height:5px;background:currentColor;border-radius:50%;margin-right:9px;vertical-align:1px}
+  .fallback{position:fixed;left:20%;right:20%;top:46%;color:#8A8A8A;font-size:14px;line-height:1.8;text-align:center;background:white;padding:24px}.fallback[hidden]{display:none}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+  @media(max-width:600px){.title{left:22px;top:28px}.eyebrow{font-size:9px;letter-spacing:1.4px;margin-bottom:16px}.eyebrow b{margin-right:8px}h1{font-size:42px}.title p:last-child{font-size:11px;margin-top:15px;max-width:180px}.controls{top:26px;right:19px;flex-direction:column;gap:6px}.controls button{font-size:9px;min-width:67px;min-height:34px;padding:8px}.legend{right:22px;top:128px;font-size:8px}.footer{left:22px;right:22px;bottom:19px;padding-top:13px;align-items:flex-start}.hint{max-width:230px;font-size:11px;letter-spacing:1.2px}.state{font-size:8px;margin-top:4px}.state:before{display:none}}
+  @media(max-height:430px){.title{top:17px;left:22px}.eyebrow{display:none}h1{font-size:32px}.title p:last-child,.legend{display:none}.controls{top:16px;right:22px;flex-direction:row}.footer{bottom:13px;padding-top:9px;left:22px;right:22px}.hint{font-size:10px;max-width:none}}
+</style>
+</head>
+<body>
+<canvas id="surface" tabindex="0" aria-label="기억하는 표면. 마우스를 움직이거나 손가락으로 눌러보세요. 스페이스를 누르고 놓아 파동을 만들고, R로 초기화할 수 있습니다."></canvas>
+<header class="title"><p class="eyebrow"><b>LAB / 002</b> A STUDY OF CONTACT</p><h1>Memory<br>Surface.</h1><p>사라진 접촉도<br>잠시 모양으로 남는다.</p></header>
+<div class="controls"><button id="pause" type="button" aria-label="움직임 일시정지" aria-pressed="false">PAUSE</button><button id="reset" type="button" aria-label="표면 초기화">RESET ↗</button></div>
+<div class="legend" aria-hidden="true">SOFT MATTER<span>ELASTIC MEMORY</span></div>
+<footer class="footer"><p class="hint">MOVE TO TOUCH · HOLD TO SHAPE · RELEASE TO ECHO</p><span class="state" id="status" aria-hidden="true">REMEMBERING</span></footer>
+<p class="fallback" id="fallback" hidden>이 브라우저에서는 Canvas를 사용할 수 없습니다.<br>최신 브라우저에서 다시 열어주세요.</p>
+<p class="sr-only" id="announcement" role="status"></p>
+<noscript><p class="fallback">인터랙션을 실행하려면 JavaScript를 켜주세요.</p></noscript>
+<script>
+(() => {
+  'use strict';
+  const canvas = document.getElementById('surface');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  if (!ctx) { document.getElementById('fallback').hidden = false; return; }
+  const pauseButton = document.getElementById('pause');
+  const status = document.getElementById('status');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const columns = 67, rows = 45, count = columns * rows;
+  const height = new Float32Array(count), velocity = new Float32Array(count);
+  const nextVelocity = new Float32Array(count), px = new Float32Array(count), py = new Float32Array(count);
+  const worldX = new Float32Array(count), worldY = new Float32Array(count), edge = new Float32Array(count);
+  let width = 1, viewportHeight = 1, ratio = 1, scale = 1, centerX = 0, centerY = 0;
+  let raf = 0, lastTime = 0, accumulator = 0, paused = false, elapsed = 0;
+  let pointerId = null, pressing = false, hovering = false, pointerX = 0, pointerY = 0, targetX = 0, targetY = 0, pressure = 0, pointerMotion = 0;
+  let sampleStart = 0, sampleFrames = 0, frameTotal = 0, fpsMin = Infinity, fpsSum = 0, fpsSamples = 0, energy = 0;
+  let cosine = Math.cos(-.34), sine = Math.sin(-.34), tilt = .54;
+  for (let y=0; y<rows; y++) for (let x=0; x<columns; x++) {
+    const i=y*columns+x, u=x/(columns-1), v=y/(rows-1);
+    worldX[i]=(u-.5)*3; worldY[i]=(v-.5)*2;
+    edge[i]=Math.pow(Math.max(0,Math.sin(u*Math.PI)*Math.sin(v*Math.PI)),.65);
+  }
+  function seed() {
+    velocity.fill(0); nextVelocity.fill(0); elapsed=0; accumulator=0; pressure=0; pointerMotion=0;
+    for(let i=0;i<count;i++) {
+      const x=worldX[i],y=worldY[i];
+      height[i]=edge[i]*(.72*Math.exp(-((x+.48)**2*5+(y-.04)**2*8))+.46*Math.exp(-((x-.65)**2*7+(y+.2)**2*10))-.16*Math.exp(-((x-.1)**2*5+(y-.65)**2*10)));
+    }
+    canvas.dataset.samples='0';canvas.dataset.fps='';canvas.dataset.averageFps='';canvas.dataset.minimumFps='';
+    sampleStart=0;sampleFrames=0;fpsSamples=0;fpsSum=0;fpsMin=Infinity;
+  }
+  function project() {
+    for(let i=0;i<count;i++) {
+      const x=worldX[i]*cosine-worldY[i]*sine;
+      const y=worldX[i]*sine+worldY[i]*cosine;
+      px[i]=centerX+x*scale;
+      py[i]=centerY+y*tilt*scale-height[i]*scale*.95;
+    }
+  }
+  function draw() {
+    ctx.setTransform(ratio,0,0,ratio,0,0);ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,width,viewportHeight);project();
+    // Fine ground marks keep the volume legible without a filled backdrop.
+    ctx.strokeStyle='#E8E8E6';ctx.lineWidth=.7;ctx.setLineDash([2,5]);
+    ctx.beginPath();
+    for(let y=0;y<rows;y+=rows-1){for(let x=0;x<columns;x++){const i=y*columns+x;if(x===0)ctx.moveTo(px[i],py[i]+6);else ctx.lineTo(px[i],py[i]+6);}}
+    ctx.stroke();ctx.setLineDash([]);
+    // Each row is one path: 112 strokes instead of thousands of individual strokes.
+    ctx.lineWidth=width<600?.62:.82;
+    for(let y=0;y<rows;y++){
+      ctx.strokeStyle=`rgba(45,69,255,${.40+y/(rows-1)*.50})`;ctx.beginPath();
+      for(let x=0;x<columns;x++){const i=y*columns+x;if(x===0)ctx.moveTo(px[i],py[i]);else ctx.lineTo(px[i],py[i]);}ctx.stroke();
+    }
+    ctx.strokeStyle='rgba(45,69,255,.40)';ctx.lineWidth=width<600?.52:.68;
+    for(let x=0;x<columns;x++){ctx.beginPath();for(let y=0;y<rows;y++){const i=y*columns+x;if(y===0)ctx.moveTo(px[i],py[i]);else ctx.lineTo(px[i],py[i]);}ctx.stroke();}
+    ctx.fillStyle='#2D45FF';
+    for(let y=2;y<rows-2;y+=3)for(let x=2;x<columns-2;x+=3){const i=y*columns+x;if(Math.abs(height[i])>.18){ctx.globalAlpha=Math.min(.75,Math.abs(height[i]));ctx.fillRect(px[i]-.8,py[i]-.8,1.6,1.6);}}
+    ctx.globalAlpha=1;
+    if((hovering||pressing)&&!reduced.matches){
+      ctx.strokeStyle=pressing?'#2D45FF':'#C9C9C6';ctx.lineWidth=1;ctx.beginPath();ctx.arc(pointerX,pointerY,pressing?10+pressure*9:9,0,Math.PI*2);ctx.stroke();
+      ctx.fillStyle='#2D45FF';ctx.beginPath();ctx.arc(pointerX,pointerY,1.7,0,Math.PI*2);ctx.fill();
+    }
+    canvas.dataset.energy=energy.toFixed(4);canvas.dataset.frames=String(frameTotal);
+    canvas.dataset.pressing=String(pressing);canvas.dataset.mode=reduced.matches?'reduced':paused?'paused':document.hidden?'hidden':'running';
+  }
+  function resize() {
+    const rect=canvas.getBoundingClientRect();width=Math.max(1,rect.width);viewportHeight=Math.max(1,rect.height);ratio=Math.min(devicePixelRatio||1,2);
+    canvas.width=Math.round(width*ratio);canvas.height=Math.round(viewportHeight*ratio);
+    const portrait=width<600&&viewportHeight>430, angle=portrait?-.8:-.34;
+    cosine=Math.cos(angle);sine=Math.sin(angle);tilt=portrait?.82:.54;
+    scale=Math.min(width*.245,viewportHeight*.39);
+    centerX=width*.52;centerY=viewportHeight*.60;
+    if(viewportHeight<430){scale=Math.min(width*.22,viewportHeight*.43);centerX=width*.57;centerY=viewportHeight*.64;}
+    draw();
+  }
+  function nearest(x,y) {
+    let best=Infinity,found=0;
+    for(let i=0;i<count;i++){const distance=(px[i]-x)**2+(py[i]-y)**2;if(distance<best){best=distance;found=i;}}
+    targetX=worldX[found];targetY=worldY[found];return best<scale*scale*.12;
+  }
+  function disturbance(amount) {
+    for(let i=0;i<count;i++){const d=(worldX[i]-targetX)**2+(worldY[i]-targetY)**2;velocity[i]+=Math.exp(-d*22)*amount*edge[i];}
+  }
+  function step() {
+    elapsed+=1/120;pressure+=((pressing?1:0)-pressure)*.024;pointerMotion*=.94;energy=0;
+    for(let y=1;y<rows-1;y++)for(let x=1;x<columns-1;x++){
+      const i=y*columns+x,h=height[i];
+      const lap=height[i-1]+height[i+1]+height[i-columns]+height[i+columns]-4*h;
+      let force=lap*.105-h*.00032;
+      if(hovering||pressing){const d=(worldX[i]-targetX)**2+(worldY[i]-targetY)**2;const influence=Math.exp(-d*14)*edge[i];force+=(.78*pressure+pointerMotion*.09-h)*influence*(pressing?.013:.0014);}
+      nextVelocity[i]=(velocity[i]+force)*.994;
+    }
+    for(let y=1;y<rows-1;y++)for(let x=1;x<columns-1;x++){const i=y*columns+x;velocity[i]=nextVelocity[i];height[i]=Math.max(-.85,Math.min(1.15,height[i]+velocity[i]));energy+=height[i]*height[i];}
+    energy=Math.sqrt(energy/count);
+  }
+  function loop(now) {
+    raf=0;if(document.hidden||reduced.matches||paused)return;
+    const dt=Math.min(.05,lastTime?(now-lastTime)/1000:1/60);lastTime=now;accumulator+=dt;
+    let steps=0;while(accumulator>=1/120&&steps<6){step();accumulator-=1/120;steps++;}
+    frameTotal++;draw();
+    if(!sampleStart)sampleStart=now;
+    sampleFrames++;
+    if(now-sampleStart>=1000){const fps=sampleFrames*1000/(now-sampleStart);fpsMin=Math.min(fpsMin,fps);fpsSum+=fps;fpsSamples++;canvas.dataset.fps=fps.toFixed(1);canvas.dataset.averageFps=(fpsSum/fpsSamples).toFixed(1);canvas.dataset.minimumFps=fpsMin.toFixed(1);canvas.dataset.samples=String(fpsSamples);sampleStart=now;sampleFrames=0;}
+    status.textContent=pressing?'HOLDING':energy>.015?'REMEMBERING':'AT REST';
+    raf=requestAnimationFrame(loop);
+  }
+  function start() { if(!raf&&!document.hidden&&!reduced.matches&&!paused){lastTime=0;sampleStart=0;sampleFrames=0;raf=requestAnimationFrame(loop);} }
+  function stop() {if(raf)cancelAnimationFrame(raf);raf=0;lastTime=0;accumulator=0;}
+  function release(send=true) {
+    if(pressing&&send&&!paused&&!reduced.matches)disturbance(.018+pressure*.024);
+    pressing=false;pointerId=null;canvas.dataset.pressing='false';
+  }
+  function move(event) {
+    const rect=canvas.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top;
+    pointerMotion=Math.min(2,Math.hypot(x-pointerX,y-pointerY)*.06);pointerX=x;pointerY=y;
+    hovering=nearest(x,y);
+  }
+  canvas.addEventListener('pointermove',event=>{if(reduced.matches||paused||(pointerId!==null&&event.pointerId!==pointerId))return;move(event);});
+  canvas.addEventListener('pointerdown',event=>{
+    if(event.button!==0||pointerId!==null||reduced.matches||paused)return;
+    move(event);if(!hovering)return;
+    pointerId=event.pointerId;pressing=true;canvas.setPointerCapture(event.pointerId);canvas.focus({preventScroll:true});disturbance(.024);
+  });
+  canvas.addEventListener('pointerup',event=>{if(pointerId===event.pointerId){release();if(event.pointerType==='touch')hovering=false;}});
+  canvas.addEventListener('pointercancel',()=>release(false));canvas.addEventListener('lostpointercapture',()=>release(false));
+  canvas.addEventListener('pointerleave',()=>{if(!pressing)hovering=false;});
+  canvas.addEventListener('keydown',event=>{
+    if(event.code==='Space'){event.preventDefault();if(!event.repeat&&!reduced.matches&&!paused){targetX=0;targetY=0;pointerX=centerX;pointerY=centerY;pressing=true;hovering=true;disturbance(.024);}}
+    if(event.key.toLowerCase()==='r'){event.preventDefault();reset();}
+  });
+  canvas.addEventListener('keyup',event=>{if(event.code==='Space'){event.preventDefault();release();hovering=false;}});
+  canvas.addEventListener('blur',()=>{release(false);hovering=false;});
+  function syncControls() {
+    pauseButton.disabled=reduced.matches;pauseButton.textContent=reduced.matches?'STILL':paused?'RESUME':'PAUSE';
+    pauseButton.setAttribute('aria-pressed',String(paused||reduced.matches));pauseButton.setAttribute('aria-label',reduced.matches?'모션 감소 설정: 정지 화면':paused?'움직임 재생':'움직임 일시정지');
+    if(reduced.matches||paused)status.textContent=reduced.matches?'STILL FRAME':'PAUSED';draw();
+  }
+  pauseButton.addEventListener('click',()=>{paused=!paused;release(false);hovering=false;if(paused)stop();else start();syncControls();});
+  function reset(){release(false);hovering=false;seed();draw();syncControls();document.getElementById('announcement').textContent='표면을 처음의 모양으로 되돌렸습니다.';}
+  document.getElementById('reset').addEventListener('click',reset);
+  reduced.addEventListener('change',()=>{release(false);hovering=false;if(reduced.matches){stop();seed();}else start();syncControls();});
+  document.addEventListener('visibilitychange',()=>{release(false);hovering=false;if(document.hidden){stop();canvas.dataset.mode='hidden';}else{start();syncControls();}});
+  window.addEventListener('blur',()=>{release(false);hovering=false;});
+  window.addEventListener('pagehide',stop);window.addEventListener('pageshow',start);window.addEventListener('resize',resize);
+  seed();resize();syncControls();start();
+})();
+</script>
+</body>
+</html>
