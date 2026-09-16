@@ -132,6 +132,8 @@ GIF는 용량이 큽니다. `mp4` / `webm` 으로 변환 후 이렇게 쓰는 �
 
 배포 전 체크: `og:image` 채우기, 파비콘 추가, `BEHANCE / NOTION / LINKEDIN` 의 `href="#"` 실제 주소로 교체.
 
+풀 · 푸시 · 충돌 방지 규칙은 `GIT-WORKFLOW.md` 를 보세요.
+
 
 ---
 
@@ -144,5 +146,5 @@ GIF는 용량이 큽니다. `mp4` / `webm` 으로 변환 후 이렇게 쓰는 �
 
 - 스케치는 전부 **iframe 안에서 독립 실행**됩니다. p5 / Processing 이 전역을 점유해도 서로 안 싸웁니다.
 - **클릭해야 실행**됩니다. 첫 진입 속도와 모바일 배터리를 지키기 위해서입니다.
-- `.pde` 는 `lab/sketches/pde/` 에 넣고 `_pde.html?file=파일명.pde` 로 링크하면 끝입니다.
+- `.pde` 는 `lab/sketches/pde/` 에 넣고 `pde-runner.html?file=파일명.pde` 로 링크하면 끝입니다.
   단, XHR로 읽어오므로 **http(s)로 올린 뒤에만 동작**합니다 (파일 더블클릭으로는 안 됩니다).

@@ -467,3 +467,51 @@ ul { margin: 0; padding: 0; list-style: none; }
 .embed__cover:hover .embed__poster { opacity: .85; transform: scale(1.02); }
 .embed__cover > .embed__play,
 .embed__cover > .t-mono { position: relative; z-index: 1; }
+
+/* ============================================================
+   9. 상세 이미지 확대 (zoom.js)
+   ============================================================ */
+.stack img.is-zoomable { cursor: zoom-in; }
+.stack img.is-zoomable:focus-visible { outline: 2px solid var(--point); outline-offset: -2px; }
+
+.zoom {
+  position: fixed; inset: 0; z-index: 200;
+  background: var(--bg-base);
+  display: none;
+}
+.zoom.is-open { display: block; }
+body.zoom-open { overflow: hidden; }
+
+.zoom__scroll {
+  position: absolute; inset: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 56px 0 40px;
+}
+.zoom__img {
+  display: block;
+  max-width: none;          /* 원본 폭으로 열기 위해 해제 */
+  height: auto;
+  margin: 0 auto;
+}
+.zoom__close {
+  position: absolute; top: 12px; right: 12px;
+  padding: 10px 14px;
+  background: var(--bg-inverse); color: var(--text-inverse);
+  border: 0;
+}
+.zoom__close:hover { background: var(--point); }
+
+/* 첫 이미지 위 안내 (4초 뒤 사라짐) */
+.zoom-hint__wrap {
+  position: absolute;
+  margin: -44px 0 0 12px;
+  transition: opacity 400ms ease;
+}
+.zoom-hint__wrap.is-out { opacity: 0; }
+.zoom-hint {
+  display: inline-block;
+  padding: 6px 10px;
+  background: var(--bg-inverse); color: var(--text-inverse);
+}
+.stack { position: relative; }

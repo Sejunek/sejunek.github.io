@@ -24,14 +24,23 @@
      사용법
      1) .pde 파일을 lab/sketches/pde/ 안에 넣습니다.
      2) 주소 뒤에 파일명을 붙여서 엽니다.
-        _pde.html?file=my-sketch.pde
+        pde-runner.html?file=my-sketch.pde
+
+     ── 기존 .pde 작업을 올릴 때 챙길 것 ───────────────────
+     1) .pde 파일 전부 (Processing 에디터의 탭이 여러 개였다면 그 탭 전부)
+     2) data/ 폴더 통째로 (이미지 · 폰트 · csv)
+     3) 외부 라이브러리 사용 여부 — 이게 성패를 가릅니다.
+        minim / controlP5 / peasycam 등을 import 했다면 여기서는 돌지 않습니다.
+        그 경우엔 영상으로 녹화해 올리거나, p5.js 로 옮기는 편이 낫습니다.
+     4) size() 값
+     ─────────────────────────────────────────────────────────
 
      주의
      · .pde 는 XHR 로 읽어오기 때문에 file:// 로 열면 동작하지 않습니다.
        GitHub Pages 등 http(s) 로 올린 뒤에 확인하세요.
      · Processing.js 는 2018년 이후 개발이 멈춘 라이브러리입니다.
        구형 스케치를 "보존해서 보여주는" 용도로는 충분하지만,
-       새로 만드실 거라면 p5.js(_p5.html)를 권합니다.
+       새로 만드실 거라면 p5.js(template-p5.html)를 권합니다.
      ============================================================ -->
 
 <canvas id="cv"></canvas>
@@ -58,7 +67,7 @@
 
   var file = new URLSearchParams(location.search).get('file');
   if (!file) {
-    fail('불러올 스케치가 지정되지 않았습니다.<br><b>_pde.html?file=파일명.pde</b> 형식으로 열어주세요.');
+    fail('불러올 스케치가 지정되지 않았습니다.<br><b>pde-runner.html?file=파일명.pde</b> 형식으로 열어주세요.');
     return;
   }
   // 경로 탈출 차단 — pde 폴더 안의 파일만 허용
