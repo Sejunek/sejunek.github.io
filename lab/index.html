@@ -17,10 +17,16 @@
 </head>
 <body>
 
+<!-- ============================================================
+     카드를 손으로 쓰지 않습니다.
+     목록은 sketches.js 에서 읽어 자동으로 그립니다.
+     스케치 추가 = sketches.js 맨 아래에 한 줄.
+     ============================================================ -->
+
 <header class="detail-header">
   <a class="t-mono" href="../index.html">&larr; &nbsp;INDEX</a>
   <span class="t-mono detail-header__title">LAB</span>
-  <span class="t-mono muted">04 SKETCHES</span>
+  <span class="t-mono muted" data-count></span>
 </header>
 
 <main>
@@ -29,82 +35,26 @@
     <h1 class="t-display lab-intro__title">Interactive<br>Sketches</h1>
     <p class="t-body muted">
       이미지로 설명하기 어려운 것들을 모아둔 공간입니다.
-      각 스케치는 독립된 페이지로 실행되며, 클릭하면 그 자리에서 바로 만져볼 수 있습니다.
-      Canvas 2D · p5.js · three.js · Processing 모두 같은 방식으로 올라갑니다.
+      각 스케치는 격리된 환경에서 실행되며, 클릭하면 그 자리에서 바로 만져볼 수 있습니다.
+      <strong style="color:var(--text-primary);font-weight:400">AI-MADE</strong> 표식이 붙은 것은
+      제가 코드를 직접 쓰지 않고 AI에게 만들게 한 결과물이며, 어떤 프롬프트로 어떻게 만들었는지
+      각 페이지에 그대로 공개합니다.
     </p>
   </section>
 
   <section class="lab-stage">
-    <div class="grid grid--lab" style="padding-top:0">
+    <div class="grid grid--lab" style="padding-top:0" data-cards></div>
+  </section>
 
-      <a class="card card--wide reveal" href="grid-field.html">
-        <div class="card__visual">
-          <img class="card__thumb" src="../assets/img/lab/grid-field-card.png" alt="" width="1200" height="750" loading="lazy" decoding="async">
-          <div class="card__panel">
-            <span class="t-mono">NO LIBRARY</span>
-            <div>
-              <h3 class="card__panel-title">Grid Field</h3>
-              <span class="t-mono card__view">RUN &nbsp;&rarr;</span>
-            </div>
-          </div>
-        </div>
-        <div class="card__caption">
-          <h3 class="t-h-m">Grid Field</h3>
-          <p class="t-mono muted">CANVAS 2D — 2026</p>
-        </div>
-      </a>
-
-      <a class="card card--wide reveal" href="sketches/template-p5.html" target="_blank" rel="noopener">
-        <div class="card__visual">
-          <div class="card__ph t-mono">p5.js</div>
-          <div class="card__panel">
-            <span class="t-mono">TEMPLATE</span>
-            <div>
-              <h3 class="card__panel-title">p5.js Sketch</h3>
-              <span class="t-mono card__view">RUN &nbsp;&rarr;</span>
-            </div>
-          </div>
-        </div>
-        <div class="card__caption">
-          <h3 class="t-h-m">p5.js Sketch</h3>
-          <p class="t-mono muted">TEMPLATE — 기존 p5 코드를 그대로 옮기는 자리</p>
-        </div>
-      </a>
-
-      <a class="card card--wide reveal" href="sketches/template-three.html" target="_blank" rel="noopener">
-        <div class="card__visual">
-          <div class="card__ph t-mono">three.js</div>
-          <div class="card__panel">
-            <span class="t-mono">TEMPLATE · WEBGL</span>
-            <div>
-              <h3 class="card__panel-title">three.js Scene</h3>
-              <span class="t-mono card__view">RUN &nbsp;&rarr;</span>
-            </div>
-          </div>
-        </div>
-        <div class="card__caption">
-          <h3 class="t-h-m">three.js Scene</h3>
-          <p class="t-mono muted">TEMPLATE — 3D · WebGL</p>
-        </div>
-      </a>
-
-      <a class="card card--wide reveal" href="sketches/pde-runner.html?file=sample.pde" target="_blank" rel="noopener">
-        <div class="card__visual">
-          <div class="card__ph t-mono">PROCESSING</div>
-          <div class="card__panel">
-            <span class="t-mono">.PDE RUNNER</span>
-            <div>
-              <h3 class="card__panel-title">Processing Runner</h3>
-              <span class="t-mono card__view">RUN &nbsp;&rarr;</span>
-            </div>
-          </div>
-        </div>
-        <div class="card__caption">
-          <h3 class="t-h-m">Processing Runner</h3>
-          <p class="t-mono muted">예전 .pde 파일을 고치지 않고 그대로 실행</p>
-        </div>
-      </a>
-
+  <section class="lab-templates">
+    <span class="t-mono muted">TEMPLATES</span>
+    <p class="t-body-s muted">
+      새 스케치를 시작할 때 쓰는 빈 템플릿입니다. 작업물이 아니라 도구입니다.
+    </p>
+    <div class="lab-templates__links">
+      <a class="btn" href="sketches/template-p5.html" target="_blank" rel="noopener">p5.js &nearr;</a>
+      <a class="btn" href="sketches/template-three.html" target="_blank" rel="noopener">three.js &nearr;</a>
+      <a class="btn" href="sketches/pde-runner.html?file=sample.pde" target="_blank" rel="noopener">Processing (.pde) &nearr;</a>
     </div>
   </section>
 </main>
@@ -114,6 +64,17 @@
   <p class="t-mono muted">© 2026. ALL RIGHTS RESERVED.</p>
 </footer>
 
-<script src="../assets/js/main.js" defer></script>
+<script src="sketches.js"></script>
+<script src="../assets/js/lab-core.js"></script>
+<script>
+(function () {
+  var n = LAB.renderCards(document.querySelector('[data-cards]'));
+  document.querySelector('[data-count]').textContent =
+    String(n).padStart(2, '0') + (n === 1 ? ' SKETCH' : ' SKETCHES');
+  var tag = document.createElement('script');
+  tag.src = '../assets/js/main.js';   // 스크롤 등장 효과
+  document.body.appendChild(tag);
+})();
+</script>
 </body>
 </html>

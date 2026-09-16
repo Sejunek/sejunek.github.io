@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab — Sketch</title>
+<meta name="description" content="직접 만져보는 인터랙션 스케치.">
+<meta property="og:title" content="Lab — Interactive Sketch">
+<meta property="og:description" content="직접 만져보는 인터랙션 스케치.">
+<meta property="og:type" content="article">
+
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<!-- ============================================================
+     공용 뷰어 — view.html?s=<slug>
+     스케치마다 페이지를 따로 만들지 않습니다.
+     목록(sketches.js)에 한 줄만 추가하면 이 페이지가 알아서 렌더합니다.
+     ============================================================ -->
+
+<header class="detail-header">
+  <a class="t-mono" href="index.html">&larr; &nbsp;LAB</a>
+  <span class="t-mono detail-header__title" data-title>SKETCH</span>
+  <a class="t-mono" href="index.html">ALL SKETCHES &nbsp;&rarr;</a>
+</header>
+
+<main data-main>
+  <section class="lab-intro">
+    <span class="t-mono lab-intro__cat" data-cat></span>
+    <h1 class="t-display lab-intro__title" data-heading>—</h1>
+    <p class="t-body muted" data-summary></p>
+  </section>
+
+  <section class="lab-stage" data-stage hidden>
+    <div class="embed" data-embed data-src="" data-title="">
+      <button class="embed__cover" type="button" aria-label="스케치 실행">
+        <img class="embed__poster" data-poster alt="">
+        <span class="embed__play" aria-hidden="true">&#9658;</span>
+        <span class="t-mono muted">CLICK TO RUN</span>
+      </button>
+    </div>
+    <div class="embed-bar">
+      <span class="t-mono muted">커서를 움직여 보세요. 모바일에서는 화면을 만지면 됩니다.</span>
+      <span class="embed-bar__actions">
+        <button class="btn" type="button" data-action="restart">RESTART</button>
+        <button class="btn" type="button" data-action="fullscreen">FULLSCREEN</button>
+        <a class="btn" data-open href="#" target="_blank" rel="noopener">OPEN &nearr;</a>
+      </span>
+    </div>
+  </section>
+
+  <section class="making" data-making hidden>
+    <div class="making__head">
+      <span class="t-mono" style="color:var(--point)">HOW IT WAS MADE</span>
+      <h2 class="t-h-l">제작 기록</h2>
+      <p class="t-body-s muted">
+        이 스케치는 제가 코드를 직접 쓰지 않고 AI에게 만들게 한 결과물입니다.
+        어떤 프롬프트로 시작해 무엇을 고쳐나갔는지 그대로 남깁니다.
+      </p>
+    </div>
+    <div class="making__body" data-making-body></div>
+  </section>
+</main>
+
+<footer class="detail-footer">
+  <p class="t-label"><a href="mailto:lafamila325@gmail.com">lafamila325@gmail.com</a></p>
+  <p class="t-mono muted">© 2026. ALL RIGHTS RESERVED.</p>
+</footer>
+
+<script src="sketches.js"></script>
+<script src="../assets/js/lab-core.js"></script>
+<script>
+(function () {
+  var slug = new URLSearchParams(location.search).get('s');
+  var s = slug ? LAB.find(slug) : null;
+  var main = document.querySelector('[data-main]');
+
+  if (!s) {
+    document.querySelector('[data-heading]').textContent = 'Sketch not found';
+    document.querySelector('[data-summary]').innerHTML =
+      '요청하신 스케치를 찾을 수 없습니다. <a href="index.html" style="border-bottom:2px solid var(--point)">목록으로 돌아가기</a>';
+    return;
+  }
+
+  var p = LAB.paths(s);
+  var badge = LAB.byLabel(s);
+
+  document.title = s.title + ' — Lab';
+  document.querySelector('[data-title]').textContent = s.title.toUpperCase();
+  document.querySelector('[data-heading]').textContent = s.title;
+  document.querySelector('[data-summary]').textContent = s.summary || '';
+  document.querySelector('[data-cat]').textContent =
+    [s.tech, s.year, badge].filter(Boolean).join('  ·  ');
+
+  var stage = document.querySelector('[data-stage]');
+  var box = stage.querySelector('[data-embed]');
+  box.setAttribute('data-src', p.sketch);
+  box.setAttribute('data-title', s.title + ' — 인터랙티브 스케치');
+  var poster = stage.querySelector('[data-poster]');
+  poster.onerror = function () { this.remove(); };   // 이미지가 아직 없으면 조용히 제거
+  poster.src = p.cover;
+  stage.querySelector('[data-open]').href = p.sketch;
+  stage.hidden = false;
+
+  // 제작 기록 (있을 때만)
+  if (s.making) {
+    fetch(p.making, { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function (md) {
+        // 파일 맨 위의 제목(# ...)은 페이지에 이미 떠 있으므로 빼고 렌더합니다
+        var body = md.replace(/^\s*#\s+.*\r?\n/, '');
+        document.querySelector('[data-making-body]').innerHTML = LAB.md(body);
+        document.querySelector('[data-making]').hidden = false;
+      })
+      .catch(function () { /* 파일이 없거나 file:// 로 열었을 때 — 조용히 생략 */ });
+  }
+
+  // 임베드 실행기는 data-src 가 채워진 뒤에 붙입니다
+  var tag = document.createElement('script');
+  tag.src = '../assets/js/lab-embed.js';
+  document.body.appendChild(tag);
+})();
+</script>
+</body>
+</html>

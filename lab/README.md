@@ -1,17 +1,37 @@
-# LAB — 인터랙티브 스케치 올리는 법
+# LAB — 인터랙티브 스케치
 
 ```
 lab/
-├─ index.html              LAB 목록 (카드 추가는 여기)
-├─ grid-field.html         체험 페이지 예시 ← 복사해서 늘리세요
+├─ index.html              목록 (카드는 sketches.js 에서 자동 생성 — 손대지 않음)
+├─ view.html               공용 뷰어 — view.html?s=<slug>
+├─ sketches.js             ★ 스케치 목록. 추가할 땐 여기 맨 아래 한 줄
+├─ AGENTS.md               ★ AI에게 시킬 때 먼저 읽히는 규약
 └─ sketches/
-    ├─ grid-field.html     실제 스케치 (라이브러리 없음, Canvas 2D)
-    ├─ template-p5.html     p5.js 템플릿
-    ├─ template-three.html  three.js 템플릿
-    ├─ pde-runner.html      Processing.js 러너
-    └─ pde/
-        └─ sample.pde      .pde 파일은 여기에
+    ├─ grid-field.html     스케치 본체
+    ├─ making/             제작 기록 (AI 제작물)
+    │   └─ grid-field.md
+    ├─ template-p5.html    p5.js 템플릿
+    ├─ template-three.html three.js 템플릿
+    ├─ pde-runner.html     Processing.js 러너
+    └─ pde/sample.pde
 ```
+
+## 스케치 하나 추가 = 파일 3개 새로 만들고, 한 줄 덧붙이기
+
+| 만드는 것 | 경로 |
+|---|---|
+| 스케치 본체 | `lab/sketches/<slug>.html` |
+| 카드 이미지 | `assets/img/lab/<slug>-card.png` (1200×750) |
+| 커버 이미지 | `assets/img/lab/<slug>-cover.png` (1600×900) |
+| 제작 기록 | `lab/sketches/making/<slug>.md` (AI 제작일 때) |
+| **목록 등록** | `lab/sketches.js` **맨 아래에 `LAB_ADD({...})` 한 줄** |
+
+새로 만드는 파일은 서로 겹치지 않으므로 충돌이 나지 않습니다.
+**충돌이 날 수 있는 곳은 `sketches.js` 한 곳뿐**이고, 그마저도 해결은 항상
+"두 변경 사항 모두 수락" 입니다.
+
+AI에게 시킬 때는 **`lab/AGENTS.md` 를 먼저 읽으라고 하세요.** 기술 요구사항,
+제작 기록 형식, 커밋 규칙이 전부 거기 있습니다.
 
 ---
 
@@ -28,23 +48,30 @@ lab/
 
 ## 1. 새 스케치 추가하기
 
-**① 스케치 파일을 만듭니다** — `lab/sketches/내스케치.html`
-
-`template-p5.html` / `template-three.html` 중 맞는 걸 복사해서 내용만 바꾸면 됩니다.
+**① 스케치 파일** — `lab/sketches/<slug>.html`
+`template-p5.html` / `template-three.html` 을 복사해서 내용만 바꾸거나,
 라이브러리 없이 Canvas만 쓸 거면 `grid-field.html` 을 참고하세요.
+CSS·JS를 파일 안에 넣은 **단일 HTML 한 장**이어야 합니다.
 
-**② 체험 페이지를 만듭니다** — `lab/내스케치.html`
+**② 포스터 이미지 2장** — 스케치를 실행해서 가장 잘 나온 순간을 캡처
+`assets/img/lab/<slug>-card.png` (1200×750) / `<slug>-cover.png` (1600×900)
 
-`grid-field.html` 을 복사한 뒤 네 군데만 고칩니다.
+**③ 목록에 등록** — `lab/sketches.js` 맨 아래에 한 줄
 
-| 고칠 것 | 위치 |
-|---|---|
-| 제목 · 설명 | `.lab-intro` |
-| `data-src` | `sketches/내스케치.html` |
-| 포스터 이미지 | `.embed__poster` 의 `src` (없으면 태그째 삭제) |
-| 기술 노트 3칸 | `.lab-notes` |
+```js
+LAB_ADD({
+  slug: "flow-field", title: "Flow Field", tech: "p5.js", year: "2026",
+  by: "ai", model: "GPT-5",
+  summary: "한두 문장.",
+  making: true
+});
+```
 
-**③ 목록에 카드를 추가합니다** — `lab/index.html` 의 `<a class="card card--wide">` 복사
+끝입니다. `lab/index.html` 이나 `view.html` 은 **건드리지 않습니다.**
+카드도 상세 페이지도 이 한 줄에서 자동으로 만들어집니다.
+
+`by` 가 `"ai"` / `"pair"` 면 카드에 **AI-MADE 배지**가 붙고,
+`making: true` 면 `lab/sketches/making/<slug>.md` 를 제작 기록으로 렌더합니다.
 
 ---
 
