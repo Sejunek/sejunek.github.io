@@ -582,3 +582,288 @@ body.zoom-open { overflow: hidden; }
   .lab-templates { padding: var(--s-40) 0 var(--s-64); margin-top: var(--s-40); }
   .making { padding: var(--s-64) var(--page-pad) var(--s-80); }
 }
+
+/* ============================================================
+   11. Site Nav — MENU 버튼 + 우측 슬라이드 패널
+   (Figma: 05 · Nav / Drawer Open)
+   ============================================================ */
+
+/* ---- 닫힌 상태 버튼 (우측 상단 고정) ---- */
+.navbtn {
+  position: fixed;
+  top: 40px; right: 40px;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, .88);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--border-line);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 180ms ease, background 180ms ease;
+}
+.navbtn:hover { border-color: var(--text-primary); }
+.navbtn:focus-visible { outline: 2px solid var(--point); outline-offset: 2px; }
+
+.navbtn__icon { display: block; width: 18px; }
+.navbtn__icon i {
+  display: block; height: 1.5px;
+  background: currentColor;
+  transition: transform 200ms var(--wipe-ease);
+}
+.navbtn__icon i + i { margin-top: 5px; }
+.navbtn:hover .navbtn__icon i:first-child { transform: translateX(3px); }
+
+/* 패널이 열리면 버튼은 숨깁니다 (패널 안에 CLOSE 가 있습니다) */
+.nav-open .navbtn { opacity: 0; pointer-events: none; }
+
+/* ---- 배경 딤 ---- */
+.navdrop {
+  position: fixed; inset: 0;
+  z-index: 70;
+  background: rgba(17, 17, 17, .4);
+  opacity: 0;
+  transition: opacity var(--wipe-dur) var(--wipe-ease);
+}
+.nav-open .navdrop { opacity: 1; }
+
+/* ---- 패널 ---- */
+.navpanel {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  z-index: 80;
+  width: 420px;
+  max-width: 88vw;
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  background: var(--bg-base);
+  border-left: 1px solid var(--border-line);
+  transform: translateX(100%);
+  transition: transform var(--wipe-dur) var(--wipe-ease);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.nav-open .navpanel { transform: translateX(0); }
+
+.navpanel__top { display: flex; justify-content: flex-end; }
+.navclose {
+  background: none; border: 0; padding: 0;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.navclose:focus-visible { outline: 2px solid var(--point); outline-offset: 3px; }
+
+.navlist { list-style: none; margin: 56px 0 0; padding: 0; }
+.navitem { border-bottom: 1px solid var(--border-line); }
+.navitem a {
+  display: flex; gap: 16px;
+  padding: 22px 0;
+  text-decoration: none;
+  color: inherit;
+}
+.navitem__no { color: var(--text-secondary); padding-top: 12px; }
+.navitem__text { display: block; }
+.navitem__en {
+  display: block;
+  font-family: var(--font-latin);
+  font-weight: 600;
+  font-size: 36px;
+  line-height: 42px;
+  letter-spacing: -1px;
+  color: var(--text-primary);
+  transition: color 160ms ease, transform 200ms var(--wipe-ease);
+}
+.navitem__kr { display: block; margin-top: 4px; color: var(--text-secondary); }
+
+.navitem a:hover .navitem__en { color: var(--point); transform: translateX(4px); }
+.navitem a:focus-visible { outline: 2px solid var(--point); outline-offset: 2px; }
+.navitem.is-current .navitem__no,
+.navitem.is-current .navitem__en { color: var(--point); }
+
+.navpanel__foot { margin-top: auto; padding-top: 40px; }
+.navpanel__foot p { margin: 8px 0 0; }
+.navpanel__foot a { color: inherit; text-decoration: none; }
+.navpanel__foot a:hover { color: var(--point); }
+
+/* ---- 패널이 열리면 뒤 스크롤을 막습니다 ---- */
+.nav-open { overflow: hidden; }
+
+@media (max-width: 767px) {
+  .navbtn { top: 20px; right: 20px; padding: 10px 14px; gap: 8px; }
+  .navbtn__icon { width: 16px; }
+  .navpanel { width: 330px; padding: 24px; }
+  .navlist { margin-top: 36px; }
+  .navitem a { padding: 18px 0; gap: 12px; }
+  .navitem__en { font-size: 28px; line-height: 34px; letter-spacing: -.8px; }
+  .navitem__no { padding-top: 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navdrop, .navpanel, .navitem__en, .navbtn__icon i { transition: none; }
+}
+
+/* ============================================================
+   12. Career / About — 문서형 서브 페이지
+   ============================================================ */
+.doc {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 100px var(--page-pad) 140px;
+}
+.doc__head { padding-bottom: 64px; }
+.doc__eyebrow { display: block; color: var(--point); }
+.doc__title { margin: 20px 0 0; }
+.doc__lead { margin: 20px 0 0; max-width: 62ch; color: var(--text-secondary); white-space: pre-line; }
+
+/* 섹션 구분 */
+.doc__section { border-top: 2px solid var(--text-primary); padding-top: 64px; margin-top: 24px; }
+.doc__section-head { padding-bottom: 32px; }
+.doc__section-head h2 { margin: 12px 0 0; }
+
+/* 한 줄 = 기간 + 본문 */
+.rec {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 56px;
+  padding: 40px 0;
+  border-top: 1px solid var(--border-line);
+}
+.rec__when { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.rec__dur { color: var(--text-secondary); }
+.tag {
+  display: inline-block;
+  padding: 4px 8px;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  font-family: var(--font-latin);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 1.2px;
+}
+.tag--on { background: var(--point); color: var(--text-inverse); }
+
+.rec__org {
+  margin: 0;
+  font-family: var(--font-kr);
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 34px;
+  letter-spacing: -.6px;
+  color: var(--text-primary);
+}
+.rec__role { display: block; margin-top: 6px; color: var(--text-secondary); }
+.rec__desc { margin: 6px 0 0; color: var(--text-secondary); }
+.rec__prize { margin: 6px 0 0; }
+.rec__prize b { color: var(--point); font-weight: 500; }
+.rec__prize span { color: var(--text-secondary); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; }
+.chips li {
+  padding: 6px 10px;
+  border: 1px solid var(--border-line);
+  color: var(--text-secondary);
+  font-family: var(--font-kr);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.projs { margin: 26px 0 0; padding: 0; list-style: none; display: grid; gap: 20px; }
+.projs li { padding-left: 16px; border-left: 2px solid var(--border-line); }
+.projs h4 {
+  margin: 0;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px;
+  font-family: var(--font-kr);
+  font-weight: 500;
+  font-size: 17px;
+  line-height: 26px;
+  color: var(--text-primary);
+}
+.projs p { margin: 6px 0 0; color: var(--text-secondary); }
+
+/* ---- About: 프로필 ---- */
+.bio { display: grid; grid-template-columns: 360px 1fr; gap: 64px; padding-bottom: 80px; }
+.bio__photo {
+  aspect-ratio: 360 / 450;
+  background: var(--bg-subtle);
+  position: relative;
+  overflow: hidden;
+}
+.bio__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bio__photo-ph {
+  position: absolute; left: 24px; bottom: 24px;
+  color: var(--text-secondary);
+}
+.bio__name {
+  margin: 0;
+  font-family: var(--font-kr);
+  font-weight: 500;
+  font-size: 44px;
+  line-height: 56px;
+  letter-spacing: -1.5px;
+}
+.bio__role { display: block; margin-top: 4px; color: var(--text-secondary); }
+.bio__intro { margin: 32px 0 0; white-space: pre-line; }
+.facts { margin: 40px 0 0; }
+.facts__row {
+  display: grid; grid-template-columns: 120px 1fr; gap: 32px;
+  align-items: center;
+  padding: 16px 0;
+  border-top: 1px solid var(--border-line);
+}
+.facts__key { color: var(--text-secondary); }
+.facts a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--border-line); }
+.facts a:hover { color: var(--point); border-color: var(--point); }
+
+/* ---- About: 연혁 ---- */
+.tl { margin: 0; padding: 0; list-style: none; }
+.tl li {
+  display: grid;
+  grid-template-columns: 90px 10px 56px 1fr;
+  gap: 24px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border-line);
+}
+.tl__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border-line); }
+.tl__what { color: var(--text-primary); }
+.tl li.is-now .tl__when { color: var(--point); }
+.tl li.is-now .tl__dot { width: 9px; height: 9px; background: var(--point); }
+.tl li.is-now .tl__what { font-weight: 500; }
+.tl__kind {
+  justify-self: start;
+  padding: 3px 8px;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  font-family: var(--font-kr);
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+@media (max-width: 1023px) {
+  .doc { padding: 80px var(--page-pad) 100px; }
+  .rec { grid-template-columns: 200px 1fr; gap: 32px; }
+  .bio { grid-template-columns: 300px 1fr; gap: 40px; }
+}
+
+@media (max-width: 767px) {
+  .doc { padding: 56px 24px 80px; }
+  .doc__head { padding-bottom: 40px; }
+  .doc__section { padding-top: 48px; }
+
+  .rec { grid-template-columns: 1fr; gap: 16px; padding: 28px 0; }
+  .rec__when { flex-direction: row; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .rec__org { font-size: 21px; line-height: 29px; }
+
+  .bio { grid-template-columns: 1fr; gap: 28px; padding-bottom: 56px; }
+  .bio__name { font-size: 32px; line-height: 42px; letter-spacing: -1px; }
+  .facts__row { grid-template-columns: 1fr; gap: 6px; align-items: start; }
+
+  .tl li { grid-template-columns: 64px 10px 56px 1fr; gap: 12px; }
+}

@@ -34,7 +34,7 @@
 window.PROJECTS = [
 
 { slug:"crown", title:"Crown Haitai E-commerce", cat:"VISUAL · ECOMMERCE", filter:"visual",
-  year:"2026", period:"2025 — 재직 중",
+  year:"2026", period:"2026.07 — 재직 중",
   role:"이커머스 전반 디자인 관리 및 제작 · 웹 상세페이지 · 영상 제작 · AI Generate Image 목업 · 제품 브랜드 비주얼 관리",
   tool:"Figma · Adobe Ps · Ai · Ae",
   summary:"이커머스 채널 전반의 디자인을 관리하고 직접 제작합니다. 웹 상세페이지와 영상을 만들고, AI 생성 이미지를 활용한 목업으로 제품 브랜드 비주얼을 관리합니다." },
