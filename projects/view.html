@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project — Portfolio</title>
+<meta name="description" content="프로젝트 상세.">
+<meta property="og:type" content="article">
+
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<!-- ============================================================
+     공용 상세 뷰어 — view.html?p=<slug>
+     프로젝트마다 페이지를 따로 만들지 않습니다.
+     projects.js 에 한 줄 추가하면 이 페이지가 알아서 렌더합니다.
+     이미지는 파일 이름만 맞으면 자동으로 붙고, 없으면 조용히 빠집니다.
+     ============================================================ -->
+
+<header class="detail-header">
+  <a class="t-mono" href="../index.html">&larr; &nbsp;INDEX</a>
+  <span class="t-mono detail-header__title" data-title>PROJECT</span>
+  <a class="t-mono" data-nextlink href="../index.html">NEXT &nbsp;&rarr;</a>
+</header>
+
+<main>
+  <section class="detail-intro">
+    <div>
+      <span class="t-mono detail-intro__cat" data-cat></span>
+      <h1 class="t-display detail-intro__title" data-heading>—</h1>
+      <p class="t-body muted detail-intro__sum" data-summary></p>
+    </div>
+    <dl class="meta">
+      <div class="meta__row"><dt class="t-mono meta__key">ROLE</dt><dd class="t-body-s" data-role></dd></div>
+      <div class="meta__row"><dt class="t-mono meta__key">PERIOD</dt><dd class="t-body-s" data-period></dd></div>
+      <div class="meta__row"><dt class="t-mono meta__key">TOOL</dt><dd class="t-body-s" data-tool></dd></div>
+      <div class="meta__row"><dt class="t-mono meta__key">TYPE</dt><dd class="t-body-s" data-type></dd></div>
+    </dl>
+  </section>
+
+  <div class="stack" data-stack></div>
+
+  <p class="t-mono muted" data-empty hidden
+     style="padding:0 var(--pad, 40px) 80px; text-align:center">
+    이미지 준비 중입니다.
+  </p>
+
+  <a class="next" data-next href="../index.html">
+    <span>
+      <span class="t-mono next__label">NEXT PROJECT</span>
+      <span class="t-display next__title" data-next-title></span>
+    </span>
+    <span class="t-display next__arrow">&rarr;</span>
+  </a>
+</main>
+
+<footer class="detail-footer">
+  <p class="t-label"><a href="mailto:lafamila325@gmail.com">lafamila325@gmail.com</a></p>
+  <p class="t-mono muted">© 2026. ALL RIGHTS RESERVED.</p>
+</footer>
+
+<script src="projects.js"></script>
+<script>
+(function () {
+  var slug = new URLSearchParams(location.search).get('p');
+  var p = slug ? PJ.find(slug) : null;
+
+  if (!p) {
+    document.querySelector('[data-heading]').textContent = 'Project not found';
+    document.querySelector('[data-summary]').innerHTML =
+      '요청하신 프로젝트를 찾을 수 없습니다. <a href="../index.html" style="border-bottom:2px solid var(--point)">목록으로 돌아가기</a>';
+    return;
+  }
+
+  document.title = p.title + ' — Portfolio';
+  document.querySelector('[data-title]').textContent = p.title.toUpperCase();
+  document.querySelector('[data-heading]').textContent = p.title;
+  document.querySelector('[data-summary]').textContent = p.summary || '';
+  document.querySelector('[data-cat]').textContent = p.cat + '  ·  ' + p.year;
+  document.querySelector('[data-role]').textContent = p.role || '';
+  document.querySelector('[data-period]').textContent = p.period || '';
+  document.querySelector('[data-tool]').textContent = p.tool || '';
+  document.querySelector('[data-type]').textContent = p.cat || '';
+
+  var nx = PJ.next(p.slug);
+  if (nx) {
+    document.querySelector('[data-next]').href = 'view.html?p=' + nx.slug;
+    document.querySelector('[data-nextlink]').href = 'view.html?p=' + nx.slug;
+    document.querySelector('[data-next-title]').textContent = nx.title;
+  }
+
+  // ---- 이미지 스택 -------------------------------------------------
+  // 파일이 실제로 있는지 먼저 확인하고, 있는 장만 순서대로 붙입니다.
+  var stack = document.querySelector('[data-stack]');
+  var shots = PJ.shots(p, '../');
+
+  function probe(src) {
+    return new Promise(function (res) {
+      var im = new Image();
+      im.onload  = function () { res({ ok: true, w: im.naturalWidth, h: im.naturalHeight }); };
+      im.onerror = function () { res({ ok: false }); };
+      im.src = src;
+    });
+  }
+
+  Promise.all(shots.map(function (s) {
+    return Promise.all([probe(s.pc), probe(s.mo)]).then(function (r) {
+      return { shot: s, pc: r[0], mo: r[1] };
+    });
+  })).then(function (results) {
+    var shown = 0;
+    results.forEach(function (r) {
+      if (!r.pc.ok) return;
+      var pic = document.createElement('picture');
+      if (r.mo.ok) {
+        var src = document.createElement('source');
+        src.media = '(max-width: 767px)';
+        src.srcset = r.shot.mo;
+        pic.appendChild(src);
+      }
+      var img = document.createElement('img');
+      img.src = r.shot.pc;
+      img.alt = p.title + ' — ' + r.shot.name;
+      img.width = r.pc.w; img.height = r.pc.h;   // CLS 방지
+      img.loading = shown === 0 ? 'eager' : 'lazy';
+      img.decoding = 'async';
+      pic.appendChild(img);
+      stack.appendChild(pic);
+      shown++;
+    });
+    if (shown === 0) document.querySelector('[data-empty]').hidden = false;
+
+    // 확대 보기는 이미지가 붙은 다음에 연결합니다
+    var tag = document.createElement('script');
+    tag.src = '../assets/js/zoom.js';
+    document.body.appendChild(tag);
+  });
+})();
+</script>
+</body>
+</html>
