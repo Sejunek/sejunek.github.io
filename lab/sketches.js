@@ -49,3 +49,4 @@ LAB_ADD({
 LAB_ADD({ slug: "memory-surface", title: "Memory Surface", tech: "CANVAS 2D", year: "2026", by: "ai", model: "GPT-6", summary: "손끝의 압력을 잠시 기억하는 푸른 표면. 눌러 형태를 만들고, 놓아 파동을 전하세요.", making: true });
 LAB_ADD({ slug: "moire-lens", title: "Moiré Lens", tech: "CANVAS 2D", year: "2026", by: "ai", model: "GPT-6 Astra Light", summary: "같은 선, 다른 각도. 렌즈를 옮기고 각도를 바꾸면 두 겹의 선 사이에서 새로운 무늬가 나타납니다.", making: true });
 LAB_ADD({ slug: "laputa", title: "Laputa", tech: "three.js", year: "2026", by: "pair", model: "GPT-6 Astra Light", summary: "하늘 위 오래된 성을 탐색합니다. 드래그로 돌아보고, 휠로 가까이 다가가고, 더블클릭으로 작은 장소를 발견하세요.", making: true });
+LAB_ADD({ slug: "laputa-skyward", title: "Laputa / Skyward", tech: "three.js", year: "2026", by: "pair", model: "GPT-6 Astra Light", summary: "구름 사이를 돌아 하늘 위 성으로 다가갑니다. 느린 하늘과 함께 라퓨타를 탐색하는 두 번째 장면.", making: true });
