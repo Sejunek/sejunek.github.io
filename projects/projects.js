@@ -45,6 +45,12 @@ window.PROJECTS = [
   tool:"Figma",
   summary:"아동 투자·금융교육 플랫폼 기획입니다. 학부모 FGI와 금융교육 관계자 인터뷰를 진행했고, 전문 투자자 자문에서 나온 상반된 의견을 반영해 투자 지식 교육이 아닌 '투자 기질 점검과 반복 실수 경고' 방향으로 기획을 좁혔습니다." },
 
+{ slug:"kuip", title:"KU IP Character — 3D & Sculpture", cat:"VR · 3D", filter:"vr3d",
+  year:"2025", period:"2025.09 — 2025.12",
+  role:"고려대학교 IP 캐릭터 3D 모델링 · 170cm 대형 조형물 제작",
+  tool:"Blender · 3D 조형",
+  summary:"고려대학교 디자인혁신센터 혁신단에서 진행한 IP 캐릭터 작업입니다. 캐릭터를 3D로 직접 모델링했고, 이 모델을 바탕으로 높이 170cm 의 대형 조형물로 제작했습니다. 화면 안에서 끝나지 않고 실물로 세워진 작업입니다." },
+
 { slug:"lgcx", title:"LG Electronics CX Challenge", cat:"UX·UI DESIGN", filter:"uxui",
   year:"2025", period:"2025.03 — 2025.06",
   role:"LG전자 CX에 대한 혁신적 접근과 문제 해결 제안",

@@ -334,12 +334,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   .site-footer > * + * { margin-top: 10px; }
 
   /* detail */
-  .detail-header { padding: 18px var(--page-pad); padding-right: 170px; }
+  .detail-header { padding: 18px var(--page-pad); padding-right: 140px; }
   .detail-header__title { display: none; }
-
-  /* 우측 상단 MENU 버튼 자리 — 본문 글자가 그 아래로 들어가지 않게 */
-  .doc__head { padding-right: 150px; }
-  .rail__hero { max-width: calc(100% - 140px); }
   .detail-intro {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--s-40);
@@ -352,9 +348,6 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* --- Mobile 375 --- */
 @media (max-width: 767px) {
   :root { --page-pad: 20px; --grid-gap-x: 10px; --grid-gap-y: 28px; }
-  .detail-header { padding-right: 130px; }
-  .doc__head { padding-right: 120px; }
-  .rail__hero { max-width: calc(100% - 110px); }
   .rail { padding: 36px var(--page-pad); }
   .rail__hero { font-size: 30px; line-height: 36px; }
   .rail__desc { font-size: 14px; line-height: 24px; }
@@ -740,7 +733,7 @@ body.zoom-open { overflow: hidden; }
   padding: 100px var(--page-pad) 140px;
 }
 .doc__head { padding-bottom: 64px; }
-.doc__eyebrow { display: block; width: max-content; color: var(--point); }
+.doc__eyebrow { display: block; color: var(--point); }
 .doc__title { margin: 20px 0 0; }
 .doc__lead { margin: 20px 0 0; max-width: 62ch; color: var(--text-secondary); white-space: pre-line; }
 
@@ -814,7 +807,7 @@ body.zoom-open { overflow: hidden; }
 /* ---- About: 프로필 ---- */
 .bio { display: grid; grid-template-columns: 360px 1fr; gap: 64px; padding-bottom: 80px; }
 .bio__photo {
-  aspect-ratio: 360 / 450;
+  aspect-ratio: 2 / 3;          /* 전신 사진 비율 */
   background: var(--bg-subtle);
   position: relative;
   overflow: hidden;
