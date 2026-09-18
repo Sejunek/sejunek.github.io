@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Moiré Lens — Lab</title><link rel="icon" href="data:,">
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#fff;color:#111;font-family:Archivo,"Helvetica Neue",Arial,sans-serif}canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}canvas:active{cursor:grabbing}header{position:absolute;top:32px;left:36px;pointer-events:none}small{font-size:11px;letter-spacing:1.2px;color:#8a8a8a}h1{font-size:clamp(38px,6vw,78px);line-height:.95;letter-spacing:-.065em;margin:18px 0}header p{font-size:12px;line-height:1.8;color:#8a8a8a}.controls{position:absolute;right:36px;top:32px;display:flex;gap:12px;align-items:center;background:#fffffff2;padding:10px}label,button,output{font-size:11px;letter-spacing:1.2px}input{width:100px;accent-color:#2d45ff}output{width:38px;color:#2d45ff}button{background:white;border:1px solid #c9c9c6;padding:10px;cursor:pointer}button:focus-visible,canvas:focus-visible{outline:2px solid #2d45ff;outline-offset:-3px}footer{position:absolute;bottom:24px;left:36px;right:36px;display:flex;justify-content:space-between;border-top:1px solid #c9c9c6;padding-top:16px;pointer-events:none;font-size:11px;letter-spacing:1.2px;color:#8a8a8a}.blue{color:#2d45ff}#fallback{position:absolute;top:50%;width:100%;text-align:center}#fallback[hidden]{display:none}@media(max-width:600px){header{left:22px;top:24px}header p{max-width:180px}.controls{top:auto;bottom:83px;left:18px;right:auto;gap:8px}footer{left:22px;right:22px;line-height:1.8}footer span:last-child{display:none}}@media(max-height:450px){header p{display:none}h1{font-size:36px}.controls{top:18px;bottom:auto;left:auto;right:18px}}
+</style>
+</head>
+<body>
+<canvas tabindex="0" aria-label="모아레 렌즈. 드래그 또는 방향키로 이동하고 각도 슬라이더로 무늬를 바꿉니다."></canvas>
+<header><small><span class="blue">LAB / OPTICAL STUDY</span></small><h1>Moiré<br>Lens.</h1><p>같은 선, 다른 각도.<br>겹치는 순간 새로운 무늬가 된다.</p></header>
+<div class="controls"><label for="angle">ANGLE</label><input id="angle" type="range" min="2" max="30" step="0.1" value="9" aria-label="겹치는 선의 각도"><output for="angle">9.0°</output><button id="reset">RESET</button></div>
+<footer><span>DRAG TO SHIFT · ARROWS TO MOVE</span><span>INTERFERENCE / <b class="blue">01</b></span></footer>
+<p id="fallback" hidden>Canvas를 지원하는 브라우저에서 열어주세요.</p><noscript>이 스케치를 실행하려면 JavaScript를 켜주세요.</noscript>
+<script>
+(()=>{'use strict';
+const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d',{alpha:false});
+if(!ctx){document.querySelector('#fallback').hidden=false;return;}
+const slider=document.querySelector('input'),output=document.querySelector('output'),reduce=matchMedia('(prefers-reduced-motion: reduce)');
+let w=1,h=1,dpr=1,x=.61,y=.53,tx=x,ty=y,raf=0,last=0,pointer=null;
+function draw(){
+ ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+ const mobile=w<600,r=Math.min(w*(mobile?.40:.25),h*.33),cx=w*(mobile?.5:.57),cy=h*(mobile?.49:.54),lx=x*w,ly=y*h;
+ const spacing=6;
+ function disc(px,py,angle,ink){ctx.save();ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.clip();ctx.translate(px,py);ctx.rotate(angle);ctx.strokeStyle=ink;ctx.lineWidth=1.65;ctx.beginPath();for(let i=-r*1.5;i<r*1.5;i+=spacing){ctx.moveTo(i,-r*1.5);ctx.lineTo(i,r*1.5);}ctx.stroke();ctx.restore();}
+ disc(cx,cy,0,'#111111');disc(lx,ly,Number(slider.value)*Math.PI/180,'#2D45FF');
+ ctx.strokeStyle='#2D45FF';ctx.lineWidth=1;ctx.beginPath();ctx.arc(lx,ly,r+9,0,Math.PI*2);ctx.stroke();
+ ctx.fillStyle='#2D45FF';ctx.beginPath();ctx.arc(lx+r+9,ly,3,0,Math.PI*2);ctx.fill();
+}
+function frame(time){raf=0;if(document.hidden||reduce.matches)return;const dt=last?Math.min((time-last)/1000,.05):1/60;last=time;const a=1-Math.exp(-14*dt);x+=(tx-x)*a;y+=(ty-y)*a;draw();if(Math.abs(tx-x)+Math.abs(ty-y)>.00005)raf=requestAnimationFrame(frame);else{last=0;x=tx;y=ty;draw();}}
+function render(){if(document.hidden)return;if(reduce.matches){cancelAnimationFrame(raf);raf=0;x=tx;y=ty;draw();}else if(!raf)raf=requestAnimationFrame(frame);}
+function resize(){w=innerWidth;h=innerHeight;dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);render();}
+function move(e){tx=Math.max(.08,Math.min(.92,e.clientX/w));ty=Math.max(.15,Math.min(.85,e.clientY/h));render();}
+canvas.addEventListener('pointerdown',e=>{if(pointer!==null)return;pointer=e.pointerId;canvas.setPointerCapture(pointer);canvas.focus();move(e);});
+canvas.addEventListener('pointermove',e=>{if(e.pointerId===pointer)move(e);});
+function release(e){if(e.pointerId===pointer)pointer=null;}
+canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',release);
+canvas.addEventListener('keydown',e=>{const delta={ArrowLeft:[-.025,0],ArrowRight:[.025,0],ArrowUp:[0,-.025],ArrowDown:[0,.025]}[e.key];if(delta){e.preventDefault();tx=Math.max(.08,Math.min(.92,tx+delta[0]));ty=Math.max(.15,Math.min(.85,ty+delta[1]));render();}});
+slider.addEventListener('input',()=>{output.value=Number(slider.value).toFixed(1)+'°';render();});
+document.querySelector('#reset').addEventListener('click',()=>{tx=w<600?.54:.61;ty=w<600?.49:.53;slider.value=9;output.value='9.0°';render();});
+document.addEventListener('visibilitychange',()=>{cancelAnimationFrame(raf);raf=0;last=0;if(!document.hidden)render();});
+reduce.addEventListener('change',()=>{cancelAnimationFrame(raf);raf=0;last=0;render();});
+addEventListener('resize',resize);if(innerWidth<600){x=tx=.54;y=ty=.49;}resize();
+})();
+</script>
+</body></html>

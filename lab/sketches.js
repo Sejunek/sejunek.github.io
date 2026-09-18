@@ -47,3 +47,4 @@ LAB_ADD({
 
 /* 새 스케치는 이 아래에 ↓ */
 LAB_ADD({ slug: "memory-surface", title: "Memory Surface", tech: "CANVAS 2D", year: "2026", by: "ai", model: "GPT-6", summary: "손끝의 압력을 잠시 기억하는 푸른 표면. 눌러 형태를 만들고, 놓아 파동을 전하세요.", making: true });
+LAB_ADD({ slug: "moire-lens", title: "Moiré Lens", tech: "CANVAS 2D", year: "2026", by: "ai", model: "GPT-6 Astra Light", summary: "같은 선, 다른 각도. 렌즈를 옮기고 각도를 바꾸면 두 겹의 선 사이에서 새로운 무늬가 나타납니다.", making: true });
