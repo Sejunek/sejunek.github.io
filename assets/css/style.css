@@ -128,11 +128,14 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* ---- 4c. Project grid ---- */
 .grid {
   display: grid;
+  /* 기본 3열. 화면이 넓어지면 4 → 5 로 늘어납니다 (최대 5, 최소 3) */
   grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: var(--grid-gap-x);
   row-gap: var(--grid-gap-y);
   padding-top: var(--s-32);
 }
+@media (min-width: 1280px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 1600px) { .grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
 
 /* ---- 4d. Card ---- */
 .card { display: block; }
@@ -172,10 +175,12 @@ ul { margin: 0; padding: 0; list-style: none; }
   transform: translateY(8px);
   transition: opacity 240ms ease 60ms, transform 240ms ease 60ms;
 }
-.card__panel-title { font-family: var(--font-latin); font-weight: 600; font-size: 32px; line-height: 38px; letter-spacing: -.8px; }
+.card__panel-title { font-family: var(--font-latin); font-weight: 600; font-size: 20px; line-height: 25px; letter-spacing: -.4px; }
 .card__view { display: block; margin-top: 10px; }
 
 .card__caption { padding-top: var(--s-16); }
+.card__caption h3 { font-size: 15px; line-height: 21px; letter-spacing: -.2px; }
+.card__caption p { font-size: 11px; letter-spacing: .9px; }
 .card__caption h3 { transition: color 200ms ease; }
 .card__caption p { margin-top: 6px; }
 
@@ -282,6 +287,13 @@ ul { margin: 0; padding: 0; list-style: none; }
   .rail__desc { max-width: 340px; }
 }
 
+/* --- 좁은 데스크탑(1280 아래): 사이드바를 더 줄여야 카드 3장이 살아납니다 --- */
+@media (max-width: 1279px) {
+  :root { --rail-w: 340px; --page-pad: 40px; }
+  .content { padding-right: var(--s-40); }
+  .rail__hero { font-size: 40px; line-height: 48px; }
+}
+
 /* --- Tablet 768: rail unpins and stacks on top, 2 columns --- */
 @media (max-width: 1023px) {
   :root { --page-pad: 40px; --grid-gap-x: 20px; --grid-gap-y: 48px; }
@@ -305,11 +317,11 @@ ul { margin: 0; padding: 0; list-style: none; }
   .metabar__period { display: none; }
   .tabs { gap: 28px; flex-wrap: nowrap; }
   .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     padding: var(--s-40) var(--page-pad) 0;
   }
-  .card__panel { padding: var(--s-24); }
-  .card__panel-title { font-size: 24px; line-height: 30px; }
+  .card__panel { padding: var(--s-16); }
+  .card__panel-title { font-size: 18px; line-height: 23px; }
   .card__ph { padding: var(--s-24); }
 
   .site-footer {
@@ -333,17 +345,19 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 /* --- Mobile 375 --- */
 @media (max-width: 767px) {
-  :root { --page-pad: 20px; --grid-gap-x: 13px; --grid-gap-y: 32px; }
+  :root { --page-pad: 20px; --grid-gap-x: 10px; --grid-gap-y: 28px; }
   .rail { padding: 36px var(--page-pad); }
   .rail__hero { font-size: 30px; line-height: 36px; }
   .rail__desc { font-size: 14px; line-height: 24px; }
   .tabs { gap: 20px; }
   .tab { font-size: 15px; }
-  .card__panel { padding: 14px; }
-  .card__panel-title { font-size: 15px; line-height: 19px; letter-spacing: -.2px; }
-  .card__ph { padding: 14px; }
-  .card__caption h3 { font-size: 14px; line-height: 20px; }
-  .card__caption p, .card__view, .card__panel .t-mono { font-size: 10px; letter-spacing: .8px; }
+  /* 3열이라 카드가 105px 남짓입니다 — 글자를 그만큼 줄입니다 */
+  .card__panel { padding: 10px; }
+  .card__panel-title { font-size: 13px; line-height: 16px; letter-spacing: -.3px; }
+  .card__ph { padding: 10px; font-size: 9px; letter-spacing: .6px; }
+  .card__caption { padding-top: 10px; }
+  .card__caption h3 { font-size: 11px; line-height: 15px; letter-spacing: -.2px; }
+  .card__caption p, .card__view, .card__panel .t-mono { font-size: 9px; letter-spacing: .6px; }
 
   .detail-intro__title { font-size: 32px; line-height: 38px; }
   .meta__key { flex-basis: 72px; }
