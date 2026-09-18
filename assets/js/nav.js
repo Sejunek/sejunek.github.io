@@ -71,7 +71,7 @@
   });
   html += '</ul><div class="navpanel__foot">' +
           '<span class="t-mono muted">CONTACT</span>' +
-          '<p class="t-label"><a href="mailto:lafamila325@gmail.com">lafamila325@gmail.com</a></p>' +
+          '<p class="t-label"><a href="mailto:sejunek@naver.com">sejunek@naver.com</a></p>' +
           '<p class="t-mono muted">' +
             '<a href="#" target="_blank" rel="noopener">BEHANCE</a> · ' +
             '<a href="#" target="_blank" rel="noopener">NOTION</a> · ' +
