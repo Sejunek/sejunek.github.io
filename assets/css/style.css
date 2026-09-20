@@ -154,7 +154,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .card__ph {
   position: absolute; inset: 0;
   display: flex; align-items: flex-end;
-  padding: var(--s-32);
+  padding: 20px;
   color: var(--text-secondary);
 }
 
@@ -165,7 +165,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: var(--s-32);
+  padding: 20px;
   transform: translateX(-100%);
   transition: transform var(--wipe-dur) var(--wipe-ease);
   will-change: transform;
@@ -324,7 +324,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   }
   .card__panel { padding: var(--s-16); }
   .card__panel-title { font-size: 18px; line-height: 23px; }
-  .card__ph { padding: var(--s-24); }
+  .card__ph { padding: var(--s-16); }
 
   .site-footer {
     display: block;
