@@ -83,6 +83,26 @@
   document.body.appendChild(backdrop);
   document.body.appendChild(panel);
 
+  /* ---------- 상단 바가 있으면 그 안에 세로 중앙으로 ----------
+     .detail-header 는 얇은 막대라 버튼이 그 아래 선에 걸치기 쉽습니다.
+     바 높이와 버튼 높이를 재서 정확히 가운데에 놓습니다.
+     바가 없는 페이지(메인 등)에서는 CSS 기본값을 그대로 씁니다. */
+  function placeButton() {
+    var bar = document.querySelector('.detail-header');
+    if (!bar) {
+      document.documentElement.style.removeProperty('--navbtn-top');
+      return;
+    }
+    var bh = bar.getBoundingClientRect().height;
+    var nh = btn.getBoundingClientRect().height;
+    if (!bh || !nh) return;
+    var top = Math.max(6, Math.round((bh - nh) / 2));
+    document.documentElement.style.setProperty('--navbtn-top', top + 'px');
+  }
+  placeButton();
+  window.addEventListener('resize', placeButton);
+  window.addEventListener('load', placeButton);
+
   /* ---------- 열고 닫기 ---------- */
   var open = false;
   var lastFocus = null;

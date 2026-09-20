@@ -334,8 +334,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   .site-footer > * + * { margin-top: 10px; }
 
   /* detail */
-  /* MENU 버튼도 헤더(높이 53px) 안에 들어오게 — 태블릿부터 적용 */
-  .navbtn { top: 9px; right: 24px; padding: 8px 12px; }
+  .navbtn { right: 24px; padding: 8px 12px; }
+  :root { --navbtn-top: 20px; }
   .detail-header { padding: 18px var(--page-pad); padding-right: 140px; }
   .detail-header__title { display: none; }
   .detail-intro {
@@ -668,7 +668,9 @@ body.zoom-open { overflow: hidden; }
 /* ---- 닫힌 상태 버튼 (우측 상단 고정) ---- */
 .navbtn {
   position: fixed;
-  top: 40px; right: 40px;
+  /* 상단 바가 있는 페이지에서는 nav.js 가 --navbtn-top 을 바 높이에 맞춰 넣습니다.
+     바가 없는 페이지(메인 등)에서는 아래 기본값을 그대로 씁니다. */
+  top: var(--navbtn-top, 40px); right: 40px;
   z-index: 60;
   display: inline-flex;
   align-items: center;
@@ -774,8 +776,7 @@ body.zoom-open { overflow: hidden; }
 .nav-open { overflow: hidden; }
 
 @media (max-width: 767px) {
-  /* 상단 헤더(높이 53px) 안에 들어오도록 — 아래 선에 걸치지 않게 합니다 */
-  .navbtn { top: 9px; right: 20px; padding: 8px 12px; gap: 8px; }
+  .navbtn { right: 20px; padding: 8px 12px; gap: 8px; }
   .navbtn__icon { width: 16px; }
   .navpanel { width: 330px; padding: 24px; }
   .navlist { margin-top: 36px; }
