@@ -11,3 +11,7 @@ desktop.ini
 # 작업용 임시 파일
 *.tmp
 *~
+
+# 영상 원본은 커밋하지 않습니다 (웹용 변환본만 올립니다)
+assets/video/*_vdo.mp4
+assets/video/*원본*
