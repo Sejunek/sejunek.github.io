@@ -36,6 +36,37 @@
       box.appendChild(frame);
       if (cover) cover.remove();
       box.setAttribute('data-running', 'true');
+      addShield();
+    }
+
+    /* ---- 터치 기기용 가림막 ----------------------------------------
+       스케치 캔버스는 touch-action:none 이라 손가락이 그 위에 닿으면
+       페이지가 스크롤되지 않습니다. 스케치가 화면의 절반을 차지하니
+       위로 되돌아갈 때 스크롤이 막힌 것처럼 느껴집니다.
+       그래서 기본은 '가림막이 덮인 상태'로 두고, 한 번 눌러야
+       조작이 시작되게 합니다. 마우스 환경에서는 CSS 로 숨겨집니다. */
+    function addShield() {
+      if (box.querySelector('.embed__shield')) return;
+
+      var shield = document.createElement('button');
+      shield.className = 'embed__shield t-mono';
+      shield.type = 'button';
+      shield.innerHTML = '<span>탭해서 조작하기</span>';
+
+      var unlock = document.createElement('button');
+      unlock.className = 'embed__unlock t-mono';
+      unlock.type = 'button';
+      unlock.textContent = '스크롤';
+
+      shield.addEventListener('click', function () {
+        box.setAttribute('data-interactive', 'true');
+      });
+      unlock.addEventListener('click', function () {
+        box.removeAttribute('data-interactive');
+      });
+
+      box.appendChild(shield);
+      box.appendChild(unlock);
     }
 
     if (cover) cover.addEventListener('click', run);

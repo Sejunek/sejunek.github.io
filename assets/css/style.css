@@ -433,6 +433,40 @@ ul { margin: 0; padding: 0; list-style: none; }
   border: 1px solid var(--border-line);
   overflow: hidden;
 }
+/* 터치 기기: 실행된 스케치 위에 가림막을 둡니다.
+   스케치 캔버스는 touch-action:none 이라, 손가락이 스케치 위에 닿으면
+   페이지가 스크롤되지 않습니다. 한 번 눌러 조작을 시작하고,
+   '스크롤' 버튼으로 다시 가림막을 덮습니다. */
+.embed__shield {
+  position: absolute; inset: 0; z-index: 3;
+  display: none;
+  /* 스케치 자체의 하단 안내문과 겹치지 않게 위쪽에 둡니다 */
+  align-items: flex-start; justify-content: center;
+  padding-top: 14px;
+  background: transparent; border: 0;
+  cursor: pointer;
+  font-size: 11px; letter-spacing: 1.2px;
+  color: var(--text-secondary);
+}
+.embed__shield span,
+.embed__unlock {
+  background: rgba(255, 255, 255, .92);
+  border: 1px solid var(--border-line);
+  padding: 8px 12px;
+}
+.embed__unlock {
+  position: absolute; top: 10px; right: 10px; z-index: 4;
+  display: none;
+  font-size: 11px; letter-spacing: 1.2px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+@media (pointer: coarse) {
+  .embed[data-running] .embed__shield { display: flex; }
+  .embed[data-interactive] .embed__shield { display: none; }
+  .embed[data-interactive] .embed__unlock { display: block; }
+}
+
 .embed iframe {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
@@ -731,6 +765,10 @@ body.zoom-open { overflow: hidden; }
 .navpanel__foot p { margin: 8px 0 0; }
 .navpanel__foot a { color: inherit; text-decoration: none; }
 .navpanel__foot a:hover { color: var(--point); }
+
+/* hidden 속성이 클래스 규칙에 밀려 무시되고 있었습니다.
+   닫힌 패널이 화면 밖에 계속 살아 있어 포커스·터치에 잡혔습니다. */
+.navpanel[hidden], .navdrop[hidden] { display: none; }
 
 /* ---- 패널이 열리면 뒤 스크롤을 막습니다 ---- */
 .nav-open { overflow: hidden; }
