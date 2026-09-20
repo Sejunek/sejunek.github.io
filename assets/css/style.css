@@ -396,6 +396,9 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 /* 목록 — 메인 그리드와 같은 규칙: 최대 5열, 최소 3열 */
 .grid--lab { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* 폰에서는 2열. LAB 카드는 가로형(16:10)이라 3열로 쪼개면 세로가 57px밖에 안 남습니다.
+   작업물 카드(세로형 3:4)는 3열을 유지합니다. */
+@media (max-width: 767px) { .grid--lab { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1280px) { .grid--lab { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (min-width: 1600px) { .grid--lab { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
 .card--wide .card__visual { aspect-ratio: 16 / 10; }
@@ -483,7 +486,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .lab-notes h3 { margin-bottom: 10px; }
 
 @media (max-width: 1023px) {
-  /* .grid--lab 은 3열을 유지합니다 */
+  /* .grid--lab 은 태블릿까지 3열, 767 이하에서 2열 (위 규칙 참고) */
   .lab-intro { padding: var(--s-64) var(--page-pad) var(--s-40); }
   .lab-stage { padding: 0 var(--page-pad) var(--s-64); }
   .embed { height: min(75vw, calc(100vh - 230px)); }
