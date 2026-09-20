@@ -4,6 +4,10 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>별 헤는 밤 — Lab</title><link rel="icon" href="data:,">
 <style>
+/* 모바일에서 길게 누를 때 텍스트가 선택되거나 확대/복사 메뉴가 뜨지 않도록 합니다.
+   이 스케치는 '꾹 누르기'가 조작이라 브라우저 기본 동작과 부딪힙니다. */
+html,body,canvas{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:#05070d;color:#e8ecf5;
   font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
@@ -18,14 +22,16 @@ footer{position:absolute;bottom:22px;left:28px;right:28px;display:flex;
 #word.on{opacity:1}
 #fallback{position:absolute;top:50%;width:100%;text-align:center;color:#6b7489}
 #fallback[hidden]{display:none}
-@media(max-width:600px){footer{left:18px;right:18px;bottom:16px;font-size:10px}}
+#hint-en{font-weight:inherit}
+@media(max-width:600px){footer{left:18px;right:18px;bottom:16px;font-size:10px}
+  #hint-en{display:none}}
 @media(max-height:420px){footer{bottom:12px}}
 </style>
 </head>
 <body>
 <canvas tabindex="0" aria-label="밤하늘. 화면을 2~3초 누르고 있으면 그 자리에 희미한 별들이 모여 형상이 맺히고, 손을 떼면 그대로 천천히 사라지며 밝은 별 하나가 남습니다."></canvas>
 <footer>
-  <span>PRESS AND HOLD &middot; 2~3초 누르고 있으면 그 자리에 형상이 맺힙니다</span>
+  <span><b id="hint-en">PRESS AND HOLD &middot; </b>2~3초 누르면 그 자리에 형상이 맺힙니다</span>
   <span id="word"></span>
 </footer>
 <p id="fallback" hidden>Canvas를 지원하는 브라우저에서 열어주세요.</p>
@@ -470,5 +476,10 @@ reduce.addEventListener('change',()=>{
 addEventListener('resize',resize);
 resize();
 })();
+</script>
+<script>
+/* 길게 누르기 = 조작. 선택·확대 메뉴를 막습니다. */
+addEventListener('contextmenu',e=>{const t=e.target;if(t&&t.closest&&t.closest('canvas'))e.preventDefault();});
+addEventListener('selectstart',e=>{const t=e.target;if(t&&t.closest&&t.closest('canvas'))e.preventDefault();});
 </script>
 </body></html>

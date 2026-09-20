@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>three.js Sketch</title>
 <style>
+/* 모바일에서 길게 누를 때 텍스트가 선택되거나 확대/복사 메뉴가 뜨지 않도록 합니다.
+   이 스케치는 '꾹 누르기'가 조작이라 브라우저 기본 동작과 부딪힙니다. */
+html,body,canvas{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+
   html,body{margin:0;height:100%;background:#fff;overflow:hidden;
     font-family:"Archivo","Helvetica Neue",Arial,sans-serif;}
   canvas{display:block;touch-action:none;}
@@ -97,6 +101,11 @@ if (typeof THREE === 'undefined') {
     renderer.setSize(innerWidth, innerHeight);
   });
 }
+</script>
+<script>
+/* 길게 누르기 = 조작. 선택·확대 메뉴를 막습니다. */
+addEventListener('contextmenu',e=>{const t=e.target;if(t&&t.closest&&t.closest('canvas'))e.preventDefault();});
+addEventListener('selectstart',e=>{const t=e.target;if(t&&t.closest&&t.closest('canvas'))e.preventDefault();});
 </script>
 </body>
 </html>

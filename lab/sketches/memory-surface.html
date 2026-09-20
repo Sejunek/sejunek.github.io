@@ -8,6 +8,10 @@
 <title>Memory Surface — Lab</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='white'/%3E%3Cpath d='M3 22Q10 0 16 16T29 10M3 27Q10 5 16 21T29 15' fill='none' stroke='%232D45FF' stroke-width='2'/%3E%3C/svg%3E">
 <style>
+/* 모바일에서 길게 누를 때 텍스트가 선택되거나 확대/복사 메뉴가 뜨지 않도록 합니다.
+   이 스케치는 '꾹 누르기'가 조작이라 브라우저 기본 동작과 부딪힙니다. */
+html,body,canvas{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+
   :root{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;color:#111111;background:#FFFFFF;color-scheme:light}
   *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}button{font:inherit;color:inherit;cursor:pointer}button:focus-visible,canvas:focus-visible{outline:2px solid #2D45FF;outline-offset:-4px}
   canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
@@ -173,6 +177,11 @@
   window.addEventListener('pagehide',stop);window.addEventListener('pageshow',start);window.addEventListener('resize',resize);
   seed();resize();syncControls();start();
 })();
+</script>
+<script>
+/* 길게 누르기 = 조작. 선택·확대 메뉴를 막습니다. */
+addEventListener('contextmenu',e=>{const t=e.target;if(t&&t.closest&&t.closest('canvas'))e.preventDefault();});
+addEventListener('selectstart',e=>{const t=e.target;if(t&&t.closest&&t.closest('canvas'))e.preventDefault();});
 </script>
 </body>
 </html>

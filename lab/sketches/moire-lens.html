@@ -4,6 +4,10 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Moiré Lens — Lab</title><link rel="icon" href="data:,">
 <style>
+/* 모바일에서 길게 누를 때 텍스트가 선택되거나 확대/복사 메뉴가 뜨지 않도록 합니다.
+   이 스케치는 '꾹 누르기'가 조작이라 브라우저 기본 동작과 부딪힙니다. */
+html,body,canvas{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#fff;color:#111;font-family:Archivo,"Helvetica Neue",Arial,sans-serif}canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}canvas:active{cursor:grabbing}header{position:absolute;top:32px;left:36px;pointer-events:none}small{font-size:11px;letter-spacing:1.2px;color:#8a8a8a}h1{font-size:clamp(38px,6vw,78px);line-height:.95;letter-spacing:-.065em;margin:18px 0}header p{font-size:12px;line-height:1.8;color:#8a8a8a}.controls{position:absolute;right:24px;top:20px;display:flex;gap:12px;align-items:center;background:#fffffff2;padding:10px}label,button,output{font-size:11px;letter-spacing:1.2px}input{width:100px;accent-color:#2d45ff}output{width:38px;color:#2d45ff}button{background:white;border:1px solid #c9c9c6;padding:10px;cursor:pointer}button:focus-visible,canvas:focus-visible{outline:2px solid #2d45ff;outline-offset:-3px}footer{position:absolute;bottom:24px;left:36px;right:36px;display:flex;justify-content:space-between;border-top:1px solid #c9c9c6;padding-top:16px;pointer-events:none;font-size:11px;letter-spacing:1.2px;color:#8a8a8a}.blue{color:#2d45ff}#fallback{position:absolute;top:50%;width:100%;text-align:center}#fallback[hidden]{display:none}@media(max-width:600px){header{left:22px;top:24px}header p{max-width:180px}.controls{top:auto;bottom:83px;left:18px;right:auto;gap:8px}footer{left:22px;right:22px;line-height:1.8}footer span:last-child{display:none}}@media(max-height:450px){header p{display:none}h1{font-size:36px}.controls{top:18px;bottom:auto;left:auto;right:18px}}
 </style>
 </head>
@@ -42,5 +46,10 @@ document.addEventListener('visibilitychange',()=>{cancelAnimationFrame(raf);raf=
 reduce.addEventListener('change',()=>{cancelAnimationFrame(raf);raf=0;last=0;render();});
 addEventListener('resize',resize);if(innerWidth<600){x=tx=.54;y=ty=.49;}else{x=tx=.54;y=ty=.53;}resize();
 })();
+</script>
+<script>
+/* 길게 누르기 = 조작. 선택·확대 메뉴를 막습니다. */
+addEventListener('contextmenu',e=>{const t=e.target;if(t&&t.closest&&t.closest('canvas'))e.preventDefault();});
+addEventListener('selectstart',e=>{const t=e.target;if(t&&t.closest&&t.closest('canvas'))e.preventDefault();});
 </script>
 </body></html>
