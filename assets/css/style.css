@@ -243,13 +243,34 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .meta__key { flex: 0 0 120px; color: var(--text-secondary); }
 
-/* image stack — the whole point of the detail page */
-.stack { display: block; }
+/* image stack — the whole point of the detail page
+   슬라이드가 1920x1080 이라 화면 가득 깔면 한 장이 너무 커서
+   내용이 한눈에 안 들어옵니다. 폭을 1200 으로 묶고 가운데 세웁니다.
+   바탕을 옅은 회색으로 깔아 장과 장이 구분되게 합니다. */
+.stack {
+  display: block;
+  background: var(--bg-subtle);
+  border-top: 1px solid var(--border-line);
+  border-bottom: 1px solid var(--border-line);
+  padding: var(--s-64) var(--page-pad);
+}
+.stack picture,
+.stack > img,
+.stack > video,
+.stack__ph {
+  display: block;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.stack picture + picture,
+.stack > img + img { margin-top: var(--s-24); }
 .stack img,
 .stack video {
   width: 100%;
   height: auto;
-  border-bottom: 1px solid var(--border-line);
+  background: var(--bg-base);
+  border: 1px solid var(--border-line);
 }
 /* placeholder block, delete once real images are in */
 .stack__ph {
@@ -369,6 +390,9 @@ ul { margin: 0; padding: 0; list-style: none; }
   .badge { padding: 3px 5px; font-size: 9px; letter-spacing: .4px; line-height: 1; }
   .badge__full { display: none; }
   .badge__short { display: inline; }
+
+  .stack { padding: var(--s-32) var(--page-pad); }
+  .stack picture + picture { margin-top: var(--s-16); }
 
   .detail-intro__title { font-size: 32px; line-height: 38px; }
   .meta__key { flex-basis: 72px; }
