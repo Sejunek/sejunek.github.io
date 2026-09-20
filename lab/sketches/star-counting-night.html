@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080e20"><title>별 헤는 밤 — Lab</title><link rel="icon" href="data:,"><style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080e20;color:#e4e8ef;font-family:Archivo,"Helvetica Neue",Arial,sans-serif}canvas{display:block;width:100%;height:100%;touch-action:none}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,canvas:focus-visible{outline:1px solid #8095ff;outline-offset:7px}.choices{position:fixed;inset:auto 12% 76px;display:flex;justify-content:space-between;pointer-events:none}.star{pointer-events:auto;background:none;border:0;color:#99a4bb;min-width:64px;min-height:66px;padding:10px 12px;font-family:"AppleMyungjo","Batang",serif;font-size:13px;letter-spacing:4px;transition:color .6s}.star::before{content:"✧";display:block;font-family:Arial,sans-serif;font-size:24px;line-height:1.3;color:#bbc9ea;text-shadow:0 0 18px #829aff}.star[aria-pressed="true"]{color:#fff0d2}.star[aria-pressed="true"]::before{content:"✦";color:#e6cf9c}.star[data-seen="true"]::after{content:"·";display:block;position:absolute;margin-left:25px;color:#dbc89c}.hint{position:fixed;bottom:21px;left:20px;right:20px;text-align:center;font-size:11px;letter-spacing:1.2px;line-height:1.8;color:#8a8fa2;pointer-events:none;margin:0}.tools{position:fixed;top:22px;right:24px;display:flex;gap:18px}.tools button{border:0;background:none;color:#a2acc0;font-size:10px;letter-spacing:1.2px;padding:10px 0}.tools button[hidden]{display:none}.caption{position:fixed;top:13%;left:0;right:0;text-align:center;pointer-events:none;font-family:"AppleMyungjo","Batang",serif;color:#e6dfd3;font-size:clamp(19px,2.2vw,28px);letter-spacing:.5em;opacity:0;transition:opacity 1s}.caption.visible{opacity:1}.caption small{display:block;margin-top:17px;font-family:Archivo,Arial,sans-serif;color:#838da5;font-size:9px;letter-spacing:3px}.fallback{position:fixed;top:43%;left:10%;right:10%;text-align:center;font-size:14px;line-height:1.8;color:#c9c9c6}.fallback[hidden]{display:none}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}dialog{background:#10192bf5;color:#e4e8ef;border:1px solid #303c57;padding:28px;width:min(340px,85vw);box-shadow:0 20px 100px #0008}dialog::backdrop{background:#02050da0}dialog label{display:block;font-family:"AppleMyungjo","Batang",serif;letter-spacing:2px;margin-bottom:19px}dialog input{width:100%;padding:10px 0;border:0;border-bottom:1px solid #60708f;color:#fff;background:none;font-size:19px}dialog p{font-size:11px;color:#99a4bb;line-height:1.8}dialog div{display:flex;justify-content:flex-end;gap:20px;margin-top:24px}dialog button{border:0;background:none;color:#d6dfef;padding:8px;font-size:12px}svg{position:absolute;width:0;height:0;overflow:hidden}@media(max-width:500px){.choices{left:8%;right:8%;bottom:72px}.caption{top:16%}.tools{top:14px;right:20px}.star{font-size:12px;letter-spacing:3px}.hint{font-size:11px}.caption small{font-size:8px}}@media(max-height:480px){.caption{top:8%;font-size:18px}.caption small{display:none}.choices{left:5%;right:5%;bottom:37px}.star{min-height:48px;font-size:11px;padding:4px}.hint{bottom:9px}.tools{top:7px}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080e20;color:#e4e8ef;font-family:Archivo,"Helvetica Neue",Arial,sans-serif}canvas{display:block;width:100%;height:100%;touch-action:none}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,canvas:focus-visible{outline:1px solid #8095ff;outline-offset:7px}.choices{position:fixed;inset:auto 10% 76px 43%;display:flex;justify-content:space-between;pointer-events:none}.star{pointer-events:auto;background:none;border:0;color:#99a4bb;min-width:64px;min-height:66px;padding:10px 12px;font-family:"AppleMyungjo","Batang",serif;font-size:13px;letter-spacing:4px;transition:color .6s}.star::before{content:"✧";display:block;font-family:Arial,sans-serif;font-size:24px;line-height:1.3;color:#bbc9ea;text-shadow:0 0 18px #829aff}.star[aria-pressed="true"]{color:#fff0d2}.star[aria-pressed="true"]::before{content:"✦";color:#e6cf9c}.star[data-seen="true"]::after{content:"·";display:block;position:absolute;margin-left:25px;color:#dbc89c}.hint{position:fixed;bottom:21px;left:20px;right:20px;text-align:center;font-size:11px;letter-spacing:1.2px;line-height:1.8;color:#8a8fa2;pointer-events:none;margin:0}.tools{position:fixed;top:22px;right:24px;display:flex;gap:18px}.tools button{border:0;background:none;color:#a2acc0;font-size:10px;letter-spacing:1.2px;padding:10px 0}.tools button[hidden]{display:none}.caption{position:fixed;top:13%;left:0;right:0;text-align:center;pointer-events:none;font-family:"AppleMyungjo","Batang",serif;color:#e6dfd3;font-size:clamp(19px,2.2vw,28px);letter-spacing:.5em;opacity:0;transition:opacity 1s}.caption.visible{opacity:1}.caption small{display:block;margin-top:17px;font-family:Archivo,Arial,sans-serif;color:#838da5;font-size:9px;letter-spacing:3px}.fallback{position:fixed;top:43%;left:10%;right:10%;text-align:center;font-size:14px;line-height:1.8;color:#c9c9c6}.fallback[hidden]{display:none}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}dialog{background:#10192bf5;color:#e4e8ef;border:1px solid #303c57;padding:28px;width:min(340px,85vw);box-shadow:0 20px 100px #0008}dialog::backdrop{background:#02050da0}dialog label{display:block;font-family:"AppleMyungjo","Batang",serif;letter-spacing:2px;margin-bottom:19px}dialog input{width:100%;padding:10px 0;border:0;border-bottom:1px solid #60708f;color:#fff;background:none;font-size:19px}dialog p{font-size:11px;color:#99a4bb;line-height:1.8}dialog div{display:flex;justify-content:flex-end;gap:20px;margin-top:24px}dialog button{border:0;background:none;color:#d6dfef;padding:8px;font-size:12px}svg{position:absolute;width:0;height:0;overflow:hidden}@media(max-width:500px){.choices{left:8%;right:8%;bottom:72px}.caption{top:16%}.tools{top:14px;right:20px}.star{font-size:12px;letter-spacing:3px}.hint{font-size:11px}.caption small{font-size:8px}}@media(max-height:480px){.caption{top:8%;font-size:18px}.caption small{display:none}.choices{left:5%;right:5%;bottom:37px}.star{min-height:48px;font-size:11px;padding:4px}.hint{bottom:9px}.tools{top:7px}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head><body>
-<canvas id="sky" tabindex="0" aria-label="별빛으로 기억을 그리는 밤하늘. 아래 추억, 쓸쓸함, 어머니 별을 선택하세요. 빈 하늘 클릭 또는 Escape로 흩어집니다."></canvas>
+<canvas id="sky" tabindex="0" aria-label="언덕에 기대 누워 하늘을 보는 윤동주와 별빛으로 기억을 그리는 밤하늘. 아래 추억, 쓸쓸함, 어머니 별을 선택하세요. 빈 하늘 클릭 또는 Escape로 흩어집니다."></canvas>
 <div class="caption" aria-hidden="true"><span id="word"></span><small id="verse"></small></div>
 <nav class="choices" aria-label="떠올릴 기억"><button class="star" data-scene="0" aria-pressed="false">추억</button><button class="star" data-scene="1" aria-pressed="false">쓸쓸함</button><button class="star" data-scene="2" aria-pressed="false">어머니</button></nav>
 <div class="tools"><button id="name" hidden>이름 남기기</button><button id="pause" aria-pressed="false">PAUSE</button></div>
@@ -38,9 +38,116 @@ function setTargets(){targetPoints=active===3?customPoints:active>=0?forms[activ
 function choose(index){active=index;setTargets();window.nightStats.active=active;window.nightStats.progress=progress;buttons.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));caption.classList.remove('visible');if(index>=0){announce.textContent=(index===3?document.querySelector('#memory-name').value.trim():scenes[index].word)+'의 별들이 모입니다.';}else announce.textContent='별들이 다시 밤하늘로 흩어집니다.';invalidate();}
 buttons.forEach((b,i)=>b.addEventListener('click',()=>choose(active===i?-1:i)));
 function background(){bg=document.createElement('canvas');bg.width=width;bg.height=height;const c=bg.getContext('2d');c.fillStyle='#080e20';c.fillRect(0,0,width,height);let g=c.createRadialGradient(width*.43,height*.48,0,width*.43,height*.48,width*.65);g.addColorStop(0,'#162239');g.addColorStop(.55,'#0c152b');g.addColorStop(1,'#070b19');c.fillStyle=g;c.fillRect(0,0,width,height);g=c.createRadialGradient(width*.74,height*.31,0,width*.74,height*.31,width*.34);g.addColorStop(0,'#493f551c');g.addColorStop(1,'#0c152b00');c.fillStyle=g;c.fillRect(0,0,width,height);}
+/* A small, interpretive ink portrait of the poet: no external assets.
+   Geometry is prebuilt once; time is the caller's animation clock in seconds.
+   Figure occupies a 400 × 280 drawing box at the lower left. The mobile
+   baseline leaves 176 px for scene choices and instructions. */
+const drawPoetForeground = (() => {
+  const path = (d) => new Path2D(d);
+  const shapes = {
+    farLeg: path('M171 198 C188 174 191 140 213 105 Q222 92 234 97 Q249 105 254 130 L282 203 304 210 300 222 267 224 Q254 199 244 173 L228 131 Q226 163 215 198 L205 215 Z'),
+    farLegShade: path('M225 109 Q230 141 225 157 L212 203 196 215 186 204 Q208 166 219 128 Z M239 124 Q257 169 277 212 L264 215 243 164 Z'),
+    farShoe: path('M276 205 Q289 211 301 210 L315 203 Q322 201 326 207 Q324 215 310 222 L289 230 Q276 231 269 225 L269 218 Z'),
+    nearLeg: path('M168 191 C199 201 223 177 245 154 C260 137 278 132 289 146 C301 162 315 194 332 223 L351 233 345 247 321 243 Q294 225 280 200 L268 174 C251 203 229 231 198 241 Q178 238 164 225 Z'),
+    nearLegShade: path('M178 220 C211 227 240 198 268 168 Q269 185 257 203 C238 225 222 239 198 241 L177 234 Z M280 158 Q293 194 324 232 L317 237 Q291 213 278 192 L268 175 Z'),
+    trouserLines: path('M220 188 Q239 180 257 159 M269 155 Q276 156 281 165 M280 207 L299 225 M284 214 L298 230 M214 137 Q209 157 208 169 M248 181 L244 195 M192 225 Q205 229 218 222'),
+    nearShoe: path('M328 226 Q338 236 349 232 L367 224 Q376 221 380 226 Q380 232 368 241 L347 253 Q336 258 322 250 L315 243 Z'),
+    shoeLight: path('M328 244 Q341 253 352 246 L371 235 M280 224 Q288 227 298 224 L315 216'),
+    rearArm: path('M113 101 Q97 96 91 111 Q84 135 88 157 C82 179 65 200 54 221 L44 234 55 244 Q73 232 87 212 L115 167 Q121 143 123 119 Z'),
+    rearArmShade: path('M94 118 Q88 143 96 158 C88 181 74 207 57 226 L61 234 Q78 222 95 198 L115 165 Q111 144 112 125 Z'),
+    rearHand: path('M44 232 Q37 234 29 241 L17 243 Q10 247 13 253 L22 254 32 248 Q42 251 52 247 L58 240 Z'),
+    shirt: path('M112 97 L132 92 Q145 93 153 103 C164 116 164 145 174 166 Q182 184 194 196 Q188 213 168 220 C151 212 134 198 124 181 Q109 157 105 131 Q101 111 112 97 Z'),
+    shirtShade: path('M110 125 Q121 151 137 164 C138 184 157 202 177 210 L168 220 Q135 201 124 181 Q112 162 109 147 Z M147 99 Q153 120 150 135 Q145 138 142 132 L136 99 Z'),
+    shirtLight: path('M111 103 Q123 103 134 98 L142 111 Q130 120 117 117 Z M121 145 Q135 153 153 151 L158 161 Q139 164 127 158 Z'),
+    shirtFolds: path('M113 130 Q119 144 129 151 M129 178 Q139 188 151 190 M138 181 Q145 187 153 186 M152 175 Q157 188 172 198 M158 201 L171 205 M148 126 L145 148 M143 154 L147 167 M122 166 L127 175'),
+    neck: path('M119 74 L115 95 Q118 108 130 106 L141 96 139 77 Z'),
+    neckShade: path('M121 78 L135 81 133 98 124 102 120 94 Z'),
+    head: path('M111 40 C115 28 132 26 143 34 Q150 38 151 46 L159 48 Q163 50 158 54 L156 58 Q160 62 155 67 Q151 76 139 79 L131 89 Q119 87 113 74 Q105 66 105 54 Z'),
+    faceShade: path('M117 53 Q124 57 128 68 L142 72 137 79 131 89 Q119 87 113 74 Q108 67 108 60 Z'),
+    hair: path('M108 68 Q99 64 99 51 C97 37 107 24 121 22 Q140 18 151 34 L147 44 Q139 42 133 37 Q127 48 116 48 L116 60 111 65 Z'),
+    hairSweep: path('M105 42 Q108 29 123 27 Q135 25 143 31 M108 48 Q119 41 124 32 M111 32 Q121 23 132 25'),
+    ear: path('M113 53 Q105 49 105 57 Q105 65 112 68 L117 63'),
+    faceLines: path('M138 48 L144 45 M140 51 L145 49 M154 61 L150 63 M111 57 Q109 55 109 59 L112 62'),
+    collar: path('M115 94 L125 103 131 98 134 106 142 96 147 102 135 118 128 108 121 115 109 101 Z'),
+    nearArm: path('M147 104 Q159 101 164 114 C169 133 169 155 177 175 L196 211 Q207 229 221 242 L215 253 Q194 245 183 229 L153 187 C145 166 141 145 140 126 Q139 112 147 104 Z'),
+    nearArmShade: path('M151 117 Q154 141 160 164 L183 216 Q195 235 215 247 L211 252 Q190 241 182 228 L153 187 Q145 164 143 142 Z'),
+    cuff: path('M207 232 L220 240 216 252 203 244 Z'),
+    nearHand: path('M219 243 Q230 243 238 249 L252 250 Q259 252 258 256 L250 257 Q257 261 260 266 L258 271 Q256 272 253 267 L245 263 Q252 273 248 275 L242 269 Q247 278 242 279 L231 268 Q221 266 213 255 Z'),
+    fingers: path('M242 258 L251 261 M236 260 Q242 264 245 269 M230 262 Q237 268 241 274 M29 243 L20 248'),
+    seams: path('M147 108 Q154 109 159 116 M146 150 L152 174 M161 194 L171 207 M202 237 L213 243 M108 105 Q104 115 106 125'),
+    groundStrokes: path('M31 258 Q65 253 92 256 M115 236 L139 239 M266 257 Q287 253 307 254 M203 273 L213 271 M51 264 L67 263'),
+  };
+  const grass = Array.from({length: 30}, (_, i) => ({
+    x: ((i * 137.17) % 565) - 70,
+    y: 273 + Math.sin(i * 1.91) * 11 + Math.max(0, ((i * 137.17) % 565) - 330) * .12,
+    h: 4 + (i * 17 % 10), lean: Math.sin(i * 2.2) * 5, phase: i * 1.63,
+  }));
+  return function drawPoetForeground(ctx, width, height, time) {
+    const mobile = width <= 600;
+    const short = height <= 480;
+    const desiredWidth = mobile ? Math.min(190, Math.max(155, width * .45)) : Math.min(345, Math.max(270, width * .265));
+    const scale = Math.min(desiredWidth / 400, height * (short ? .46 : .37) / 280);
+    const baseline = height - (short ? 115 : mobile ? 176 : 68);
+    const left = mobile ? 9 : Math.max(15, width * .022);
+    const top = baseline - 280 * scale;
+    const breath = Math.sin(time * .74) * .8;
+    ctx.save();
+    // The low bank continues to the canvas edges and provides a quiet base.
+    const hill = ctx.createLinearGradient(0, baseline - 12, 0, height);
+    hill.addColorStop(0, '#102126'); hill.addColorStop(.5, '#0b171f'); hill.addColorStop(1, '#080f19');
+    ctx.fillStyle = hill;
+    ctx.beginPath(); ctx.moveTo(0, baseline - 30 * scale);
+    ctx.bezierCurveTo(width * .09, baseline - 60 * scale, width * .25, baseline - 20 * scale, width * .39, baseline + 45 * scale);
+    ctx.bezierCurveTo(width * .53, baseline + 100 * scale, width * .68, height + 10, width, height + 28);
+    ctx.lineTo(width,height); ctx.lineTo(0,height); ctx.closePath(); ctx.fill();
+    // Scale all line weights with the figure so they stay delicate on mobile.
+    ctx.translate(left, top); ctx.scale(scale, scale);
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    const draw = (shape, fill, outline = true, line = 1.05) => {
+      if (fill) { ctx.fillStyle = fill; ctx.fill(shapes[shape]); }
+      if (outline) { ctx.lineWidth = line; ctx.strokeStyle = '#111d28'; ctx.stroke(shapes[shape]); }
+    };
+    const stroke = (shape, color, line = .9) => {
+      ctx.lineWidth = line; ctx.strokeStyle = color; ctx.stroke(shapes[shape]);
+    };
+    // Small grass blades use only the supplied clock; pause also freezes wind.
+    for (const blade of grass) {
+      const wind = Math.sin(time * .52 + blade.phase) * 1.3;
+      ctx.strokeStyle = blade.x % 3 > 1 ? '#36464a' : '#24373b'; ctx.lineWidth = .8;
+      ctx.beginPath(); ctx.moveTo(blade.x, blade.y); ctx.quadraticCurveTo(blade.x + blade.lean * .3, blade.y - blade.h * .65, blade.x + blade.lean + wind, blade.y - blade.h); ctx.stroke();
+    }
+    // Contact shadows anchor hands and clothes to the slope.
+    ctx.fillStyle = 'rgba(4,11,18,.24)';
+    ctx.beginPath(); ctx.ellipse(190,253,176,12,-.045,0,Math.PI*2);ctx.fill();
+    draw('farLeg','#283442'); draw('farLegShade','#1d2a38',false);
+    draw('farShoe','#1b2733');
+    draw('nearLeg','#394553'); draw('nearLegShade','#263341',false);
+    stroke('trouserLines','#627078',.72);
+    draw('nearShoe','#1d2934'); stroke('shoeLight','#83908f',.85);
+    draw('rearArm','#818f90'); draw('rearArmShade','#535f68',false); draw('rearHand','#a9a692');
+    // Breath deforms the chest around the hips, leaving planted hands still.
+    ctx.save(); ctx.translate(170,211); ctx.scale(1,1 + breath * .004); ctx.translate(-170,-211);
+    draw('shirt','#9ca7a3'); draw('shirtShade','#6c7b7d',false); draw('shirtLight','#b8c0b4',false); stroke('shirtFolds','#596970',.85);
+    ctx.save();ctx.translate(0,-breath);
+    draw('neck','#bbb6a1'); draw('neckShade','#858f89',false);
+    draw('head','#c1bfaa'); draw('faceShade','#8b9993',false);
+    draw('hair','#17222d'); stroke('hairSweep','#53616a',.8);
+    draw('ear','#a5ab99',true,.8); stroke('faceLines','#3c5058',.8);
+    ctx.restore();
+    draw('collar','#bec6b8',true,.85);
+    ctx.restore();
+    draw('nearArm','#a5afa7'); draw('nearArmShade','#748383',false);draw('cuff','#c0c6b5',true,.8);
+    draw('nearHand','#bcb8a0',true,.85);stroke('fingers','#637570',.8);stroke('seams','#ced2bd',.65);
+    stroke('groundStrokes','#374648',.8);
+    ctx.restore();
+    return {x:left, y:top + 20*scale, width:380*scale, height:260*scale, baseline};
+  };
+})();
+
 function paint(dt){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.drawImage(bg,0,0);const motion=!paused&&!reduced.matches;if(motion){time+=dt;progress=Math.min(1,progress+dt/(active<0?3:4.5));parallax.x+=(mouse.x-parallax.x)*Math.min(1,dt*2);parallax.y+=(mouse.y-parallax.y)*Math.min(1,dt*2);}else if(reduced.matches){parallax.x=parallax.y=0;progress=1;}
 for(const s of field){const twinkle=.35+.2*Math.sin(time*.45+s.phase);ctx.fillStyle='rgba(171,193,231,'+twinkle+')';ctx.beginPath();ctx.arc(s.x*width+parallax.x*s.depth*7,s.y*height+parallax.y*s.depth*7,s.size,0,Math.PI*2);ctx.fill();}
 for(let i=0;i<N;i++){const p=particles[i],t=Math.max(0,Math.min(1,(progress-p.delay)/(1-p.delay))),e=t*t*t*(t*(t*6-15)+10);p.x=p.sx+(p.tx-p.sx)*e+Math.sin(t*Math.PI)*p.arc*.45;p.y=p.sy+(p.ty-p.sy)*e+Math.sin(t*Math.PI)*p.arc;const flutter=motion?Math.sin(time*.7+p.phase):Math.sin(p.phase);const x=p.x*width+parallax.x*3,y=p.y*height+parallax.y*3,a=active>=0?.40+e*.32:.26;ctx.fillStyle=(i%7===0?'rgba(239,212,162,':'rgba(195,212,244,')+(a+flutter*.10)+')';ctx.beginPath();ctx.arc(x,y,p.size*(active>=0?1:.7),0,Math.PI*2);ctx.fill();if(i%47===0){const glow=ctx.createRadialGradient(x,y,0,x,y,10);glow.addColorStop(0,'rgba(182,207,255,.18)');glow.addColorStop(1,'rgba(122,155,255,0)');ctx.fillStyle=glow;ctx.fillRect(x-10,y-10,20,20);ctx.strokeStyle='rgba(218,227,251,.5)';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(x-3,y);ctx.lineTo(x+3,y);ctx.moveTo(x,y-3);ctx.lineTo(x,y+3);ctx.stroke();}}
+drawPoetForeground(ctx,width,height,time);
 if(active>=0&&progress>.8){word.textContent=active===3?document.querySelector('#memory-name').value.trim():scenes[active].word;verse.textContent=active===3?'당신이 떠올린 이름':scenes[active].verse;caption.classList.add('visible');if(active<3&&!seen.has(active)){seen.add(active);buttons[active].dataset.seen='true';if(seen.size===3)document.querySelector('#name').hidden=false;}}window.nightStats.frames++;window.nightStats.active=active;window.nightStats.progress=progress;}
 window.nightStats={frames:0,active:-1,progress:1};
 function tick(now){frame=0;if(document.hidden)return;const dt=last?Math.min((now-last)/1000,.05):0;last=now;paint(dt);if(!paused&&!reduced.matches)invalidate();else last=0;}
