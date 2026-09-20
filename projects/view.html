@@ -112,6 +112,23 @@
     });
   }
 
+  // ---- 영상이 있으면 이미지보다 먼저 -------------------------------
+  // 파일이 실제로 있을 때만 붙입니다. 없으면 아무 일도 일어나지 않습니다.
+  var vinfo = PJ.video(p, '../');
+  if (vinfo) {
+    fetch(vinfo.src, { method: 'HEAD' }).then(function (r) {
+      if (!r.ok) return;
+      var v = document.createElement('video');
+      v.src = vinfo.src;
+      v.controls = true;
+      v.preload = 'metadata';
+      v.playsInline = true;
+      v.setAttribute('playsinline', '');
+      probe(vinfo.poster).then(function (ok) { if (ok.ok) v.poster = vinfo.poster; });
+      stack.insertBefore(v, stack.firstChild);
+    }).catch(function () { /* 없으면 넘어갑니다 */ });
+  }
+
   Promise.all(shots.map(function (s) {
     return Promise.all([probe(s.pc), probe(s.mo)]).then(function (r) {
       return { shot: s, pc: r[0], mo: r[1] };

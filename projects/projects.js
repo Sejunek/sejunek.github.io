@@ -44,7 +44,8 @@ window.PROJECTS = [
   role:"UX 리서치 · 서비스 기획 · UX/UI 디자인",
   tool:"Figma",
   summary:"아동 투자·금융교육 플랫폼 기획입니다. 학부모 FGI와 금융교육 관계자 인터뷰를 진행했고, 전문 투자자 자문에서 나온 상반된 의견을 반영해 투자 지식 교육이 아닌 '투자 기질 점검과 반복 실수 경고' 방향으로 기획을 좁혔습니다.",
-  pages:[36,58] },
+  pages:[36,58],
+  video:true },
 
 { slug:"kuip", title:"KU IP Character — 3D & Sculpture", cat:"VR · 3D", filter:"vr3d",
   year:"2025", period:"2025.09 — 2025.12",
@@ -152,6 +153,16 @@ window.PJ = {
   },
   thumb: function (p, base) {
     return (base || '') + 'assets/img/thumb/thumb_' + p.slug + '.jpg';
+  },
+  // 상세 페이지 맨 위 영상. video: true 이거나 파일 이름을 직접 적으면 씁니다.
+  // 파일이 없으면 뷰어가 조용히 건너뜁니다.
+  video: function (p, base) {
+    if (!p.video) return null;
+    var file = (p.video === true) ? (p.slug + '.mp4') : p.video;
+    return {
+      src:    (base || '') + 'assets/video/' + file,
+      poster: (base || '') + 'assets/video/' + p.slug + '.jpg'
+    };
   },
   // 기본 4장 + 모바일 짝. 실제로 없는 파일은 화면에서 조용히 사라집니다.
   //
