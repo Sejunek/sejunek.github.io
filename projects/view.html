@@ -173,8 +173,7 @@
       img.src = r.shot.pc;
       img.alt = p.title + ' — ' + r.shot.name;
       img.width = r.pc.w; img.height = r.pc.h;   // CLS 방지
-      // GIF 는 lazy 로 두면 스크롤 전까지 멈춰 있어 보입니다
-      img.loading = (shown === 0 || /\.gif$/i.test(r.shot.pc)) ? 'eager' : 'lazy';
+      img.loading = shown === 0 ? 'eager' : 'lazy';
       img.decoding = 'async';
       pic.appendChild(img);
       stack.appendChild(pic);

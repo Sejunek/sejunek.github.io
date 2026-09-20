@@ -41,18 +41,13 @@ projects.js 의 해당 항목에 한 줄만 더합니다.
 
 ---
 
-## GIF 를 넣고 싶을 때
+## 이미지 사이에 움직이는 화면을 넣고 싶을 때
 
-**GIF 대신 소리 없는 mp4 를 쓰세요.** 같은 화면이 **10~20배** 가볍습니다.
-GIF 는 색을 256개밖에 못 쓰고 압축이 거의 안 됩니다. 5초짜리 1080p GIF 가 30MB 를 넘는 일이 흔합니다.
+**소리 없는 mp4 를 씁니다. GIF 는 쓰지 않습니다** — 같은 화면이 10~20배 무겁습니다.
 
     ffmpeg -i 화면녹화.mov -vf "scale=1280:-2,fps=24" \
            -c:v libx264 -crf 28 -preset slow -pix_fmt yuv420p \
            -movflags +faststart -an flow.mp4
 
-만든 파일을 `assets/img/<slug>/` 에 넣고 projects.js 에서 목록으로 적습니다.
-
-    pages: ["36", "37", "flow.mp4", "38"]
-
-`.mp4` / `.webm` 은 **소리 없이 자동 반복** 재생됩니다 — GIF 처럼 보이고 컨트롤은 안 나옵니다.
-GIF 를 꼭 써야 하면 `.gif` 를 그대로 적어도 됩니다. 그냥 움직입니다.
+`assets/img/<slug>/` 에 넣고 `pages: ["36", "flow.mp4", "37"]` 처럼 적습니다.
+소리 없이 자동 반복되고 컨트롤은 안 나옵니다.

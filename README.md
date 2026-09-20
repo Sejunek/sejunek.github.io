@@ -1,6 +1,9 @@
 # Portfolio — 퍼블리싱 세트
 
 Figma `Web-MCP / Claude's Workplace` 시안 기준으로 퍼블리싱한 정적 사이트입니다.
+
+Figma 파일: https://www.figma.com/design/o97SGI7wDLWSNiedCTFPli/Web-MCP
+(시안 `Claude's Workplace` 3:3 · 콘텐츠 키트 `Claude · Content Kit` 38:2)
 빌드 도구 · 라이브러리 없음. 파일 그대로 올리면 동작합니다.
 
 ```
