@@ -334,6 +334,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   .site-footer > * + * { margin-top: 10px; }
 
   /* detail */
+  /* MENU 버튼도 헤더(높이 53px) 안에 들어오게 — 태블릿부터 적용 */
+  .navbtn { top: 9px; right: 24px; padding: 8px 12px; }
   .detail-header { padding: 18px var(--page-pad); padding-right: 140px; }
   .detail-header__title { display: none; }
   .detail-intro {
@@ -360,6 +362,11 @@ ul { margin: 0; padding: 0; list-style: none; }
   .card__caption { padding-top: 10px; }
   .card__caption h3 { font-size: 11px; line-height: 15px; letter-spacing: -.2px; }
   .card__caption p, .card__view, .card__panel .t-mono { font-size: 9px; letter-spacing: .6px; }
+
+  /* LAB 카드가 92px 남짓이라 긴 배지가 이미지를 통째로 가립니다 — 'AI' 만 남깁니다 */
+  .badge { padding: 3px 5px; font-size: 9px; letter-spacing: .4px; line-height: 1; }
+  .badge__full { display: none; }
+  .badge__short { display: inline; }
 
   .detail-intro__title { font-size: 32px; line-height: 38px; }
   .meta__key { flex-basis: 72px; }
@@ -560,6 +567,8 @@ body.zoom-open { overflow: hidden; }
   pointer-events: none;
 }
 .badge--ai { background: var(--point); }
+.badge__short { display: none; }
+
 
 /* 템플릿 영역 */
 .lab-templates {
@@ -724,7 +733,8 @@ body.zoom-open { overflow: hidden; }
 .nav-open { overflow: hidden; }
 
 @media (max-width: 767px) {
-  .navbtn { top: 20px; right: 20px; padding: 10px 14px; gap: 8px; }
+  /* 상단 헤더(높이 53px) 안에 들어오도록 — 아래 선에 걸치지 않게 합니다 */
+  .navbtn { top: 9px; right: 20px; padding: 8px 12px; gap: 8px; }
   .navbtn__icon { width: 16px; }
   .navpanel { width: 330px; padding: 24px; }
   .navlist { margin-top: 36px; }

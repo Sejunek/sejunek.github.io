@@ -58,7 +58,10 @@
       '<a class="card card--wide reveal" href="' + p.view + '">' +
         '<div class="card__visual">' +
           '<img class="card__thumb" src="' + p.card + '" alt="" width="1200" height="750" loading="lazy" decoding="async" onerror="this.remove()">' +
-          (badge ? '<span class="badge badge--ai t-mono">' + esc(badge) + '</span>' : '') +
+          (badge ? '<span class="badge badge--ai t-mono">' +
+              '<span class="badge__full">' + esc(badge) + '</span>' +
+              '<span class="badge__short">AI</span>' +
+            '</span>' : '') +
           '<div class="card__panel">' +
             '<span class="t-mono">' + esc(s.tech) + '</span>' +
             '<div>' +
