@@ -102,6 +102,9 @@
 
   function probe(src) {
     return new Promise(function (res) {
+      // 빈 경로면 즉시 '없음'으로 끝냅니다.
+      // src 를 빈 문자열로 두면 onerror 가 안 올라와 화면이 통째로 멈춥니다.
+      if (!src) { res({ ok: false }); return; }
       var im = new Image();
       im.onload  = function () { res({ ok: true, w: im.naturalWidth, h: im.naturalHeight }); };
       im.onerror = function () { res({ ok: false }); };

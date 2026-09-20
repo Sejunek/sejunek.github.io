@@ -43,13 +43,15 @@ window.PROJECTS = [
   year:"2026", period:"졸업연구",
   role:"UX 리서치 · 서비스 기획 · UX/UI 디자인",
   tool:"Figma",
-  summary:"아동 투자·금융교육 플랫폼 기획입니다. 학부모 FGI와 금융교육 관계자 인터뷰를 진행했고, 전문 투자자 자문에서 나온 상반된 의견을 반영해 투자 지식 교육이 아닌 '투자 기질 점검과 반복 실수 경고' 방향으로 기획을 좁혔습니다." },
+  summary:"아동 투자·금융교육 플랫폼 기획입니다. 학부모 FGI와 금융교육 관계자 인터뷰를 진행했고, 전문 투자자 자문에서 나온 상반된 의견을 반영해 투자 지식 교육이 아닌 '투자 기질 점검과 반복 실수 경고' 방향으로 기획을 좁혔습니다.",
+  pages:[36,58] },
 
 { slug:"kuip", title:"KU IP Character — 3D & Sculpture", cat:"VR · 3D", filter:"vr3d",
   year:"2025", period:"2025.09 — 2025.12",
   role:"고려대학교 IP 캐릭터 3D 모델링 · 170cm 대형 조형물 제작",
   tool:"Blender · 3D 조형",
-  summary:"고려대학교 디자인혁신센터 혁신단에서 진행한 IP 캐릭터 작업입니다. 캐릭터를 3D로 직접 모델링했고, 이 모델을 바탕으로 높이 170cm 의 대형 조형물로 제작했습니다. 화면 안에서 끝나지 않고 실물로 세워진 작업입니다." },
+  summary:"고려대학교 디자인혁신센터 혁신단에서 진행한 IP 캐릭터 작업입니다. 캐릭터를 3D로 직접 모델링했고, 이 모델을 바탕으로 높이 170cm 의 대형 조형물로 제작했습니다. 화면 안에서 끝나지 않고 실물로 세워진 작업입니다.",
+  pages:[1,5] },
 
 { slug:"lgcx", title:"LG Electronics CX Challenge", cat:"UX·UI DESIGN", filter:"uxui",
   year:"2025", period:"2025.03 — 2025.06",
@@ -61,13 +63,15 @@ window.PROJECTS = [
   year:"2024", period:"2023.10 — 2024.08",
   role:"통합 환경 UX 기획 · UI 디자인 · 통합 로비 3D 모델링 · 기업 홈페이지 리뉴얼 및 영상 제작",
   tool:"Figma · Blender · Adobe Ae",
-  summary:"흩어져 있던 VR 콘텐츠들을 하나의 환경으로 묶는 통합 경험을 기획했습니다. 진입 지점이 되는 통합 로비를 3D로 모델링하고, 기업 홈페이지 리뉴얼과 소개 영상 제작까지 이어서 진행했습니다." },
+  summary:"흩어져 있던 VR 콘텐츠들을 하나의 환경으로 묶는 통합 경험을 기획했습니다. 진입 지점이 되는 통합 로비를 3D로 모델링하고, 기업 홈페이지 리뉴얼과 소개 영상 제작까지 이어서 진행했습니다.",
+  pages:[23,35] },
 
 { slug:"hippocampus", title:"Hippocampus — VR Learning Data LMS", cat:"UX·UI DESIGN", filter:"uxui",
   year:"2024", period:"2023.06 — 2024.04",
   role:"UX 기획 · UI 디자인 및 컴포넌트 제작 · 개발 외주 소통 및 일정 관리",
   tool:"Figma",
-  summary:"VR 시뮬레이터의 학습 데이터를 교수자가 확인하고 관리하는 LMS를 개편했습니다. UX 기획부터 UI 컴포넌트 제작까지 맡았고, 개발 외주 업체와의 소통과 일정 관리를 담당했습니다." },
+  summary:"VR 시뮬레이터의 학습 데이터를 교수자가 확인하고 관리하는 LMS를 개편했습니다. UX 기획부터 UI 컴포넌트 제작까지 맡았고, 개발 외주 업체와의 소통과 일정 관리를 담당했습니다.",
+  pages:[11,22] },
 
 { slug:"nrp", title:"NRP — Neonatal Resuscitation VR", cat:"VR · 3D", filter:"vr3d",
   year:"2024", period:"2023.06 — 2024.04",
@@ -97,7 +101,8 @@ window.PROJECTS = [
   year:"2023", period:"2021.10 — 2023.02",
   role:"Branding 기획 및 디자인 · 웹 LMS UX/UI 기획 및 디자인 · 홍보 자료 · 학습 콘텐츠 인터랙션 에셋 · 프로젝트 후반 리드",
   tool:"Figma · Adobe Ps · Ai · Ae",
-  summary:"영어 교육 웹 LMS의 브랜딩부터 UX/UI 기획·디자인, 학습 콘텐츠 인터랙션 에셋 제작까지 담당했습니다. 프로젝트 후반에는 리드를 맡았습니다." },
+  summary:"영어 교육 웹 LMS의 브랜딩부터 UX/UI 기획·디자인, 학습 콘텐츠 인터랙션 에셋 제작까지 담당했습니다. 프로젝트 후반에는 리드를 맡았습니다.",
+  pages:[1,10] },
 
 { slug:"homepage", title:"Corporate Website Renewal", cat:"VISUAL DESIGN", filter:"visual",
   year:"2023", period:"2022.12 — 2023.02",
@@ -127,7 +132,8 @@ window.PROJECTS = [
   year:"2020", period:"2020.09 — 2020.12",
   role:"신가전 컨셉 디자인 제안",
   tool:"Rhino 3D · Keyshot · Adobe Ps · Ai",
-  summary:"'포스트코로나 시대를 위한 신가전 컨셉 디자인'을 주제로 한 코웨이 상품개발센터 주관 디자인 챌린지입니다. 우수상(은상)을 수상했습니다." }
+  summary:"'포스트코로나 시대를 위한 신가전 컨셉 디자인'을 주제로 한 코웨이 상품개발센터 주관 디자인 챌린지입니다. 우수상(은상)을 수상했습니다.",
+  pages:[1,50] }
 
 ];
 
@@ -148,7 +154,23 @@ window.PJ = {
     return (base || '') + 'assets/img/thumb/thumb_' + p.slug + '.jpg';
   },
   // 기본 4장 + 모바일 짝. 실제로 없는 파일은 화면에서 조용히 사라집니다.
+  //
+  // pages 를 쓰면 번호만 붙은 파일을 순서대로 읽습니다.
+  //   pages: [1, 10]          → assets/img/<slug>/1.jpg … 10.jpg
+  //   pages: [11, 22]         → 11.jpg … 22.jpg   (내보낸 페이지 번호 그대로)
+  // 슬라이드를 통째로 내보냈을 때 이름을 하나하나 바꾸지 않아도 됩니다.
   shots: function (p, base) {
+    if (p.pages) {
+      var from = p.pages[0], to = p.pages[1], out = [];
+      for (var i = from; i <= to; i++) {
+        out.push({
+          pc: (base || '') + 'assets/img/' + p.slug + '/' + i + '.jpg',
+          mo: '',
+          name: p.slug + '_' + i
+        });
+      }
+      return out;
+    }
     var names = p.shots || ['01_main', '02_flow', '03_ui', '04_detail'];
     return names.map(function (n) {
       return {
