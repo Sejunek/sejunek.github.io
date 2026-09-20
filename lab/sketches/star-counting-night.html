@@ -144,8 +144,11 @@ function sampleForm(count){
   return pts;
 }
 
-function gather(px,py){
+function gather(){
   const R=Math.min(w,h)*(0.15+Math.random()*0.06);
+  // 커서 위치가 아니라, 화면 가운데 근처에서 무작위로 자리를 잡습니다
+  const px=w*(0.5+(Math.random()-0.5)*0.34);
+  const py=h*(0.40+(Math.random()-0.5)*0.26);
   formCx=Math.max(R*1.15,Math.min(w-R*1.15,px));
   formCy=Math.max(R*1.15,Math.min(h*0.76-R*0.15,py));
   const count=Math.min(FAINT, 340+((Math.random()*180)|0));
@@ -365,15 +368,9 @@ canvas.addEventListener('pointerdown',e=>{
   if(pid!==null) return;
   pid=e.pointerId; canvas.setPointerCapture(pid); canvas.focus();
   holding=true;
-  const [x,y]=pos(e); gather(x,y);
+  gather();
   if(reduce.matches){ for(const s of faint) if(s.on){s.x=s.tx;s.y=s.ty;s.glow=1;} draw(); }
   else start();
-});
-canvas.addEventListener('pointermove',e=>{
-  if(e.pointerId!==pid||!holding) return;
-  const [x,y]=pos(e), dx=x-formCx, dy=y-formCy;
-  formCx=x; formCy=y;
-  for(const s of faint) if(s.on){ s.tx+=dx; s.ty+=dy; }
 });
 function up(e){
   if(e.pointerId!==pid) return;
@@ -389,7 +386,7 @@ canvas.addEventListener('keydown',e=>{
   if(e.key!==' '&&e.key!=='Enter') return;
   e.preventDefault();
   if(holding) return;
-  holding=true; gather(w*(0.25+Math.random()*0.5), h*(0.2+Math.random()*0.35));
+  holding=true; gather();
   start();
 });
 canvas.addEventListener('keyup',e=>{
