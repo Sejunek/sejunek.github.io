@@ -1,161 +1,412 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080e20"><title>별 헤는 밤 — Lab</title><link rel="icon" href="data:,"><style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080e20;color:#e4e8ef;font-family:Archivo,"Helvetica Neue",Arial,sans-serif}canvas{display:block;width:100%;height:100%;touch-action:none}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,canvas:focus-visible{outline:1px solid #8095ff;outline-offset:7px}.choices{position:fixed;inset:auto 10% 76px 43%;display:flex;justify-content:space-between;pointer-events:none}.star{pointer-events:auto;background:none;border:0;color:#99a4bb;min-width:64px;min-height:66px;padding:10px 12px;font-family:"AppleMyungjo","Batang",serif;font-size:13px;letter-spacing:4px;transition:color .6s}.star::before{content:"✧";display:block;font-family:Arial,sans-serif;font-size:24px;line-height:1.3;color:#bbc9ea;text-shadow:0 0 18px #829aff}.star[aria-pressed="true"]{color:#fff0d2}.star[aria-pressed="true"]::before{content:"✦";color:#e6cf9c}.star[data-seen="true"]::after{content:"·";display:block;position:absolute;margin-left:25px;color:#dbc89c}.hint{position:fixed;bottom:21px;left:20px;right:20px;text-align:center;font-size:11px;letter-spacing:1.2px;line-height:1.8;color:#8a8fa2;pointer-events:none;margin:0}.tools{position:fixed;top:22px;right:24px;display:flex;gap:18px}.tools button{border:0;background:none;color:#a2acc0;font-size:10px;letter-spacing:1.2px;padding:10px 0}.tools button[hidden]{display:none}.caption{position:fixed;top:13%;left:0;right:0;text-align:center;pointer-events:none;font-family:"AppleMyungjo","Batang",serif;color:#e6dfd3;font-size:clamp(19px,2.2vw,28px);letter-spacing:.5em;opacity:0;transition:opacity 1s}.caption.visible{opacity:1}.caption small{display:block;margin-top:17px;font-family:Archivo,Arial,sans-serif;color:#838da5;font-size:9px;letter-spacing:3px}.fallback{position:fixed;top:43%;left:10%;right:10%;text-align:center;font-size:14px;line-height:1.8;color:#c9c9c6}.fallback[hidden]{display:none}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}dialog{background:#10192bf5;color:#e4e8ef;border:1px solid #303c57;padding:28px;width:min(340px,85vw);box-shadow:0 20px 100px #0008}dialog::backdrop{background:#02050da0}dialog label{display:block;font-family:"AppleMyungjo","Batang",serif;letter-spacing:2px;margin-bottom:19px}dialog input{width:100%;padding:10px 0;border:0;border-bottom:1px solid #60708f;color:#fff;background:none;font-size:19px}dialog p{font-size:11px;color:#99a4bb;line-height:1.8}dialog div{display:flex;justify-content:flex-end;gap:20px;margin-top:24px}dialog button{border:0;background:none;color:#d6dfef;padding:8px;font-size:12px}svg{position:absolute;width:0;height:0;overflow:hidden}@media(max-width:500px){.choices{left:8%;right:8%;bottom:72px}.caption{top:16%}.tools{top:14px;right:20px}.star{font-size:12px;letter-spacing:3px}.hint{font-size:11px}.caption small{font-size:8px}}@media(max-height:480px){.caption{top:8%;font-size:18px}.caption small{display:none}.choices{left:5%;right:5%;bottom:37px}.star{min-height:48px;font-size:11px;padding:4px}.hint{bottom:9px}.tools{top:7px}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
-</style></head><body>
-<canvas id="sky" tabindex="0" aria-label="언덕에 기대 누워 하늘을 보는 윤동주와 별빛으로 기억을 그리는 밤하늘. 아래 추억, 쓸쓸함, 어머니 별을 선택하세요. 빈 하늘 클릭 또는 Escape로 흩어집니다."></canvas>
-<div class="caption" aria-hidden="true"><span id="word"></span><small id="verse"></small></div>
-<nav class="choices" aria-label="떠올릴 기억"><button class="star" data-scene="0" aria-pressed="false">추억</button><button class="star" data-scene="1" aria-pressed="false">쓸쓸함</button><button class="star" data-scene="2" aria-pressed="false">어머니</button></nav>
-<div class="tools"><button id="name" hidden>이름 남기기</button><button id="pause" aria-pressed="false">PAUSE</button></div>
-<p class="hint">별을 골라 잠시 머물러 보세요 · 빈 하늘을 누르면 다시 흩어집니다</p>
-<p id="announce" class="sr" role="status" aria-live="polite"></p><p id="fallback" class="fallback" hidden>이 브라우저에서 Canvas를 사용할 수 없습니다.<br>다른 브라우저에서 열어주세요.</p>
-<noscript><p class="fallback">이 밤하늘을 보려면 JavaScript를 켜주세요.</p></noscript>
-<dialog id="dialog"><form id="name-form"><label for="memory-name">지금 떠오르는 이름</label><input id="memory-name" maxlength="12" autocomplete="off" required aria-describedby="privacy"><p id="privacy">이름은 이 화면에만 잠시 머뭅니다.<br>저장하거나 전송하지 않습니다.</p><div><button type="button" id="cancel">돌아가기</button><button type="submit">별로 남기기</button></div></form></dialog>
-<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
-<g id="memory-paths">
-<path d="M120 294L307 265 405 320 216 355Z M120 294L120 309 216 372 405 336 405 320 M216 355L216 372 M142 323L144 465 163 461 163 337 M235 370L235 503 255 499 255 366 M378 343L378 458 393 454 393 340 M164 444L234 486 M255 478L378 437"/>
-<path d="M493 285L680 256 778 311 589 346Z M493 285L493 300 589 363 778 327 778 311 M589 346L589 363 M515 314L517 456 536 452 536 328 M608 361L608 494 628 490 628 357 M751 334L751 449 766 445 766 331 M537 435L607 477 M628 469L751 428"/>
-<path d="M213 241L300 230 300 283 213 295Z M219 292L219 321 M294 286L294 318 M590 232L677 221 677 274 590 286Z M596 283L596 312 M671 277L671 309"/>
-<path d="M193 300Q222 281 255 296Q282 282 319 287L352 307Q316 299 278 321Q239 308 216 319Z M255 296L278 321 M219 300L245 302 M285 295L313 295 M572 291Q602 272 634 287Q662 273 698 278L731 298Q695 290 657 312Q618 299 595 310Z M634 287L657 312"/>
-</g>
-<g id="solitude-paths"><path d="M398 206L528 183 538 343 407 371Z M410 219L518 201 525 323 417 346Z M407 371L480 415 613 382 538 343 M407 371L407 383 480 429 613 396 613 382 M480 415L480 429 M415 390L399 531 413 535 433 402 M486 429L482 573 498 573 504 425 M595 400L610 529 624 525 613 396 M524 353L539 459 M414 500L484 547 M503 539L607 496 M429 277L516 262 M429 298L518 283"/></g>
-<g id="mother-paths">
-<path d="M287 569C300 509 315 475 369 451C400 437 408 410 400 375C368 355 348 320 346 277C329 250 333 207 353 174C375 130 428 117 474 132C517 141 547 172 552 212C570 229 570 243 580 255L608 280Q610 291 588 294L594 309Q583 318 576 319L583 329Q579 341 563 346C560 365 550 379 529 378L489 366C479 393 483 420 514 442C558 465 591 494 614 569"/>
-<path d="M353 174C385 144 426 155 452 179C477 200 484 233 522 239L552 212 M350 208C365 186 391 187 411 204C432 223 433 252 460 269 M346 277C351 301 365 312 382 314 M403 270C421 257 438 271 434 291C431 308 411 312 405 293 M525 265Q543 273 556 266 M540 270L549 276 M575 319L559 319 M489 366Q460 355 448 340"/>
-<path d="M369 451Q399 468 432 445L464 469L488 434 M432 445L417 493L453 521L476 480L514 442 M417 493Q370 511 339 570 M453 521L467 577 M476 480Q525 513 548 572 M306 534Q338 545 351 571"/>
-<path d="M349 245C329 257 318 278 325 298C334 317 353 318 365 306 M329 264Q345 263 354 279 M366 194Q390 175 416 193 M377 176Q409 158 441 184"/>
-</g></defs></svg>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>별 헤는 밤 — Lab</title><link rel="icon" href="data:,">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#05070d;color:#e8ecf5;
+  font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+canvas:focus-visible{outline:2px solid #2d45ff;outline-offset:-3px}
+footer{position:absolute;bottom:22px;left:28px;right:28px;display:flex;
+  justify-content:space-between;align-items:flex-end;gap:16px;
+  pointer-events:none;font-size:11px;letter-spacing:1.2px;color:#5a6479}
+#word{font-family:"IBM Plex Sans KR","Apple SD Gothic Neo",sans-serif;
+  font-size:13px;letter-spacing:0;color:#aeb8cd;opacity:0;
+  transition:opacity 900ms ease}
+#word.on{opacity:1}
+#fallback{position:absolute;top:50%;width:100%;text-align:center;color:#6b7489}
+#fallback[hidden]{display:none}
+@media(max-width:600px){footer{left:18px;right:18px;bottom:16px;font-size:10px}}
+@media(max-height:420px){footer{bottom:12px}}
+</style>
+</head>
+<body>
+<canvas tabindex="0" aria-label="밤하늘. 화면을 누르고 있으면 희미한 별들이 모여 형상을 이루고, 손을 떼면 흩어지며 밝은 별 하나가 남습니다."></canvas>
+<footer>
+  <span>PRESS AND HOLD &middot; 누르고 있으면 별이 모입니다</span>
+  <span id="word"></span>
+</footer>
+<p id="fallback" hidden>Canvas를 지원하는 브라우저에서 열어주세요.</p>
+<noscript>이 스케치를 실행하려면 JavaScript를 켜주세요.</noscript>
 <script>
 (()=>{'use strict';
-const canvas=document.querySelector('#sky'),ctx=canvas.getContext('2d',{alpha:false});if(!ctx){document.querySelector('#fallback').hidden=false;return;}
-const reduced=matchMedia('(prefers-reduced-motion: reduce)'),buttons=[...document.querySelectorAll('.star')],pauseButton=document.querySelector('#pause'),caption=document.querySelector('.caption'),word=document.querySelector('#word'),verse=document.querySelector('#verse'),announce=document.querySelector('#announce'),dialog=document.querySelector('#dialog');
-const scenes=[{word:'추억',verse:'별 하나에 추억과',group:'memory-paths'},{word:'쓸쓸함',verse:'별 하나에 쓸쓸함과',group:'solitude-paths'},{word:'어머니',verse:'별 하나에 어머니, 어머니',group:'mother-paths'}];
-let seed=1043;function random(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}const N=1400,particles=[],field=[],seen=new Set();let width=1,height=1,dpr=1,bg,frame=0,last=0,time=0,progress=1,active=-1,paused=false,mouse={x:0,y:0},parallax={x:0,y:0},customPoints=[],targetPoints=[];
-for(let i=0;i<N;i++)particles.push({x:random(),y:random(),sx:0,sy:0,tx:0,ty:0,ox:random(),oy:random(),phase:random()*Math.PI*2,size:.45+random()*.9,delay:random()*.19,arc:(random()-.5)*.28});for(let i=0;i<620;i++)field.push({x:random(),y:random(),size:.25+random()*.95,phase:random()*6,depth:.1+random()*.9});
-function pathsToPoints(id){const paths=[...document.querySelectorAll('#'+id+' path')],lengths=paths.map(p=>p.getTotalLength()),total=lengths.reduce((a,b)=>a+b,0),points=[];for(let i=0;i<N;i++){let n=(i+.5)/N*total,j=0;while(j<paths.length-1&&n>lengths[j])n-=lengths[j++];const p=paths[j].getPointAtLength(n);points.push({x:p.x,y:p.y});}return points;}
-const forms=scenes.map(s=>pathsToPoints(s.group));
-function toScreen(p){const scale=Math.min(width/1020,height/850);return{x:width*.5+(p.x-450)*scale,y:height*.51+(p.y-365)*scale};}
-function setTargets(){targetPoints=active===3?customPoints:active>=0?forms[active]:[];particles.forEach((p,i)=>{p.sx=p.x;p.sy=p.y;if(active<0){p.tx=p.ox;p.ty=p.oy;}else{const pt=toScreen(targetPoints[i%targetPoints.length]);p.tx=(pt.x+Math.sin(p.phase)*.8)/width;p.ty=(pt.y+Math.cos(p.phase)*.8)/height;}});progress=(reduced.matches||paused)?1:0;if(reduced.matches||paused)particles.forEach(p=>{p.x=p.tx;p.y=p.ty;});}
-function choose(index){active=index;setTargets();window.nightStats.active=active;window.nightStats.progress=progress;buttons.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));caption.classList.remove('visible');if(index>=0){announce.textContent=(index===3?document.querySelector('#memory-name').value.trim():scenes[index].word)+'의 별들이 모입니다.';}else announce.textContent='별들이 다시 밤하늘로 흩어집니다.';invalidate();}
-buttons.forEach((b,i)=>b.addEventListener('click',()=>choose(active===i?-1:i)));
-function background(){bg=document.createElement('canvas');bg.width=width;bg.height=height;const c=bg.getContext('2d');c.fillStyle='#080e20';c.fillRect(0,0,width,height);let g=c.createRadialGradient(width*.43,height*.48,0,width*.43,height*.48,width*.65);g.addColorStop(0,'#162239');g.addColorStop(.55,'#0c152b');g.addColorStop(1,'#070b19');c.fillStyle=g;c.fillRect(0,0,width,height);g=c.createRadialGradient(width*.74,height*.31,0,width*.74,height*.31,width*.34);g.addColorStop(0,'#493f551c');g.addColorStop(1,'#0c152b00');c.fillStyle=g;c.fillRect(0,0,width,height);}
-/* A small, interpretive ink portrait of the poet: no external assets.
-   Geometry is prebuilt once; time is the caller's animation clock in seconds.
-   Figure occupies a 400 × 280 drawing box at the lower left. The mobile
-   baseline leaves 176 px for scene choices and instructions. */
-const drawPoetForeground = (() => {
-  const path = (d) => new Path2D(d);
-  const shapes = {
-    farLeg: path('M171 198 C188 174 191 140 213 105 Q222 92 234 97 Q249 105 254 130 L282 203 304 210 300 222 267 224 Q254 199 244 173 L228 131 Q226 163 215 198 L205 215 Z'),
-    farLegShade: path('M225 109 Q230 141 225 157 L212 203 196 215 186 204 Q208 166 219 128 Z M239 124 Q257 169 277 212 L264 215 243 164 Z'),
-    farShoe: path('M276 205 Q289 211 301 210 L315 203 Q322 201 326 207 Q324 215 310 222 L289 230 Q276 231 269 225 L269 218 Z'),
-    nearLeg: path('M168 191 C199 201 223 177 245 154 C260 137 278 132 289 146 C301 162 315 194 332 223 L351 233 345 247 321 243 Q294 225 280 200 L268 174 C251 203 229 231 198 241 Q178 238 164 225 Z'),
-    nearLegShade: path('M178 220 C211 227 240 198 268 168 Q269 185 257 203 C238 225 222 239 198 241 L177 234 Z M280 158 Q293 194 324 232 L317 237 Q291 213 278 192 L268 175 Z'),
-    trouserLines: path('M220 188 Q239 180 257 159 M269 155 Q276 156 281 165 M280 207 L299 225 M284 214 L298 230 M214 137 Q209 157 208 169 M248 181 L244 195 M192 225 Q205 229 218 222'),
-    nearShoe: path('M328 226 Q338 236 349 232 L367 224 Q376 221 380 226 Q380 232 368 241 L347 253 Q336 258 322 250 L315 243 Z'),
-    shoeLight: path('M328 244 Q341 253 352 246 L371 235 M280 224 Q288 227 298 224 L315 216'),
-    rearArm: path('M113 101 Q97 96 91 111 Q84 135 88 157 C82 179 65 200 54 221 L44 234 55 244 Q73 232 87 212 L115 167 Q121 143 123 119 Z'),
-    rearArmShade: path('M94 118 Q88 143 96 158 C88 181 74 207 57 226 L61 234 Q78 222 95 198 L115 165 Q111 144 112 125 Z'),
-    rearHand: path('M44 232 Q37 234 29 241 L17 243 Q10 247 13 253 L22 254 32 248 Q42 251 52 247 L58 240 Z'),
-    shirt: path('M112 97 L132 92 Q145 93 153 103 C164 116 164 145 174 166 Q182 184 194 196 Q188 213 168 220 C151 212 134 198 124 181 Q109 157 105 131 Q101 111 112 97 Z'),
-    shirtShade: path('M110 125 Q121 151 137 164 C138 184 157 202 177 210 L168 220 Q135 201 124 181 Q112 162 109 147 Z M147 99 Q153 120 150 135 Q145 138 142 132 L136 99 Z'),
-    shirtLight: path('M111 103 Q123 103 134 98 L142 111 Q130 120 117 117 Z M121 145 Q135 153 153 151 L158 161 Q139 164 127 158 Z'),
-    shirtFolds: path('M113 130 Q119 144 129 151 M129 178 Q139 188 151 190 M138 181 Q145 187 153 186 M152 175 Q157 188 172 198 M158 201 L171 205 M148 126 L145 148 M143 154 L147 167 M122 166 L127 175'),
-    neck: path('M119 74 L115 95 Q118 108 130 106 L141 96 139 77 Z'),
-    neckShade: path('M121 78 L135 81 133 98 124 102 120 94 Z'),
-    head: path('M111 40 C115 28 132 26 143 34 Q150 38 151 46 L159 48 Q163 50 158 54 L156 58 Q160 62 155 67 Q151 76 139 79 L131 89 Q119 87 113 74 Q105 66 105 54 Z'),
-    faceShade: path('M117 53 Q124 57 128 68 L142 72 137 79 131 89 Q119 87 113 74 Q108 67 108 60 Z'),
-    hair: path('M108 68 Q99 64 99 51 C97 37 107 24 121 22 Q140 18 151 34 L147 44 Q139 42 133 37 Q127 48 116 48 L116 60 111 65 Z'),
-    hairSweep: path('M105 42 Q108 29 123 27 Q135 25 143 31 M108 48 Q119 41 124 32 M111 32 Q121 23 132 25'),
-    ear: path('M113 53 Q105 49 105 57 Q105 65 112 68 L117 63'),
-    faceLines: path('M138 48 L144 45 M140 51 L145 49 M154 61 L150 63 M111 57 Q109 55 109 59 L112 62'),
-    collar: path('M115 94 L125 103 131 98 134 106 142 96 147 102 135 118 128 108 121 115 109 101 Z'),
-    nearArm: path('M147 104 Q159 101 164 114 C169 133 169 155 177 175 L196 211 Q207 229 221 242 L215 253 Q194 245 183 229 L153 187 C145 166 141 145 140 126 Q139 112 147 104 Z'),
-    nearArmShade: path('M151 117 Q154 141 160 164 L183 216 Q195 235 215 247 L211 252 Q190 241 182 228 L153 187 Q145 164 143 142 Z'),
-    cuff: path('M207 232 L220 240 216 252 203 244 Z'),
-    nearHand: path('M219 243 Q230 243 238 249 L252 250 Q259 252 258 256 L250 257 Q257 261 260 266 L258 271 Q256 272 253 267 L245 263 Q252 273 248 275 L242 269 Q247 278 242 279 L231 268 Q221 266 213 255 Z'),
-    fingers: path('M242 258 L251 261 M236 260 Q242 264 245 269 M230 262 Q237 268 241 274 M29 243 L20 248'),
-    seams: path('M147 108 Q154 109 159 116 M146 150 L152 174 M161 194 L171 207 M202 237 L213 243 M108 105 Q104 115 106 125'),
-    groundStrokes: path('M31 258 Q65 253 92 256 M115 236 L139 239 M266 257 Q287 253 307 254 M203 273 L213 271 M51 264 L67 263'),
-  };
-  const grass = Array.from({length: 30}, (_, i) => ({
-    x: ((i * 137.17) % 565) - 70,
-    y: 273 + Math.sin(i * 1.91) * 11 + Math.max(0, ((i * 137.17) % 565) - 330) * .12,
-    h: 4 + (i * 17 % 10), lean: Math.sin(i * 2.2) * 5, phase: i * 1.63,
-  }));
-  return function drawPoetForeground(ctx, width, height, time) {
-    const mobile = width <= 600;
-    const short = height <= 480;
-    const desiredWidth = mobile ? Math.min(190, Math.max(155, width * .45)) : Math.min(345, Math.max(270, width * .265));
-    const scale = Math.min(desiredWidth / 400, height * (short ? .46 : .37) / 280);
-    const baseline = height - (short ? 115 : mobile ? 176 : 68);
-    const left = mobile ? 9 : Math.max(15, width * .022);
-    const top = baseline - 280 * scale;
-    const breath = Math.sin(time * .74) * .8;
-    ctx.save();
-    // The low bank continues to the canvas edges and provides a quiet base.
-    const hill = ctx.createLinearGradient(0, baseline - 12, 0, height);
-    hill.addColorStop(0, '#102126'); hill.addColorStop(.5, '#0b171f'); hill.addColorStop(1, '#080f19');
-    ctx.fillStyle = hill;
-    ctx.beginPath(); ctx.moveTo(0, baseline - 30 * scale);
-    ctx.bezierCurveTo(width * .09, baseline - 60 * scale, width * .25, baseline - 20 * scale, width * .39, baseline + 45 * scale);
-    ctx.bezierCurveTo(width * .53, baseline + 100 * scale, width * .68, height + 10, width, height + 28);
-    ctx.lineTo(width,height); ctx.lineTo(0,height); ctx.closePath(); ctx.fill();
-    // Scale all line weights with the figure so they stay delicate on mobile.
-    ctx.translate(left, top); ctx.scale(scale, scale);
-    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-    const draw = (shape, fill, outline = true, line = 1.05) => {
-      if (fill) { ctx.fillStyle = fill; ctx.fill(shapes[shape]); }
-      if (outline) { ctx.lineWidth = line; ctx.strokeStyle = '#111d28'; ctx.stroke(shapes[shape]); }
-    };
-    const stroke = (shape, color, line = .9) => {
-      ctx.lineWidth = line; ctx.strokeStyle = color; ctx.stroke(shapes[shape]);
-    };
-    // Small grass blades use only the supplied clock; pause also freezes wind.
-    for (const blade of grass) {
-      const wind = Math.sin(time * .52 + blade.phase) * 1.3;
-      ctx.strokeStyle = blade.x % 3 > 1 ? '#36464a' : '#24373b'; ctx.lineWidth = .8;
-      ctx.beginPath(); ctx.moveTo(blade.x, blade.y); ctx.quadraticCurveTo(blade.x + blade.lean * .3, blade.y - blade.h * .65, blade.x + blade.lean + wind, blade.y - blade.h); ctx.stroke();
-    }
-    // Contact shadows anchor hands and clothes to the slope.
-    ctx.fillStyle = 'rgba(4,11,18,.24)';
-    ctx.beginPath(); ctx.ellipse(190,253,176,12,-.045,0,Math.PI*2);ctx.fill();
-    draw('farLeg','#283442'); draw('farLegShade','#1d2a38',false);
-    draw('farShoe','#1b2733');
-    draw('nearLeg','#394553'); draw('nearLegShade','#263341',false);
-    stroke('trouserLines','#627078',.72);
-    draw('nearShoe','#1d2934'); stroke('shoeLight','#83908f',.85);
-    draw('rearArm','#818f90'); draw('rearArmShade','#535f68',false); draw('rearHand','#a9a692');
-    // Breath deforms the chest around the hips, leaving planted hands still.
-    ctx.save(); ctx.translate(170,211); ctx.scale(1,1 + breath * .004); ctx.translate(-170,-211);
-    draw('shirt','#9ca7a3'); draw('shirtShade','#6c7b7d',false); draw('shirtLight','#b8c0b4',false); stroke('shirtFolds','#596970',.85);
-    ctx.save();ctx.translate(0,-breath);
-    draw('neck','#bbb6a1'); draw('neckShade','#858f89',false);
-    draw('head','#c1bfaa'); draw('faceShade','#8b9993',false);
-    draw('hair','#17222d'); stroke('hairSweep','#53616a',.8);
-    draw('ear','#a5ab99',true,.8); stroke('faceLines','#3c5058',.8);
-    ctx.restore();
-    draw('collar','#bec6b8',true,.85);
-    ctx.restore();
-    draw('nearArm','#a5afa7'); draw('nearArmShade','#748383',false);draw('cuff','#c0c6b5',true,.8);
-    draw('nearHand','#bcb8a0',true,.85);stroke('fingers','#637570',.8);stroke('seams','#ced2bd',.65);
-    stroke('groundStrokes','#374648',.8);
-    ctx.restore();
-    return {x:left, y:top + 20*scale, width:380*scale, height:260*scale, baseline};
-  };
-})();
+const canvas=document.querySelector('canvas');
+const ctx=canvas.getContext('2d',{alpha:false});
+if(!ctx){document.querySelector('#fallback').hidden=false;return;}
+const wordEl=document.querySelector('#word');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)');
 
-function paint(dt){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.drawImage(bg,0,0);const motion=!paused&&!reduced.matches;if(motion){time+=dt;progress=Math.min(1,progress+dt/(active<0?3:4.5));parallax.x+=(mouse.x-parallax.x)*Math.min(1,dt*2);parallax.y+=(mouse.y-parallax.y)*Math.min(1,dt*2);}else if(reduced.matches){parallax.x=parallax.y=0;progress=1;}
-for(const s of field){const twinkle=.35+.2*Math.sin(time*.45+s.phase);ctx.fillStyle='rgba(171,193,231,'+twinkle+')';ctx.beginPath();ctx.arc(s.x*width+parallax.x*s.depth*7,s.y*height+parallax.y*s.depth*7,s.size,0,Math.PI*2);ctx.fill();}
-for(let i=0;i<N;i++){const p=particles[i],t=Math.max(0,Math.min(1,(progress-p.delay)/(1-p.delay))),e=t*t*t*(t*(t*6-15)+10);p.x=p.sx+(p.tx-p.sx)*e+Math.sin(t*Math.PI)*p.arc*.45;p.y=p.sy+(p.ty-p.sy)*e+Math.sin(t*Math.PI)*p.arc;const flutter=motion?Math.sin(time*.7+p.phase):Math.sin(p.phase);const x=p.x*width+parallax.x*3,y=p.y*height+parallax.y*3,a=active>=0?.40+e*.32:.26;ctx.fillStyle=(i%7===0?'rgba(239,212,162,':'rgba(195,212,244,')+(a+flutter*.10)+')';ctx.beginPath();ctx.arc(x,y,p.size*(active>=0?1:.7),0,Math.PI*2);ctx.fill();if(i%47===0){const glow=ctx.createRadialGradient(x,y,0,x,y,10);glow.addColorStop(0,'rgba(182,207,255,.18)');glow.addColorStop(1,'rgba(122,155,255,0)');ctx.fillStyle=glow;ctx.fillRect(x-10,y-10,20,20);ctx.strokeStyle='rgba(218,227,251,.5)';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(x-3,y);ctx.lineTo(x+3,y);ctx.moveTo(x,y-3);ctx.lineTo(x,y+3);ctx.stroke();}}
-drawPoetForeground(ctx,width,height,time);
-if(active>=0&&progress>.8){word.textContent=active===3?document.querySelector('#memory-name').value.trim():scenes[active].word;verse.textContent=active===3?'당신이 떠올린 이름':scenes[active].verse;caption.classList.add('visible');if(active<3&&!seen.has(active)){seen.add(active);buttons[active].dataset.seen='true';if(seen.size===3)document.querySelector('#name').hidden=false;}}window.nightStats.frames++;window.nightStats.active=active;window.nightStats.progress=progress;}
-window.nightStats={frames:0,active:-1,progress:1};
-function tick(now){frame=0;if(document.hidden)return;const dt=last?Math.min((now-last)/1000,.05):0;last=now;paint(dt);if(!paused&&!reduced.matches)invalidate();else last=0;}
-function invalidate(){if(!document.hidden&&!frame)frame=requestAnimationFrame(tick);}
-function resize(){width=innerWidth;height=innerHeight;dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);background();const prev=progress;setTargets();if(active<0||prev===1){particles.forEach(p=>{p.x=p.sx=p.tx;p.y=p.sy=p.ty;});progress=1;}invalidate();}
-canvas.addEventListener('pointermove',e=>{if(reduced.matches)return;mouse.x=e.clientX/width-.5;mouse.y=e.clientY/height-.5;});canvas.addEventListener('pointerleave',()=>{mouse.x=mouse.y=0;});canvas.addEventListener('click',()=>choose(-1));canvas.addEventListener('keydown',e=>{if(e.key==='Escape')choose(-1);if(['1','2','3'].includes(e.key))choose(Number(e.key)-1);});
-pauseButton.addEventListener('click',()=>{paused=!paused;pauseButton.textContent=paused?'RESUME':'PAUSE';pauseButton.setAttribute('aria-pressed',String(paused));last=0;invalidate();});function syncMotion(){if(reduced.matches){particles.forEach(p=>{p.x=p.sx=p.tx;p.y=p.sy=p.ty;});progress=1;pauseButton.hidden=true;}else pauseButton.hidden=false;cancelAnimationFrame(frame);frame=0;last=0;invalidate();}reduced.addEventListener('change',syncMotion);document.addEventListener('visibilitychange',()=>{cancelAnimationFrame(frame);frame=0;last=0;if(!document.hidden)invalidate();});addEventListener('resize',resize);
-document.querySelector('#name').addEventListener('click',()=>dialog.showModal());document.querySelector('#cancel').addEventListener('click',()=>dialog.close());document.querySelector('#name-form').addEventListener('submit',e=>{e.preventDefault();const value=document.querySelector('#memory-name').value.trim();if(!value)return;const c=document.createElement('canvas');c.width=900;c.height=680;const pen=c.getContext('2d');pen.fillStyle='white';pen.textAlign='center';pen.textBaseline='middle';pen.font='500 '+Math.min(150,660/Math.max(1,[...value].length))+'px "AppleMyungjo", "Batang", serif';pen.fillText(value,450,365);const data=pen.getImageData(0,0,900,680).data,points=[];for(let y=180;y<540;y+=3)for(let x=60;x<840;x+=3)if(data[(y*900+x)*4+3]>100)points.push({x,y});if(!points.length)return;customPoints=Array.from({length:N},(_,i)=>points[Math.floor(i*points.length/N)]);dialog.close();choose(3);});
-resize();syncMotion();
+let w=1,h=1,dpr=1,raf=0,last=0,t=0;
+
+/* ---------- 별 ----------
+   희미한 별이 다수, 밝은 별은 소수.
+   형상을 만드는 것은 희미한 별들이고, 밝은 별은 '남은 기억'입니다. */
+const FAINT=760;
+let faint=[], bright=[];
+
+function seedStars(){
+  faint=[];
+  for(let i=0;i<FAINT;i++){
+    const x=Math.random()*w, y=Math.random()*h*0.9;
+    faint.push({
+      hx:x, hy:y,          // 제자리
+      x, y,                // 현재
+      vx:0, vy:0,
+      tx:0, ty:0,          // 모일 목표
+      on:false,            // 목표를 향하는 중인가
+      base:0.05+Math.random()*0.22,
+      glow:0,
+      tw:Math.random()*6.28, tws:0.4+Math.random()*1.1,
+      r:Math.random()<0.12?1.15:0.75
+    });
+  }
+  bright=[];
+  const n=6;
+  for(let i=0;i<n;i++) bright.push(makeBright(
+    w*(0.06+Math.random()*0.88), h*(0.06+Math.random()*0.6)));
+}
+function makeBright(x,y){
+  return { x,y, r:1.5+Math.random()*1.1, tw:Math.random()*6.28,
+           tws:0.5+Math.random()*0.9, born:1 };
+}
+
+/* ---------- 형상 ----------
+   고정된 그림이 아니라 매번 다른 곡선을 만듭니다.
+   같은 모양이 두 번 나오지 않습니다. */
+const FORMS=[
+  // 장미곡선
+  (n)=>{const k=[3,4,5,6,7][(Math.random()*5)|0], p=[];
+    for(let i=0;i<n;i++){const a=i/n*Math.PI*2*((k%2)?1:1);
+      const r=Math.cos(k*a); p.push([Math.cos(a)*r, Math.sin(a)*r]);} return p;},
+  // 리사주
+  (n)=>{const a=1+((Math.random()*4)|0), b=1+((Math.random()*4)|0),
+      d=Math.random()*Math.PI, p=[];
+    for(let i=0;i<n;i++){const u=i/n*Math.PI*2;
+      p.push([Math.sin(a*u+d), Math.sin(b*u)]);} return p;},
+  // 별 다각형
+  (n)=>{const pts=5+((Math.random()*4)|0), inner=0.36+Math.random()*0.2, p=[];
+    for(let i=0;i<n;i++){const u=i/n*Math.PI*2;
+      const seg=Math.cos(pts*u)*0.5+0.5, r=inner+(1-inner)*seg;
+      p.push([Math.cos(u)*r, Math.sin(u)*r]);} return p;},
+  // 나선
+  (n)=>{const turns=2+Math.random()*2.5, p=[];
+    for(let i=0;i<n;i++){const u=i/n, a=u*Math.PI*2*turns;
+      p.push([Math.cos(a)*u, Math.sin(a)*u]);} return p;},
+  // 초타원
+  (n)=>{const e=0.4+Math.random()*2.2, p=[];
+    for(let i=0;i<n;i++){const a=i/n*Math.PI*2,c=Math.cos(a),s=Math.sin(a);
+      p.push([Math.sign(c)*Math.pow(Math.abs(c),2/e),
+              Math.sign(s)*Math.pow(Math.abs(s),2/e)]);} return p;},
+  // 고리 + 흔들림
+  (n)=>{const k=3+((Math.random()*6)|0), amp=0.1+Math.random()*0.25, p=[];
+    for(let i=0;i<n;i++){const a=i/n*Math.PI*2, r=1+Math.sin(k*a)*amp;
+      p.push([Math.cos(a)*r, Math.sin(a)*r]);} return p;}
+];
+
+const WORDS=['별 하나에 추억과','별 하나에 사랑과','별 하나에 쓸쓸함과',
+             '별 하나에 동경과','별 하나에 시와','별 하나에 어머니, 어머니'];
+
+let holding=false, formCx=0, formCy=0;
+
+// 윤곽선 안쪽을 별로 채웁니다 — 선이 아니라 면이라야 실루엣으로 보입니다
+function inside(poly, x, y){
+  let hit=false;
+  for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+    const [xi,yi]=poly[i], [xj,yj]=poly[j];
+    if((yi>y)!==(yj>y) && x < (xj-xi)*(y-yi)/(yj-yi)+xi) hit=!hit;
+  }
+  return hit;
+}
+function sampleForm(count){
+  const make=FORMS[(Math.random()*FORMS.length)|0];
+  const poly=make(180);
+  const pts=[];
+  // 테두리에 일부를 먼저 얹어 윤곽을 또렷하게
+  const edge=Math.round(count*0.30);
+  for(let i=0;i<edge;i++){
+    const p=poly[(i*poly.length/edge|0)%poly.length];
+    pts.push([p[0]+(Math.random()-0.5)*0.03, p[1]+(Math.random()-0.5)*0.03]);
+  }
+  // 나머지는 내부를 채웁니다
+  let guard=0;
+  while(pts.length<count && guard<count*40){
+    guard++;
+    const x=Math.random()*2-1, y=Math.random()*2-1;
+    if(inside(poly,x,y)) pts.push([x,y]);
+  }
+  // 내부가 거의 없는 형상(나선 등)이면 테두리로 채웁니다
+  while(pts.length<count){
+    const p=poly[(Math.random()*poly.length)|0];
+    pts.push([p[0]+(Math.random()-0.5)*0.05, p[1]+(Math.random()-0.5)*0.05]);
+  }
+  return pts;
+}
+
+function gather(px,py){
+  const R=Math.min(w,h)*(0.15+Math.random()*0.06);
+  formCx=Math.max(R*1.15,Math.min(w-R*1.15,px));
+  formCy=Math.max(R*1.15,Math.min(h*0.76-R*0.15,py));
+  const count=Math.min(FAINT, 340+((Math.random()*180)|0));
+  const pts=sampleForm(count);
+  const rot=Math.random()*Math.PI*2, cr=Math.cos(rot), sr=Math.sin(rot);
+  // 가까운 별부터 목표를 받습니다 — 자연스럽게 모입니다
+  const order=faint.map((s,i)=>i).sort((a,b)=>
+    ((faint[a].x-formCx)**2+(faint[a].y-formCy)**2) -
+    ((faint[b].x-formCx)**2+(faint[b].y-formCy)**2));
+  for(const s of faint) s.on=false;
+  for(let i=0;i<count;i++){
+    const s=faint[order[i]], [ux,uy]=pts[i];
+    s.tx=formCx+(ux*cr-uy*sr)*R;
+    s.ty=formCy+(ux*sr+uy*cr)*R;
+    s.on=true;
+    s.lift=0.35+Math.random()*0.65;   // 모였을 때 밝기를 별마다 다르게
+  }
+}
+function release(){
+  for(const s of faint) s.on=false;
+  // 모였던 기억이 밝은 별 하나로 남습니다
+  bright.push(makeBright(formCx,formCy));
+  if(bright.length>14) bright.shift();
+  wordEl.textContent=WORDS[(Math.random()*WORDS.length)|0];
+  wordEl.classList.add('on');
+  clearTimeout(release._t);
+  release._t=setTimeout(()=>wordEl.classList.remove('on'),2600);
+}
+
+/* ---------- 지상 실루엣 ---------- */
+function groundY(){ return h*0.88; }
+function figScale(){ return Math.min(h*0.105, w*0.062); }
+
+function drawFigure(){
+  // 뒷모습만. 색 없음. 하늘에 비해 아주 작게.
+  const s=figScale(), gx=w*0.43, gy=groundY();
+  const U=s/100;                       // 100 단위로 그리고 줄입니다
+  ctx.save();
+  ctx.translate(gx,gy); ctx.scale(U,U);
+  ctx.fillStyle='#010206';
+
+  // 다리 둘 — 사이를 띄워야 사람으로 읽힙니다
+  ctx.fillRect(-13, -42, 10, 43);
+  ctx.fillRect(  3, -42, 10, 43);
+  // 몸통 — 어깨가 넓고 허리로 좁아지는 외투
+  ctx.beginPath();
+  ctx.moveTo(-15,-40);
+  ctx.lineTo(-17,-72);
+  ctx.quadraticCurveTo(-18,-80,-10,-83);
+  ctx.lineTo(10,-83);
+  ctx.quadraticCurveTo(18,-80,17,-72);
+  ctx.lineTo(15,-40);
+  ctx.closePath(); ctx.fill();
+  // 팔 — 몸에 붙여 실루엣 윤곽만
+  ctx.beginPath();
+  ctx.moveTo(-17,-78); ctx.quadraticCurveTo(-23,-66,-20,-50);
+  ctx.lineTo(-14,-50); ctx.lineTo(-15,-76); ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(17,-78); ctx.quadraticCurveTo(23,-66,20,-50);
+  ctx.lineTo(14,-50); ctx.lineTo(15,-76); ctx.closePath(); ctx.fill();
+  // 목과 머리
+  ctx.fillRect(-4,-89,8,8);
+  ctx.beginPath();
+  ctx.ellipse(0,-97, 9.5, 10.5, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawTree(sway){
+  const s=figScale()*1.75, gx=w*0.565, gy=groundY();
+  ctx.fillStyle='#020307';
+  ctx.strokeStyle='#020307';
+  ctx.lineCap='round';
+  // 줄기 — 위로 갈수록 바람에 더 휩니다
+  ctx.lineWidth=Math.max(1.2, s*0.045);
+  ctx.beginPath();
+  ctx.moveTo(gx, gy);
+  ctx.quadraticCurveTo(gx+sway*s*0.10, gy-s*0.45, gx+sway*s*0.22, gy-s*0.78);
+  ctx.stroke();
+  // 가지
+  const tipx=gx+sway*s*0.22, tipy=gy-s*0.78;
+  const br=[[-0.30,-0.16,0.55],[0.28,-0.20,0.50],[-0.18,-0.34,0.42],[0.20,-0.36,0.40]];
+  ctx.lineWidth=Math.max(0.9, s*0.022);
+  for(const [dx,dy,f] of br){
+    const bx=gx+sway*s*0.16*f, by=gy-s*0.78*f-s*0.06;
+    ctx.beginPath(); ctx.moveTo(bx,by);
+    ctx.quadraticCurveTo(bx+dx*s*0.5, by+dy*s*0.5,
+                         bx+dx*s*0.95+sway*s*0.10, by+dy*s*0.95);
+    ctx.stroke();
+  }
+  // 잎 덩어리 — 크기와 각도를 흩어 자연스럽게
+  const blobs=[[  0.00,-0.16,0.30,0.21,-0.2],[-0.23,-0.05,0.22,0.15, 0.35],
+               [ 0.22,-0.07,0.21,0.14,-0.3],[-0.11,-0.28,0.20,0.14, 0.15],
+               [ 0.13,-0.27,0.18,0.13,-0.1],[-0.32,-0.16,0.14,0.10, 0.5],
+               [ 0.31,-0.18,0.13,0.10,-0.45],[ 0.02,-0.36,0.13,0.09, 0.1]];
+  for(const [dx,dy,rx,ry,rot] of blobs){
+    ctx.beginPath();
+    ctx.ellipse(tipx+dx*s+sway*s*0.06*(1-dy), tipy+dy*s,
+                rx*s, ry*s, rot+sway*0.05, 0, Math.PI*2);
+    ctx.fill();
+  }
+}
+
+function drawGround(){
+  const gy=groundY();
+  ctx.fillStyle='#020307';
+  ctx.beginPath();
+  ctx.moveTo(0,h);
+  ctx.lineTo(0,gy+h*0.012);
+  // 아주 완만한 언덕
+  ctx.quadraticCurveTo(w*0.3, gy-h*0.016, w*0.55, gy);
+  ctx.quadraticCurveTo(w*0.8, gy+h*0.012, w, gy-h*0.006);
+  ctx.lineTo(w,h);
+  ctx.closePath(); ctx.fill();
+}
+
+/* ---------- 렌더 ---------- */
+function draw(){
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  // 하늘 — 위가 더 깊고 지평선이 아주 조금 밝습니다
+  const g=ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'#04060c');
+  g.addColorStop(0.7,'#070b16');
+  g.addColorStop(1,'#0b1020');
+  ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+
+  // 희미한 별 — 밝기 단계로 묶어서 한 번에 그립니다
+  const buckets=new Map();
+  for(const s of faint){
+    const tw=0.75+Math.sin(t*s.tws+s.tw)*0.25;
+    const a=Math.min(1,(s.base+s.glow*0.55)*tw);
+    const key=Math.round(a*14);
+    if(!buckets.has(key)) buckets.set(key,[]);
+    buckets.get(key).push(s);
+  }
+  for(const [key,list] of buckets){
+    const a=key/14;
+    if(a<=0.012) continue;
+    ctx.fillStyle='rgba(200,214,240,'+a.toFixed(3)+')';
+    ctx.beginPath();
+    for(const s of list){
+      const r=s.r*(1+s.glow*0.8);
+      ctx.moveTo(s.x+r, s.y);
+      ctx.arc(s.x, s.y, r, 0, Math.PI*2);
+    }
+    ctx.fill();
+  }
+
+  // 밝은 별 — 소수. 빛무리와 십자 섬광.
+  for(const b of bright){
+    const tw=0.68+Math.sin(t*b.tws+b.tw)*0.32;
+    const r=b.r*b.born;
+    const rg=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,r*9);
+    rg.addColorStop(0,'rgba(226,234,255,'+(0.85*tw).toFixed(3)+')');
+    rg.addColorStop(0.18,'rgba(150,175,245,'+(0.28*tw).toFixed(3)+')');
+    rg.addColorStop(1,'rgba(45,69,255,0)');
+    ctx.fillStyle=rg;
+    ctx.beginPath(); ctx.arc(b.x,b.y,r*9,0,Math.PI*2); ctx.fill();
+
+    ctx.strokeStyle='rgba(219,229,255,'+(0.5*tw).toFixed(3)+')';
+    ctx.lineWidth=0.7;
+    const L=r*4.2*tw;
+    ctx.beginPath();
+    ctx.moveTo(b.x-L,b.y); ctx.lineTo(b.x+L,b.y);
+    ctx.moveTo(b.x,b.y-L); ctx.lineTo(b.x,b.y+L);
+    ctx.stroke();
+
+    ctx.fillStyle='rgba(255,255,255,'+(0.95*tw).toFixed(3)+')';
+    ctx.beginPath(); ctx.arc(b.x,b.y,r,0,Math.PI*2); ctx.fill();
+  }
+
+  drawGround();
+  const sway=reduce.matches?0:Math.sin(t*0.55)*0.6+Math.sin(t*1.31+1.1)*0.22;
+  drawTree(sway);
+  drawFigure();
+}
+
+function step(dt){
+  t+=dt;
+  for(const s of faint){
+    const tx=s.on?s.tx:s.hx, ty=s.on?s.ty:s.hy;
+    const k=s.on?7.2:1.5;                  // 모일 때 빠르고, 흩어질 때 느리게
+    const a=1-Math.exp(-k*dt);
+    s.x+=(tx-s.x)*a; s.y+=(ty-s.y)*a;
+    const want=s.on?(s.lift||1):0;
+    s.glow+=(want-s.glow)*(1-Math.exp(-(s.on?6:2)*dt));
+  }
+  for(const b of bright) if(b.born<1) b.born=Math.min(1,b.born+dt*1.6);
+}
+
+function frame(time){
+  raf=0;
+  if(document.hidden) return;
+  const dt=last?Math.min((time-last)/1000,0.05):1/60;
+  last=time;
+  if(reduce.matches){ draw(); return; }
+  step(dt); draw();
+  raf=requestAnimationFrame(frame);
+}
+function start(){ if(!raf&&!document.hidden) raf=requestAnimationFrame(frame); }
+
+function resize(){
+  w=innerWidth; h=innerHeight;
+  dpr=Math.min(devicePixelRatio||1,2);
+  canvas.width=Math.round(w*dpr); canvas.height=Math.round(h*dpr);
+  seedStars();
+  if(reduce.matches){ draw(); } else start();
+}
+
+/* ---------- 입력 ---------- */
+let pid=null;
+function pos(e){
+  const r=canvas.getBoundingClientRect();
+  return [e.clientX-r.left, e.clientY-r.top];
+}
+canvas.addEventListener('pointerdown',e=>{
+  if(pid!==null) return;
+  pid=e.pointerId; canvas.setPointerCapture(pid); canvas.focus();
+  holding=true;
+  const [x,y]=pos(e); gather(x,y);
+  if(reduce.matches){ for(const s of faint) if(s.on){s.x=s.tx;s.y=s.ty;s.glow=1;} draw(); }
+  else start();
+});
+canvas.addEventListener('pointermove',e=>{
+  if(e.pointerId!==pid||!holding) return;
+  const [x,y]=pos(e), dx=x-formCx, dy=y-formCy;
+  formCx=x; formCy=y;
+  for(const s of faint) if(s.on){ s.tx+=dx; s.ty+=dy; }
+});
+function up(e){
+  if(e.pointerId!==pid) return;
+  pid=null;
+  if(holding){ holding=false; release();
+    if(reduce.matches){ for(const s of faint){s.x=s.hx;s.y=s.hy;s.glow=0;} draw(); } }
+}
+canvas.addEventListener('pointerup',up);
+canvas.addEventListener('pointercancel',up);
+canvas.addEventListener('lostpointercapture',up);
+// 키보드 — 스페이스로 같은 동작
+canvas.addEventListener('keydown',e=>{
+  if(e.key!==' '&&e.key!=='Enter') return;
+  e.preventDefault();
+  if(holding) return;
+  holding=true; gather(w*(0.25+Math.random()*0.5), h*(0.2+Math.random()*0.35));
+  start();
+});
+canvas.addEventListener('keyup',e=>{
+  if(e.key!==' '&&e.key!=='Enter'||!holding) return;
+  holding=false; release();
+});
+
+document.addEventListener('visibilitychange',()=>{
+  cancelAnimationFrame(raf); raf=0; last=0;
+  if(!document.hidden) start();
+});
+reduce.addEventListener('change',()=>{
+  cancelAnimationFrame(raf); raf=0; last=0;
+  if(reduce.matches) draw(); else start();
+});
+addEventListener('resize',resize);
+resize();
 })();
-</script></body></html>
+</script>
+</body></html>
