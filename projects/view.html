@@ -129,14 +129,39 @@
     }).catch(function () { /* 없으면 넘어갑니다 */ });
   }
 
+  // .mp4 / .webm 은 이미지가 아니라 영상입니다. GIF 대신 쓰면 용량이 훨씬 작습니다.
+  function isClip(u) { return /\.(mp4|webm)$/i.test(u); }
+  function probeAny(src) {
+    if (!src) return Promise.resolve({ ok: false });
+    if (!isClip(src)) return probe(src);
+    return fetch(src, { method: 'HEAD' })
+      .then(function (res) { return { ok: res.ok, clip: true }; })
+      .catch(function () { return { ok: false }; });
+  }
+
   Promise.all(shots.map(function (s) {
-    return Promise.all([probe(s.pc), probe(s.mo)]).then(function (r) {
+    return Promise.all([probeAny(s.pc), probe(s.mo)]).then(function (r) {
       return { shot: s, pc: r[0], mo: r[1] };
     });
   })).then(function (results) {
     var shown = 0;
     results.forEach(function (r) {
       if (!r.pc.ok) return;
+
+      // 영상은 소리 없이 자동 반복 — GIF 처럼 보이되 용량은 훨씬 작습니다
+      if (r.pc.clip) {
+        var clip = document.createElement('video');
+        clip.src = r.shot.pc;
+        clip.autoplay = true; clip.loop = true; clip.muted = true;
+        clip.setAttribute('muted', '');
+        clip.playsInline = true; clip.setAttribute('playsinline', '');
+        clip.controls = false;
+        clip.preload = 'metadata';
+        stack.appendChild(clip);
+        shown++;
+        return;
+      }
+
       var pic = document.createElement('picture');
       if (r.mo.ok) {
         var src = document.createElement('source');
@@ -148,7 +173,8 @@
       img.src = r.shot.pc;
       img.alt = p.title + ' — ' + r.shot.name;
       img.width = r.pc.w; img.height = r.pc.h;   // CLS 방지
-      img.loading = shown === 0 ? 'eager' : 'lazy';
+      // GIF 는 lazy 로 두면 스크롤 전까지 멈춰 있어 보입니다
+      img.loading = (shown === 0 || /\.gif$/i.test(r.shot.pc)) ? 'eager' : 'lazy';
       img.decoding = 'async';
       pic.appendChild(img);
       stack.appendChild(pic);

@@ -38,3 +38,21 @@ projects.js 의 해당 항목에 한 줄만 더합니다.
            -vf scale=1280:-2 -an finpong.mp4
 
 `-an` 은 소리를 빼는 옵션입니다. 소리가 필요하면 빼고 `-c:a aac -b:a 96k` 를 붙이세요.
+
+---
+
+## GIF 를 넣고 싶을 때
+
+**GIF 대신 소리 없는 mp4 를 쓰세요.** 같은 화면이 **10~20배** 가볍습니다.
+GIF 는 색을 256개밖에 못 쓰고 압축이 거의 안 됩니다. 5초짜리 1080p GIF 가 30MB 를 넘는 일이 흔합니다.
+
+    ffmpeg -i 화면녹화.mov -vf "scale=1280:-2,fps=24" \
+           -c:v libx264 -crf 28 -preset slow -pix_fmt yuv420p \
+           -movflags +faststart -an flow.mp4
+
+만든 파일을 `assets/img/<slug>/` 에 넣고 projects.js 에서 목록으로 적습니다.
+
+    pages: ["36", "37", "flow.mp4", "38"]
+
+`.mp4` / `.webm` 은 **소리 없이 자동 반복** 재생됩니다 — GIF 처럼 보이고 컨트롤은 안 나옵니다.
+GIF 를 꼭 써야 하면 `.gif` 를 그대로 적어도 됩니다. 그냥 움직입니다.

@@ -166,19 +166,34 @@ window.PJ = {
   },
   // 기본 4장 + 모바일 짝. 실제로 없는 파일은 화면에서 조용히 사라집니다.
   //
-  // pages 를 쓰면 번호만 붙은 파일을 순서대로 읽습니다.
-  //   pages: [1, 10]          → assets/img/<slug>/1.jpg … 10.jpg
-  //   pages: [11, 22]         → 11.jpg … 22.jpg   (내보낸 페이지 번호 그대로)
-  // 슬라이드를 통째로 내보냈을 때 이름을 하나하나 바꾸지 않아도 됩니다.
+  // pages 쓰는 법 — 두 가지입니다.
+  //
+  //  1) 숫자 두 개 = 범위. 번호만 붙은 jpg 를 순서대로 읽습니다.
+  //       pages: [1, 10]      → assets/img/<slug>/1.jpg … 10.jpg
+  //       pages: [11, 22]     → 11.jpg … 22.jpg  (내보낸 페이지 번호 그대로)
+  //
+  //  2) 목록 = 파일을 직접 나열. 중간에 GIF·영상을 끼워 넣을 때 씁니다.
+  //       pages: ["36", "37", "flow.gif", "38", "demo.mp4", "39"]
+  //     확장자가 없으면 .jpg 로 봅니다. 순서가 그대로 화면 순서입니다.
+  //     .gif 는 그냥 움직이고, .mp4 / .webm 은 소리 없이 자동 반복 재생됩니다.
   shots: function (p, base) {
     if (p.pages) {
-      var from = p.pages[0], to = p.pages[1], out = [];
-      for (var i = from; i <= to; i++) {
-        out.push({
-          pc: (base || '') + 'assets/img/' + p.slug + '/' + i + '.jpg',
-          mo: '',
-          name: p.slug + '_' + i
+      var out = [];
+      var dir = (base || '') + 'assets/img/' + p.slug + '/';
+
+      // 목록으로 준 경우
+      if (p.pages.length && typeof p.pages[0] === 'string') {
+        p.pages.forEach(function (item) {
+          var file = /\.[a-z0-9]+$/i.test(item) ? item : (item + '.jpg');
+          out.push({ pc: dir + file, mo: '', name: p.slug + '_' + file.replace(/\.[^.]+$/, '') });
         });
+        return out;
+      }
+
+      // 숫자 범위로 준 경우
+      var from = p.pages[0], to = p.pages[1];
+      for (var i = from; i <= to; i++) {
+        out.push({ pc: dir + i + '.jpg', mo: '', name: p.slug + '_' + i });
       }
       return out;
     }
