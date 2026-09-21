@@ -90,18 +90,28 @@
   function placeButton() {
     var bar = document.querySelector('.detail-header');
     if (!bar) {
-      document.documentElement.style.removeProperty('--navbtn-top');
+      if (document.documentElement.style.getPropertyValue('--navbtn-top')) document.documentElement.style.removeProperty('--navbtn-top');
       return;
     }
     var bh = bar.getBoundingClientRect().height;
     var nh = btn.getBoundingClientRect().height;
     if (!bh || !nh) return;
-    var top = Math.max(6, Math.round((bh - nh) / 2));
-    document.documentElement.style.setProperty('--navbtn-top', top + 'px');
+    var top = Math.max(6, Math.round((bh - nh) / 2)) + 'px';
+    var root = document.documentElement.style;
+    if (root.getPropertyValue('--navbtn-top') !== top) root.setProperty('--navbtn-top', top);
   }
-  placeButton();
-  window.addEventListener('resize', placeButton);
-  window.addEventListener('load', placeButton);
+  // 모바일 크롬은 스크롤할 때 주소창이 접혔다 펴지면서 resize 를 계속 보냅니다.
+  // 그때마다 html 에 CSS 변수를 다시 쓰면 스크롤 도중 전체 레이아웃이 다시 계산돼
+  // 위로 올렸을 때 상단이 가려지는 현상이 납니다. 폭이 바뀔 때만 다시 잽니다.
+  var lastW = -1;
+  function onResize() {
+    if (window.innerWidth === lastW) return;
+    lastW = window.innerWidth;
+    placeButton();
+  }
+  onResize();
+  window.addEventListener('resize', onResize);
+  window.addEventListener('load', function () { lastW = -1; onResize(); });
 
   /* ---------- 열고 닫기 ---------- */
   var open = false;
