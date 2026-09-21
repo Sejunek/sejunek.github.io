@@ -188,5 +188,19 @@
   });
 })();
 </script>
+<!-- 위로 올리기 — 조금 내려가면 나타납니다 -->
+<button class="totop t-mono" type="button" aria-label="맨 위로" hidden>&uarr;</button>
+<script>
+(function () {
+  var b = document.querySelector('.totop');
+  if (!b) return;
+  b.hidden = false;
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function onScroll() { b.classList.toggle('is-on', window.scrollY > window.innerHeight * 0.8); }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  b.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
+})();
+</script>
 </body>
 </html>
