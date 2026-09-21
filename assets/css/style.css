@@ -630,8 +630,15 @@ body.zoom-open { overflow: hidden; }
   pointer-events: none;
 }
 .badge--ai { background: var(--point); }
-/* 수상 프로젝트 — LAB 의 AI 배지가 좌측이라 이쪽은 우측에 둡니다 */
-.badge--award { left: auto; right: 0; background: var(--point); }
+/* 수상 프로젝트 표시 */
+.badge--award {
+  top: 12px; left: 12px; right: auto;
+  padding: 5px 8px; font-size: 10px; letter-spacing: 1px;
+  background: var(--point);
+  z-index: 1;               /* 호버 패널(2) 아래 — 패널이 덮으면 가려집니다 */
+}
+.card__panel { z-index: 2; }
+@media (max-width: 767px) { .badge--award { top: 6px; left: 6px; } }
 .badge__short { display: none; }
 
 
