@@ -40,10 +40,6 @@
 /* ---------- 2. Reset ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
-/* 모바일 크롬의 '당겨서 새로고침'·바운스를 끕니다.
-   맨 위가 아닌데도 새로고침 동작이 끼어들어 화면을 밀어내면서
-   위로 올렸을 때 상단이 가려지는 현상이 있었습니다. */
-html, body { overscroll-behavior-y: none; }
 body {
   margin: 0;
   background: var(--bg-base);
