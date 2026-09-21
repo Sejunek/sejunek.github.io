@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="description" content="손끝에 잠시 빌려온 중력. 푸른 잉크의 흐름을 끌어당기고, 모으고, 놓아보세요.">
+<title>Borrowed Gravity — Lab</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='white'/%3E%3Cpath d='M26 16A10 10 0 1 1 16 6A6 6 0 1 1 10 12' fill='none' stroke='%232D45FF' stroke-width='2'/%3E%3C/svg%3E">
+<style>
+  :root{font-family:"Archivo","Helvetica Neue",Arial,sans-serif;color:#111111;background:#FFFFFF;color-scheme:light}
+  *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}button{font:inherit;cursor:pointer;color:inherit}button:focus-visible,canvas:focus-visible{outline:2px solid #2D45FF;outline-offset:-4px}
+  .controls{position:fixed;top:20px;right:20px;display:flex;gap:8px}.controls button{background:#ffffffed;border:1px solid #C9C9C6;min-height:38px;padding:10px 13px;font-size:10px;letter-spacing:1.1px}.controls button:hover,.controls button[aria-pressed="true"]{color:#2D45FF;border-color:#2D45FF}.controls button:disabled{color:#8A8A8A;cursor:default}.hint{position:fixed;left:20px;bottom:16px;right:20px;font-size:11px;letter-spacing:1.2px;line-height:1.7;margin:0;color:#8A8A8A;pointer-events:none}.fallback{position:fixed;inset:40% 15% auto;padding:24px;background:white;color:#8A8A8A;text-align:center}.fallback[hidden]{display:none}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.poster .controls,.poster .hint{display:none}
+</style>
+</head>
+<body>
+<canvas id="gravity" tabindex="0" aria-label="잠깐 빌린 중력. 마우스나 손끝으로 중심을 움직이고, 길게 누른 뒤 놓아보세요. 스페이스로 모으기, R로 초기화, 방향 전환 버튼으로 회전 방향을 바꿀 수 있습니다."></canvas>
+<div class="controls"><button id="reverse" aria-label="회전 방향 전환" aria-pressed="false">↶ REVERSE</button><button id="pause" aria-label="움직임 일시정지" aria-pressed="false">PAUSE</button></div>
+<p class="hint">MOVE TO ATTRACT · HOLD TO GATHER · RELEASE TO SCATTER</p>
+<p class="fallback" id="fallback" hidden>이 브라우저에서는 Canvas를 사용할 수 없습니다.<br>최신 브라우저에서 다시 열어주세요.</p>
+<p class="sr-only" id="announcement" role="status"></p>
+<noscript><p class="fallback">인터랙션을 실행하려면 JavaScript를 켜주세요.</p></noscript>
+<script>
+(() => {
+  'use strict';
+  const canvas=document.getElementById('gravity'),ctx=canvas.getContext('2d',{alpha:false});
+  if(!ctx){document.getElementById('fallback').hidden=false;return;}
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  const pauseButton=document.getElementById('pause'),reverseButton=document.getElementById('reverse');
+  const poster=new URLSearchParams(location.search).has('poster');
+  if(poster)document.documentElement.classList.add('poster');
+  const count=900,particles=[],groups=Array.from({length:9},()=>[]);
+  let width=1,height=1,dpr=1,scale=1,homeX=0,homeY=0,cx=0,cy=0,targetX=0,targetY=0;
+  let raf=0,last=0,time=0,accumulator=0,paused=poster,direction=1,spin=1,charge=0,burst=0;
+  let pointerId=null,keyHolding=false,holding=false,hovering=false,px=0,py=0;
+  let frames=0,sampleStart=0,sampleFrames=0,fpsTotal=0,samples=0,minFps=Infinity;
+  let randomSeed=3917;
+  function random(){randomSeed=(Math.imul(1664525,randomSeed)+1013904223)|0;return(randomSeed>>>0)/4294967296;}
+  for(let i=0;i<count;i++){
+    const r=.11+.89*Math.pow(random(),.69),arm=i%3;
+    const p={r,theta:arm*Math.PI*2/3+r*5.6+(random()-.5)*(.12+r*.39),phase:random()*Math.PI*2,length:4.5+random()*11,bucket:Math.floor(random()*3),color:i%13===0?2:i%7===0?1:0,x:0,y:0,vx:0,vy:0,tx:0,ty:0,angle:0};
+    particles.push(p);groups[p.color*3+p.bucket].push(p);
+  }
+  function target(p){
+    const r=p.r*(1-charge*.64),theta=p.theta+time*(.34+(1-p.r)*.12);
+    const breathing=1+Math.sin(time*.45+p.phase)*.018;
+    p.angle=theta+Math.PI/2;p.tx=cx+Math.cos(theta)*r*scale*breathing;p.ty=cy+Math.sin(theta)*r*scale*breathing;
+  }
+  function clear(){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,width,height);}
+  function render(staticFrame=false){
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    if(staticFrame){clear();}else{ctx.fillStyle='rgba(255,255,255,.20)';ctx.fillRect(0,0,width,height);}
+    const colors=['#2D45FF','#111111','#C9C9C6'];
+    ctx.lineCap='round';
+    for(let g=0;g<groups.length;g++){
+      ctx.strokeStyle=colors[Math.floor(g/3)];ctx.lineWidth=[.65,1.15,1.75][g%3]*(width<600?.83:1);ctx.globalAlpha=Math.floor(g/3)===2?.55:.83;
+      ctx.beginPath();
+      for(const p of groups[g]){
+        const v=Math.hypot(p.vx,p.vy),a=v>.04?Math.atan2(p.vy,p.vx):p.angle;
+        const len=p.length*Math.max(.8,scale/310)*(1+Math.min(v*.1,2));
+        ctx.moveTo(p.x-Math.cos(a)*len,p.y-Math.sin(a)*len);ctx.lineTo(p.x,p.y);
+      }
+      ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+    // The empty eye remains readable even while the flow is gathered tightly.
+    ctx.strokeStyle=holding?'#2D45FF':'#C9C9C6';ctx.lineWidth=.8;
+    ctx.beginPath();ctx.arc(cx,cy,Math.max(4,8-charge*3),0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#2D45FF';ctx.beginPath();ctx.arc(cx,cy,1.6,0,Math.PI*2);ctx.fill();
+    canvas.dataset.frames=String(frames);canvas.dataset.holding=String(holding);canvas.dataset.mode=reduced.matches?'reduced':paused?'paused':document.hidden?'hidden':'running';
+    canvas.dataset.spin=String(direction);canvas.dataset.charge=charge.toFixed(3);canvas.dataset.count=String(count);
+  }
+  function syncControls(){
+    pauseButton.disabled=reduced.matches;pauseButton.textContent=reduced.matches?'STILL':paused?'RESUME':'PAUSE';
+    pauseButton.setAttribute('aria-pressed',String(paused||reduced.matches));pauseButton.setAttribute('aria-label',reduced.matches?'모션 감소 설정: 정지 화면':paused?'움직임 재생':'움직임 일시정지');
+    reverseButton.setAttribute('aria-pressed',String(direction<0));reverseButton.textContent=direction<0?'↷ REVERSE':'↶ REVERSE';
+  }
+  function positionAll(){for(const p of particles){target(p);p.x=p.tx;p.y=p.ty;p.vx=0;p.vy=0;}}
+  function reset(){
+    release(false);hovering=false;time=0;charge=0;burst=0;spin=direction;cx=targetX=homeX;cy=targetY=homeY;positionAll();clear();render(true);syncControls();
+    sampleStart=0;sampleFrames=0;fpsTotal=0;samples=0;minFps=Infinity;canvas.dataset.averageFps='';canvas.dataset.minimumFps='';canvas.dataset.samples='0';
+  }
+  function resize(){
+    const rect=canvas.getBoundingClientRect();width=Math.max(1,rect.width);height=Math.max(1,rect.height);dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
+    homeX=width*.5;homeY=height*.5;
+    scale=Math.min(width*.41,height*.41);
+    release(false);hovering=false;cx=targetX=homeX;cy=targetY=homeY;positionAll();clear();render(true);syncControls();
+  }
+  function step(){
+    const rate=.5;
+    charge+=((holding?1:0)-charge)*.023;burst*=.986;spin+=(direction-spin)*.02;
+    time+=spin*(1+charge*2.7)/120;
+    const gx=hovering?targetX:homeX,gy=hovering?targetY:homeY;
+    cx+=(gx-cx)*.019;cy+=(gy-cy)*.019;
+    const acceleration=.018,drag=.90;
+    for(const p of particles){
+      target(p);p.vx=(p.vx+(p.tx-p.x)*acceleration*rate)*Math.pow(drag,rate);p.vy=(p.vy+(p.ty-p.y)*acceleration*rate)*Math.pow(drag,rate);
+      const speed=Math.hypot(p.vx,p.vy),limit=scale*.055;if(speed>limit){p.vx*=limit/speed;p.vy*=limit/speed;}
+      p.x+=p.vx*rate;p.y+=p.vy*rate;
+      if(!Number.isFinite(p.x+p.y+p.vx+p.vy)){p.x=p.tx;p.y=p.ty;p.vx=p.vy=0;}
+    }
+  }
+  function loop(now){
+    raf=0;if(paused||document.hidden||reduced.matches)return;
+    accumulator+=Math.min(.05,last?(now-last)/1000:1/60);last=now;
+    let steps=0;while(accumulator>=1/120&&steps<6){step();accumulator-=1/120;steps++;}
+    frames++;render();syncControls();
+    if(!sampleStart)sampleStart=now;sampleFrames++;
+    if(now-sampleStart>=1000){const fps=sampleFrames*1000/(now-sampleStart);fpsTotal+=fps;samples++;minFps=Math.min(minFps,fps);canvas.dataset.averageFps=(fpsTotal/samples).toFixed(1);canvas.dataset.minimumFps=minFps.toFixed(1);canvas.dataset.samples=String(samples);sampleStart=now;sampleFrames=0;}
+    raf=requestAnimationFrame(loop);
+  }
+  function start(){if(!raf&&!paused&&!reduced.matches&&!document.hidden){last=0;sampleStart=0;sampleFrames=0;raf=requestAnimationFrame(loop);}}
+  function stop(){if(raf)cancelAnimationFrame(raf);raf=0;last=0;accumulator=0;}
+  function move(event){
+    const rect=canvas.getBoundingClientRect();px=event.clientX-rect.left;py=event.clientY-rect.top;hovering=true;
+    const limitX=scale*.50,limitY=scale*.44;
+    targetX=homeX+Math.max(-limitX,Math.min(limitX,(px-homeX)*.6));
+    targetY=homeY+Math.max(-limitY,Math.min(limitY,(py-homeY)*.6));
+  }
+  function release(scatter=true,source='all'){
+    const wasHolding=holding;
+    if(source==='all'||source==='keyboard')keyHolding=false;
+    if(source==='all'||source==='pointer'){
+      const oldPointer=pointerId;pointerId=null;
+      if(oldPointer!==null&&canvas.hasPointerCapture(oldPointer))canvas.releasePointerCapture(oldPointer);
+    }
+    holding=keyHolding||pointerId!==null;
+    if(wasHolding&&!holding&&scatter&&!paused&&!reduced.matches){
+      burst=1;
+      for(const p of particles){const dx=p.x-cx,dy=p.y-cy,r=Math.max(1,Math.hypot(dx,dy)),force=scale*(.018+charge*.040);p.vx+=dx/r*force;p.vy+=dy/r*force;}
+    }
+    canvas.dataset.holding=String(holding);
+  }
+  canvas.addEventListener('pointermove',event=>{if(paused||reduced.matches||(pointerId!==null&&event.pointerId!==pointerId))return;move(event);});
+  canvas.addEventListener('pointerdown',event=>{if(event.button!==0||pointerId!==null||paused||reduced.matches)return;move(event);pointerId=event.pointerId;holding=true;canvas.setPointerCapture(event.pointerId);canvas.focus({preventScroll:true});});
+  canvas.addEventListener('pointerup',event=>{if(pointerId===event.pointerId){release(true,'pointer');if(event.pointerType==='touch')hovering=false;}});
+  canvas.addEventListener('pointercancel',event=>{if(pointerId===event.pointerId)release(false,'pointer');});
+  canvas.addEventListener('lostpointercapture',event=>{if(pointerId===event.pointerId)release(false,'pointer');});
+  canvas.addEventListener('pointerleave',()=>{if(!holding)hovering=false;});
+  canvas.addEventListener('keydown',event=>{
+    if(event.code==='Space'){event.preventDefault();if(!event.repeat&&!paused&&!reduced.matches){keyHolding=true;holding=true;hovering=false;}}
+    if(event.key.toLowerCase()==='r'){event.preventDefault();reset();document.getElementById('announcement').textContent='흐름을 처음의 모양으로 되돌렸습니다.';}
+  });
+  canvas.addEventListener('keyup',event=>{if(event.code==='Space'){event.preventDefault();release(true,'keyboard');}});
+  canvas.addEventListener('blur',()=>{release(false);hovering=false;});
+  reverseButton.addEventListener('click',()=>{direction*=-1;if(reduced.matches){spin=direction;positionAll();render(true);}syncControls();document.getElementById('announcement').textContent=direction<0?'반시계 방향으로 흐릅니다.':'시계 방향으로 흐릅니다.';});
+  pauseButton.addEventListener('click',()=>{paused=!paused;release(false);hovering=false;if(paused){stop();render(true);}else start();syncControls();});
+  reduced.addEventListener('change',()=>{release(false);hovering=false;if(reduced.matches){stop();reset();}else start();syncControls();});
+  document.addEventListener('visibilitychange',()=>{release(false);hovering=false;if(document.hidden){stop();canvas.dataset.mode='hidden';}else{clear();render(true);start();syncControls();}});
+  window.addEventListener('blur',()=>{release(false);hovering=false;});
+  window.addEventListener('pagehide',()=>{release(false);hovering=false;stop();});window.addEventListener('pageshow',start);window.addEventListener('resize',resize);
+  resize();reset();start();
+})();
+</script>
+</body>
+</html>
