@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sulky Ball — Lab</title><link rel="icon" href="data:,">
+<style>
+html,body,canvas{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#fff}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.hint{position:fixed;left:0;right:0;bottom:16px;margin:0;text-align:center;color:#999;
+  font:11px/1.6 Archivo,"IBM Plex Sans KR","Helvetica Neue",Arial,sans-serif;letter-spacing:1px;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas aria-label="커서를 따라오는 빨간 공. 공을 누르면 맞은 것처럼 튕겨나가고, 세 번 맞으면 삐져서 도망갑니다. 빈 곳을 다섯 번 누르면 풀려서 다시 따라옵니다."></canvas>
+<p class="hint" data-hint>공을 눌러보세요</p>
+<script>
+/* 원작: Processing (대학 시절) — 커서를 따라오며 잔상을 남기는 공
+   추가한 것: 공을 누르면 맞은 것처럼 튕기고 점점 거리를 둠 → 3번이면 삐져서 피함
+             → 빈 곳을 누를 때마다 조금씩 풀려서 다가옴 → 5번이면 다시 따라옴
+   고친 것: 지우면서 앞으로 돌던 반복문(한 칸씩 건너뜀), 화면 크기 대응, 시간 기준 움직임 */
+(() => {
+  const cv = document.querySelector('canvas'), ctx = cv.getContext('2d', { alpha: false });
+  const hintEl = document.querySelector('[data-hint]');
+  let W = 0, H = 0, S = 1, dpr = 1;
+  let bx = 0, by = 0, vx = 0, vy = 0, mx = 0, my = 0, hasMouse = false;
+  let hits = 0, sulk = false, forgive = 0, last = 0;
+  const trail = [];   // {x,y,age}
+
+  function resize() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    S = Math.min(W, H) / 1000;
+    if (!bx && !by) { bx = mx = W / 2; by = my = H / 2; }
+  }
+
+  function hint() {
+    if (sulk) hintEl.textContent = '삐졌습니다 · 빈 곳을 눌러 달래주세요  ' + forgive + ' / 5';
+    else if (hits === 1) hintEl.textContent = '아파요… 한 걸음 물러섭니다';
+    else if (hits === 2) hintEl.textContent = '한 번만 더 때리면 삐집니다';
+    else hintEl.textContent = '공을 눌러보세요';
+  }
+
+  // 색 — 평소엔 산호빛, 삐지면 차가운 회청색, 달랠수록 다시 따뜻해짐
+  function color() {
+    const warm = [255, 88, 88], cold = [112, 128, 150];
+    const k = sulk ? 1 - forgive / 5 : 0;
+    return warm.map((w, i) => Math.round(w + (cold[i] - w) * k));
+  }
+
+  function step(dt) {
+    const f = dt * 60;                                  // 60fps 한 프레임 = 1
+    let dx = bx - mx, dy = by - my, d = Math.hypot(dx, dy) || 1;
+    const ux = dx / d, uy = dy / d;
+    let tx, ty, k;
+    if (!sulk) {
+      // 맞을수록 따라오긴 하되 거리를 두고, 느려집니다
+      const keep = [0, 120, 240][hits] * S;
+      tx = mx + ux * keep; ty = my + uy * keep;
+      k = [0.08, 0.05, 0.035][hits];                    // 원본 속도 0.08
+    } else {
+      // 삐진 상태 — 일정 거리 안으로 들어오면 피하고, 달랠수록 그 거리가 줄어듭니다
+      const keep = (420 - forgive * 70) * S;
+      if (d < keep) { tx = mx + ux * keep; ty = my + uy * keep; k = 0.09; }
+      else { tx = bx; ty = by; k = 0.02; }
+    }
+    // 화면 안에 머물게
+    const r = 40 * S;
+    tx = Math.max(r, Math.min(W - r, tx)); ty = Math.max(r, Math.min(H - r, ty));
+    vx += (tx - bx) * k * f; vy += (ty - by) * k * f;
+    const damp = Math.pow(0.82, f); vx *= damp; vy *= damp;
+    bx += vx * f * 0.55; by += vy * f * 0.55;
+    // 벽에 닿으면 살짝 튕김
+    if (bx < r) { bx = r; vx = Math.abs(vx) * 0.6; } else if (bx > W - r) { bx = W - r; vx = -Math.abs(vx) * 0.6; }
+    if (by < r) { by = r; vy = Math.abs(vy) * 0.6; } else if (by > H - r) { by = H - r; vy = -Math.abs(vy) * 0.6; }
+
+    trail.push({ x: bx, y: by, age: 0 });
+    for (let i = trail.length - 1; i >= 0; i--) { trail[i].age += f; if (trail[i].age > 32) trail.splice(i, 1); }
+  }
+
+  function draw() {
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+    const [r, g, b] = color();
+    for (let i = 0; i < trail.length; i++) {
+      const p = trail[i], a = Math.max(0, 255 - 8 * p.age) / 255, sz = Math.max(0, 80 - 2 * p.age) * S;
+      if (a <= 0 || sz <= 0) continue;
+      ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+      ctx.beginPath(); ctx.arc(p.x, p.y, sz / 2, 0, 6.2832); ctx.fill();
+    }
+  }
+
+  function frame(t) {
+    const dt = last ? Math.min((t - last) / 1000, 0.05) : 1 / 60; last = t;
+    step(dt); draw();
+    requestAnimationFrame(frame);
+  }
+
+  function pos(e) { const rc = cv.getBoundingClientRect(); mx = e.clientX - rc.left; my = e.clientY - rc.top; hasMouse = true; }
+  cv.addEventListener('pointermove', pos);
+  cv.addEventListener('pointerdown', e => {
+    pos(e);
+    const onBall = Math.hypot(mx - bx, my - by) < 50 * S;
+    if (onBall && !sulk) {
+      // 맞았다 — 커서 반대쪽으로 튕겨나감
+      const d = Math.hypot(bx - mx, by - my) || 1;
+      const ang = d < 2 ? Math.random() * 6.2832 : Math.atan2(by - my, bx - mx);
+      vx += Math.cos(ang) * 60 * S; vy += Math.sin(ang) * 60 * S;
+      hits++;
+      if (hits >= 3) { sulk = true; forgive = 0; hits = 0; }
+    } else if (!onBall && sulk) {
+      // 빈 곳을 눌러 달래기 — 한 번 누를 때마다 조금 더 가까이 옵니다
+      forgive++;
+      const d = Math.hypot(mx - bx, my - by) || 1;
+      vx += (mx - bx) / d * 14 * S; vy += (my - by) / d * 14 * S;
+      if (forgive >= 5) { sulk = false; forgive = 0; hits = 0; }
+    }
+    hint();
+  });
+  addEventListener('contextmenu', e => { if (e.target === cv) e.preventDefault(); });
+  addEventListener('resize', resize);
+  resize(); hint();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

@@ -54,3 +54,4 @@ LAB_ADD({ slug: "star-counting-night", title: "별 헤는 밤", tech: "CANVAS 2D
 LAB_ADD({ slug: "borrowed-gravity", title: "Borrowed Gravity", tech: "CANVAS 2D", year: "2026", by: "ai", model: "GPT-6", summary: "손끝에 잠시 빌려온 중력. 푸른 잉크의 흐름을 끌어당기고, 모으고, 놓아보세요.", making: true });
 LAB_ADD({ slug: "fireworks", title: "Fireworks", tech: "CANVAS 2D", year: "2020", by: "human", summary: "대학 시절 Processing 으로 만든 스케치를 웹으로 옮겼습니다. 누른 자리에서 색색의 불꽃이 사방으로 퍼집니다." });
 LAB_ADD({ slug: "point-of-view", title: "Point of View", tech: "CANVAS 2D", year: "2020", by: "human", summary: "반 고흐의 그림을 짧은 선 수천 개로 다시 그렸습니다. 모든 선이 커서를 바라보고, 누르고 있으면 선이 굵어지며 천천히 물결칩니다." });
+LAB_ADD({ slug: "sulky-ball", title: "Sulky Ball", tech: "CANVAS 2D", year: "2020", by: "pair", model: "Claude Opus 5", summary: "커서를 따라오는 공. 누르면 맞은 것처럼 튕겨나가고, 세 번 맞으면 삐져서 피합니다. 빈 곳을 다섯 번 눌러 달래면 다시 따라옵니다." });
