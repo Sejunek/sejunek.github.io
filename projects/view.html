@@ -125,7 +125,18 @@
       v.playsInline = true;
       v.setAttribute('playsinline', '');
       probe(vinfo.poster).then(function (ok) { if (ok.ok) v.poster = vinfo.poster; });
+      // 기본은 소리 꺼짐 — 컨트롤에서 켤 수 있습니다
+      v.muted = true; v.setAttribute('muted', '');
       stack.insertBefore(v, stack.firstChild);
+      // autoplayOnView: 화면에 절반 이상 보이면 재생, 벗어나면 멈춤
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (es) {
+          es.forEach(function (e) {
+            if (e.isIntersecting) { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); }
+            else v.pause();
+          });
+        }, { threshold: 0.5 }).observe(v);
+      }
     }).catch(function () { /* 없으면 넘어갑니다 */ });
   }
 
