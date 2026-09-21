@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Point of View — Lab</title><link rel="icon" href="data:,">
+<style>
+html,body,canvas{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#000}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.msg{position:fixed;inset:0;display:grid;place-content:center;margin:0;color:#777;text-align:center;
+  font:12px/1.8 Archivo,"Helvetica Neue",Arial,sans-serif;letter-spacing:1px;pointer-events:none}
+.msg[hidden]{display:none}
+</style>
+</head>
+<body>
+<canvas aria-label="반 고흐의 그림을 짧은 선 수천 개로 다시 그린 화면. 모든 선이 커서 쪽을 바라보고, 누르고 있으면 선이 굵어지며 물결칩니다."></canvas>
+<p class="msg" data-msg>그림을 불러오는 중입니다.</p>
+<script>
+/* 원작: Processing, 2020 (대학 1학기)
+   옮기면서 바꾼 것
+   - 매 프레임 그림의 픽셀을 다시 읽던 것 → 화면 크기가 바뀔 때 한 번만 읽어 선마다 색을 저장
+   - 100x100 격자 중 1/4 이 화면 밖(x 최대 1584)이라 헛돌던 것 → 화면을 꼭 덮는 만큼만
+   - 누르면 모든 선이 매 프레임 3~7 사이 무작위 굵기로 튀어 번쩍이던 것
+     → 선마다 느린 물결로 굵기가 오르내리고, 누르고 뗄 때 부드럽게 굵어지고 가늘어짐
+   - 원본은 뗀 뒤에도 마지막 굵기가 남았는데, 원래 굵기(1)로 돌아가게 함
+   - 커서가 움직이거나 굵기가 변하는 동안만 다시 그림 (가만히 있으면 쉼) */
+(() => {
+  const SRC = '../../assets/img/lab/point-of-view.jpg';
+  const cv = document.querySelector('canvas'), ctx = cv.getContext('2d', { alpha: false });
+  const msg = document.querySelector('[data-msg]');
+  const img = new Image();
+  let W = 0, H = 0, dpr = 1, sz = 8, cells = [], mx = 0, my = 0;
+  let press = 0, pressTarget = 0, raf = 0, last = 0, t = 0, dirty = true;
+
+  function build() {
+    if (!img.complete || !img.naturalWidth) return;
+    // 그림을 화면에 꽉 차게(cover) 깔고, 칸마다 색을 한 번만 읽어 둡니다
+    const off = document.createElement('canvas'); off.width = W; off.height = H;
+    const o = off.getContext('2d');
+    const s = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+    const iw = img.naturalWidth * s, ih = img.naturalHeight * s;
+    o.drawImage(img, (W - iw) / 2, (H - ih) / 2, iw, ih);
+    const px = o.getImageData(0, 0, W, H).data;
+    sz = Math.max(5, 8 * W / 1200);                 // 원본 1200px 폭에서 칸 8
+    cells = [];
+    for (let y = 0; y < H; y += sz) for (let x = 0; x < W; x += sz * 2) {
+      const i = ((y | 0) * W + (x | 0)) * 4;
+      cells.push({ x, y, c: 'rgb(' + px[i] + ',' + px[i + 1] + ',' + px[i + 2] + ')',
+        ph: Math.random() * 6.2832, f: 0.5 + Math.random() * 0.7, lo: 3 + Math.random() * 2 });
+    }
+    dirty = true; kick();
+  }
+
+  function resize() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.lineCap = 'round';
+    if (!mx && !my) { mx = W / 2; my = H / 2; }
+    build();
+  }
+
+  function draw() {
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+    const L = sz / 2 * Math.SQRT2, q = Math.PI / 4;
+    for (let n = 0; n < cells.length; n++) {
+      const c = cells[n];
+      const a = Math.atan2(my - c.y, mx - c.x) + q;          // 원본: (0,0)→(sz/2,sz/2) 를 커서 쪽으로 회전
+      // 누르지 않으면 1, 누르면 선마다 3~7 사이를 천천히 오르내림
+      const wave = c.lo + (Math.sin(t * c.f * 2.4 + c.ph) * 0.5 + 0.5) * 2;
+      ctx.lineWidth = 1 + (wave - 1) * press;
+      ctx.strokeStyle = c.c;
+      ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(c.x + Math.cos(a) * L, c.y + Math.sin(a) * L); ctx.stroke();
+    }
+  }
+
+  function frame(now) {
+    raf = 0;
+    const dt = last ? Math.min((now - last) / 1000, 0.05) : 0.016; last = now;
+    press += (pressTarget - press) * (1 - Math.exp(-dt * 4));   // 약 0.5초에 걸쳐 부드럽게
+    const moving = Math.abs(pressTarget - press) > 0.002 || press > 0.002;
+    if (press > 0.002) t += dt;
+    if (dirty || moving) { draw(); dirty = false; }
+    if (moving) kick(); else last = 0;
+  }
+  function kick() { if (!raf && !document.hidden) raf = requestAnimationFrame(frame); }
+
+  function pos(e) { const r = cv.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; dirty = true; kick(); }
+  cv.addEventListener('pointermove', pos);
+  cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); pos(e); pressTarget = 1; kick(); });
+  const up = () => { pressTarget = 0; kick(); };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+  addEventListener('contextmenu', e => { if (e.target === cv) e.preventDefault(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { last = 0; dirty = true; kick(); } });
+  addEventListener('resize', resize);
+
+  img.onload = () => { msg.hidden = true; resize(); };
+  img.onerror = () => { msg.textContent = '그림 파일을 찾지 못했습니다 (assets/img/lab/point-of-view.jpg)'; };
+  img.src = SRC;
+  resize();
+})();
+</script>
+</body>
+</html>

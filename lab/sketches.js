@@ -52,4 +52,5 @@ LAB_ADD({ slug: "laputa", title: "Laputa", tech: "three.js", year: "2026", by: "
 LAB_ADD({ slug: "laputa-skyward", title: "Laputa / Skyward", tech: "three.js", year: "2026", by: "pair", model: "GPT-6 Astra Light", summary: "구름 사이를 돌아 하늘 위 성으로 다가갑니다. 느린 하늘과 함께 라퓨타를 탐색하는 두 번째 장면.", making: true });
 LAB_ADD({ slug: "star-counting-night", title: "별 헤는 밤", tech: "CANVAS 2D", year: "2026", by: "pair", model: "GPT-6 Astra Light · Claude Opus 5", summary: "윤동주의 시에서 시작한 밤하늘. 누른 자리를 2~3초 지키면 희미한 별들이 모여 형상이 맺히고, 손을 떼면 그대로 천천히 옅어지며 밝은 별 하나와 시구 한 줄이 남습니다.", making: true });
 LAB_ADD({ slug: "borrowed-gravity", title: "Borrowed Gravity", tech: "CANVAS 2D", year: "2026", by: "ai", model: "GPT-6", summary: "손끝에 잠시 빌려온 중력. 푸른 잉크의 흐름을 끌어당기고, 모으고, 놓아보세요.", making: true });
-LAB_ADD({ slug: "fireworks", title: "Fireworks", tech: "CANVAS 2D", year: "—", by: "human", summary: "대학 시절 Processing 으로 만든 스케치를 웹으로 옮겼습니다. 누른 자리에서 색색의 불꽃이 사방으로 퍼집니다." });
+LAB_ADD({ slug: "fireworks", title: "Fireworks", tech: "CANVAS 2D", year: "2020", by: "human", summary: "대학 시절 Processing 으로 만든 스케치를 웹으로 옮겼습니다. 누른 자리에서 색색의 불꽃이 사방으로 퍼집니다." });
+LAB_ADD({ slug: "point-of-view", title: "Point of View", tech: "CANVAS 2D", year: "2020", by: "human", summary: "반 고흐의 그림을 짧은 선 수천 개로 다시 그렸습니다. 모든 선이 커서를 바라보고, 누르고 있으면 선이 굵어지며 천천히 물결칩니다." });
