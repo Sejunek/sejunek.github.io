@@ -59,7 +59,9 @@ window.PROJECTS = [
   role:"LG전자 CX에 대한 혁신적 접근과 문제 해결 제안",
   tool:"Figma",
   summary:"LG전자 HS사업본부와 진행한 산학 과제입니다. CX 관점에서 문제를 정의하고 해결 방향을 제안했으며, Best Practice Award 를 받았습니다.",
-  award:"Best Practice Award · LG전자 산학 CX 혁신 과제" },
+  award:"Best Practice Award · LG전자 산학 CX 혁신 과제",
+  pages:[1,30],
+  video:true },
 
 { slug:"vrcx", title:"VR CX — Unified Environment", cat:"UX·UI DESIGN", filter:"uxui",
   year:"2024", period:"2023.10 — 2024.08",
