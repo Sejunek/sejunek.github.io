@@ -994,23 +994,25 @@ body.zoom-open { overflow: hidden; }
   .tl li { grid-template-columns: 64px 10px 56px 1fr; gap: 12px; }
 }
 
-/* ---- 상세 페이지: 위로 올리기 ---- */
-.totop {
+/* ---- 상세 페이지: 페이지 이동 버튼 (맨 위 / 이전 / 다음 / 맨 아래) ---- */
+.pager {
   position: fixed; right: 32px; bottom: 32px; z-index: 50;
-  width: 48px; height: 48px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
+  display: flex; flex-direction: column;
   background: rgba(255, 255, 255, .96);
   border: 1px solid var(--border-line);
-  color: var(--text-primary);
-  opacity: 0; visibility: hidden; transform: translateY(8px);
-  transition: opacity 200ms ease, transform 200ms ease, visibility 0s linear 200ms, border-color 160ms ease;
 }
-.totop.is-on { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
-.totop:hover { border-color: var(--text-primary); }
-.totop:focus-visible { outline: 2px solid var(--point); outline-offset: 2px; }
-.nav-open .totop { opacity: 0; pointer-events: none; }
-@media (max-width: 767px) { .totop { right: 16px; bottom: 16px; width: 44px; height: 44px; } }
+.pager button {
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-primary);
+  transition: background 160ms ease, color 160ms ease, opacity 160ms ease;
+}
+.pager button + button { border-top: 1px solid var(--border-line); }
+.pager button:hover:not(:disabled) { background: var(--text-primary); color: var(--text-inverse); }
+.pager button:disabled { opacity: .25; cursor: default; }
+.pager button:focus-visible { outline: 2px solid var(--point); outline-offset: -2px; }
+.nav-open .pager { opacity: 0; pointer-events: none; }
+@media (max-width: 767px) { .pager { right: 12px; bottom: 12px; } .pager button { width: 38px; height: 38px; } }
 
 /* ---- 상세 페이지: 16:9 슬라이드로만 된 페이지는 한 장씩 스냅 ----
    view.html 이 모든 이미지가 16:9 일 때만 html 에 .is-snap 을 붙입니다.
