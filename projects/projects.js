@@ -58,7 +58,8 @@ window.PROJECTS = [
   year:"2025", period:"2025.03 — 2025.06",
   role:"LG전자 CX에 대한 혁신적 접근과 문제 해결 제안",
   tool:"Figma",
-  summary:"LG전자 HS사업본부와 진행한 산학 과제입니다. CX 관점에서 문제를 정의하고 해결 방향을 제안했으며, Best Practice Award 를 받았습니다." },
+  summary:"LG전자 HS사업본부와 진행한 산학 과제입니다. CX 관점에서 문제를 정의하고 해결 방향을 제안했으며, Best Practice Award 를 받았습니다.",
+  award:"Best Practice Award · LG전자 산학 CX 혁신 과제" },
 
 { slug:"vrcx", title:"VR CX — Unified Environment", cat:"UX·UI DESIGN", filter:"uxui",
   year:"2024", period:"2023.10 — 2024.08",
@@ -134,7 +135,8 @@ window.PROJECTS = [
   role:"신가전 컨셉 디자인 제안",
   tool:"Rhino 3D · Keyshot · Adobe Ps · Ai",
   summary:"'포스트코로나 시대를 위한 신가전 컨셉 디자인'을 주제로 한 코웨이 상품개발센터 주관 디자인 챌린지입니다. 우수상(은상)을 수상했습니다.",
-  pages:[1,50] }
+  pages:[1,50],
+  award:"우수상 · 코웨이 산학 디자인 챌린지 2020" }
 
 ];
 

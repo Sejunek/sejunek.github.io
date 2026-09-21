@@ -630,6 +630,8 @@ body.zoom-open { overflow: hidden; }
   pointer-events: none;
 }
 .badge--ai { background: var(--point); }
+/* 수상 프로젝트 — LAB 의 AI 배지가 좌측이라 이쪽은 우측에 둡니다 */
+.badge--award { left: auto; right: 0; background: var(--point); }
 .badge__short { display: none; }
 
 

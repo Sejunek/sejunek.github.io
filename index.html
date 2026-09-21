@@ -130,6 +130,9 @@
     panel.appendChild(inner);
     visual.appendChild(panel);
 
+    // 수상 프로젝트 표시
+    if (opt.award) visual.appendChild(el('span', 'badge badge--award t-mono', 'AWARD'));
+
     var cap = el('div', 'card__caption');
     cap.appendChild(el('h3', 't-h-m', opt.title));
     cap.appendChild(el('p', 't-mono muted', opt.sub));
@@ -156,7 +159,8 @@
       thumb: PJ.thumb(p, ''),
       cat: p.cat,
       title: p.title,
-      sub: p.cat + ' — ' + p.year
+      sub: p.cat + ' — ' + p.year,
+      award: p.award
     }));
   });
 
