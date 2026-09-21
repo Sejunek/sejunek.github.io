@@ -1011,3 +1011,17 @@ body.zoom-open { overflow: hidden; }
 .totop:focus-visible { outline: 2px solid var(--point); outline-offset: 2px; }
 .nav-open .totop { opacity: 0; pointer-events: none; }
 @media (max-width: 767px) { .totop { right: 16px; bottom: 16px; width: 44px; height: 44px; } }
+
+/* ---- 상세 페이지: 16:9 슬라이드로만 된 페이지는 한 장씩 스냅 ----
+   view.html 이 모든 이미지가 16:9 일 때만 html 에 .is-snap 을 붙입니다.
+   폰에서는 슬라이드가 작아 여러 장이 한 화면에 들어오므로 적용하지 않습니다. */
+@media (min-width: 768px) {
+  html.is-snap { scroll-snap-type: y mandatory; scroll-padding-top: 81px; }
+  html.is-snap .detail-intro { scroll-snap-align: start; }
+  html.is-snap .stack > picture,
+  html.is-snap .stack > video { scroll-snap-align: center; scroll-snap-stop: always; }
+  html.is-snap .next { scroll-snap-align: end; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  html.is-snap { scroll-padding-top: 53px; }
+}

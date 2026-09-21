@@ -192,6 +192,14 @@
     });
     if (shown === 0) document.querySelector('[data-empty]').hidden = false;
 
+    // 이미지가 전부 16:9(1920x1080 비율)이면 한 장씩 딱 맞춰 스크롤합니다.
+    // 다른 비율이 한 장이라도 섞이면 지금처럼 자유 스크롤로 둡니다.
+    var shots169 = results.filter(function (r) { return r.pc.ok && !r.pc.clip; });
+    var all169 = shots169.length > 0 && shots169.every(function (r) {
+      var ratio = r.pc.w / r.pc.h; return ratio > 1.7 && ratio < 1.85;
+    });
+    if (all169) document.documentElement.classList.add('is-snap');
+
     // 확대 보기는 이미지가 붙은 다음에 연결합니다
     var tag = document.createElement('script');
     tag.src = '../assets/js/zoom.js';
