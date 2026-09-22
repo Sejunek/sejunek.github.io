@@ -12,7 +12,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
 </style>
 </head>
 <body>
-<canvas aria-label="커서를 따라오는 빨간 공. 공을 누르면 맞은 것처럼 튕겨나가고, 세 번 맞으면 삐져서 도망갑니다. 빈 곳을 다섯 번 누르면 풀려서 다시 따라옵니다."></canvas>
+<canvas aria-label="커서를 따라오는 빨간 공. 공을 누르면 맞은 것처럼 튕겨나가고, 다섯 번 맞으면 삐져서 도망갑니다. 빈 곳을 열 번 누르면 풀려서 다시 따라옵니다."></canvas>
 <script>
 /* 원작: Processing (대학 시절) — 커서를 따라오며 잔상을 남기는 공
    추가한 것: 공을 누르면 맞은 것처럼 튕기고 점점 거리를 둠 → 3번이면 삐져서 피함
@@ -97,9 +97,9 @@ canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
       // 맞았다 — 커서 반대쪽으로 튕겨나감
       const d = Math.hypot(bx - mx, by - my) || 1;
       const ang = d < 2 ? Math.random() * 6.2832 : Math.atan2(by - my, bx - mx);
-      vx += Math.cos(ang) * 140 * S; vy += Math.sin(ang) * 140 * S;
+      const kb = (70 + hits * 45) * S; vx += Math.cos(ang) * kb; vy += Math.sin(ang) * kb;
       hits++;
-      if (hits >= 3) { sulk = true; forgive = 0; hits = 0; }
+      if (hits >= 5) { sulk = true; forgive = 0; hits = 0; }
     } else if (!onBall && sulk) {
       // 빈 곳을 눌러 달래기 — 한 번 누를 때마다 조금 더 가까이 옵니다
       forgive++;
