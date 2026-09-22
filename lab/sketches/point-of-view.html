@@ -97,6 +97,7 @@
   function draw() {
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
     // 누르면 선마다 굵기가 따로 3~7 사이를 오가 화면이 꿈틀거립니다
+    ctx.lineCap = 'round';   // 선 끝을 둥글게
     const L = sz / 2 * Math.SQRT2, q = Math.PI / 4;
     for (let n = 0; n < dots.length; n++) {
       const d = dots[n];
