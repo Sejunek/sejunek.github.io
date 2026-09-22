@@ -75,7 +75,7 @@
   // 화면을 덮도록 맞춘 사진에서 격자마다 색을 한 번만 뽑아 둡니다
   function sample() {
     sz = Math.max(5, 8 * W / 1200);
-    const gx = sz * 2, gy = sz;
+    const gx = sz * 1.3, gy = sz * 0.7;   // 원작보다 촘촘하게
     const cols = Math.ceil(W / gx) + 1, rows = Math.ceil(H / gy) + 1;
     const off = document.createElement('canvas');
     off.width = cols; off.height = rows;
@@ -96,12 +96,12 @@
 
   function draw() {
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-    // 원작처럼 누르면 선마다 굵기가 따로 3~7 사이를 오가 화면이 꿈틀거립니다 (원작보다 느리고 부드럽게)
+    // 누르면 선마다 굵기가 따로 3~7 사이를 오가 화면이 꿈틀거립니다
     const L = sz / 2 * Math.SQRT2, q = Math.PI / 4;
     for (let n = 0; n < dots.length; n++) {
       const d = dots[n];
       const a = Math.atan2(my - d.y, mx - d.x) + q;
-      const wave = d.lo + (Math.sin(t * d.f * 4 + d.ph) * 0.5 + 0.5) * 2;
+      const wave = d.lo + (Math.sin(t * d.f * 7 + d.ph) * 0.5 + 0.5) * 2;
       ctx.lineWidth = 1 + (wave - 1) * press;
       ctx.strokeStyle = d.c;
       ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x + Math.cos(a) * L, d.y + Math.sin(a) * L); ctx.stroke();
