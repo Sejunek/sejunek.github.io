@@ -88,23 +88,23 @@
     for (let r = 0; r < rows; r++)
       for (let c = 0; c < cols; c++) {
         const i = (r * cols + c) * 4;
-        dots.push(c * gx, r * gy, 'rgb(' + px[i] + ',' + px[i + 1] + ',' + px[i + 2] + ')');
+        dots.push({ x: c * gx, y: r * gy, c: 'rgb(' + px[i] + ',' + px[i + 1] + ',' + px[i + 2] + ')',
+          ph: Math.random() * 6.2832, f: 0.6 + Math.random() * 0.9, lo: 3 + Math.random() * 2 });
       }
     dirty = true;
   }
 
   function draw() {
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-    const wave = 5 + 2 * Math.sin(t * 1.2);
-    const lw = 1 + (wave - 1) * press;
-    ctx.lineWidth = lw; ctx.lineCap = 'round';
-    const L = sz * 0.9;
-    for (let i = 0; i < dots.length; i += 3) {
-      const x = dots[i], y = dots[i + 1];
-      const a = Math.atan2(my - y, mx - x);
-      const dx = Math.cos(a) * L, dy = Math.sin(a) * L;
-      ctx.strokeStyle = dots[i + 2];
-      ctx.beginPath(); ctx.moveTo(x - dx, y - dy); ctx.lineTo(x + dx, y + dy); ctx.stroke();
+    // 원작처럼 누르면 선마다 굵기가 따로 3~7 사이를 오가 화면이 꿈틀거립니다 (원작보다 느리고 부드럽게)
+    const L = sz / 2 * Math.SQRT2, q = Math.PI / 4;
+    for (let n = 0; n < dots.length; n++) {
+      const d = dots[n];
+      const a = Math.atan2(my - d.y, mx - d.x) + q;
+      const wave = d.lo + (Math.sin(t * d.f * 4 + d.ph) * 0.5 + 0.5) * 2;
+      ctx.lineWidth = 1 + (wave - 1) * press;
+      ctx.strokeStyle = d.c;
+      ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x + Math.cos(a) * L, d.y + Math.sin(a) * L); ctx.stroke();
     }
   }
 
@@ -114,7 +114,7 @@
     const goal = pressing ? 1 : 0;
     const moving = Math.abs(goal - press) > 0.002 || press > 0.002;
     press += (goal - press) * Math.min(1, dt * 4);   // 약 0.5초에 걸쳐 부드럽게
-    t += dt;
+    if (press > 0.002) t += dt;
     if (img && (dirty || moving)) { draw(); dirty = false; }
     if (moving) kick(); else last = 0;
   }
