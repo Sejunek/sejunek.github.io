@@ -39,7 +39,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
   // 색 — 평소엔 산호빛, 삐지면 차가운 회청색, 달랠수록 다시 따뜻해짐
   function color() {
     const warm = [255, 88, 88], cold = [112, 128, 150];
-    const k = sulk ? 1 - forgive / 5 : 0;
+    const k = sulk ? 1 - forgive / 10 : 0;
     return warm.map((w, i) => Math.round(w + (cold[i] - w) * k));
   }
 
@@ -53,7 +53,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
       tx = mx; ty = my; k = 0.08;
     } else {
       // 삐진 상태 — 일정 거리 안으로 들어오면 피하고, 달랠수록 그 거리가 줄어듭니다
-      const keep = (420 - forgive * 70) * S;
+      const keep = (420 - forgive * 35) * S;
       if (d < keep) { tx = mx + ux * keep; ty = my + uy * keep; k = 0.09; }
       else { tx = bx; ty = by; k = 0.02; }
     }
@@ -97,7 +97,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
       // 맞았다 — 커서 반대쪽으로 튕겨나감
       const d = Math.hypot(bx - mx, by - my) || 1;
       const ang = d < 2 ? Math.random() * 6.2832 : Math.atan2(by - my, bx - mx);
-      vx += Math.cos(ang) * 60 * S; vy += Math.sin(ang) * 60 * S;
+      vx += Math.cos(ang) * 140 * S; vy += Math.sin(ang) * 140 * S;
       hits++;
       if (hits >= 3) { sulk = true; forgive = 0; hits = 0; }
     } else if (!onBall && sulk) {
@@ -105,7 +105,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
       forgive++;
       const d = Math.hypot(mx - bx, my - by) || 1;
       vx += (mx - bx) / d * 14 * S; vy += (my - by) / d * 14 * S;
-      if (forgive >= 5) { sulk = false; forgive = 0; hits = 0; }
+      if (forgive >= 10) { sulk = false; forgive = 0; hits = 0; }
     }
     hint();
   });
