@@ -38,8 +38,8 @@ canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
 
   function hint() {
     if (sulk) hintEl.textContent = '삐졌습니다 · 빈 곳을 눌러 달래주세요  ' + forgive + ' / 5';
-    else if (hits === 1) hintEl.textContent = '아파요… 한 걸음 물러섭니다';
-    else if (hits === 2) hintEl.textContent = '한 번만 더 때리면 삐집니다';
+    else if (hits === 1) hintEl.textContent = '아파요… (1 / 3)';
+    else if (hits === 2) hintEl.textContent = '한 번만 더 때리면 삐집니다 (2 / 3)';
     else hintEl.textContent = '공을 눌러보세요';
   }
 
@@ -56,10 +56,8 @@ canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
     const ux = dx / d, uy = dy / d;
     let tx, ty, k;
     if (!sulk) {
-      // 맞을수록 따라오긴 하되 거리를 두고, 느려집니다
-      const keep = [0, 120, 240][hits] * S;
-      tx = mx + ux * keep; ty = my + uy * keep;
-      k = [0.08, 0.05, 0.035][hits];                    // 원본 속도 0.08
+      // 맞으면 튕겨나갔다가 다시 커서 가운데로 돌아옵니다 (원본 속도 0.08)
+      tx = mx; ty = my; k = 0.08;
     } else {
       // 삐진 상태 — 일정 거리 안으로 들어오면 피하고, 달랠수록 그 거리가 줄어듭니다
       const keep = (420 - forgive * 70) * S;
