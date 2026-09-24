@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>INNER — 내면 탐색</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-base:#FFFFFF; --bg-subtle:#F4F4F2; --bg-inverse:#111111;
+    --text-primary:#111111; --text-secondary:#8A8A8A; --text-inverse:#FFFFFF;
+    --border-line:#E4E4E1; --point:#2D45FF; --point-hover:#1B31D6;
+    --font-latin:"Archivo","Helvetica Neue",Arial,sans-serif;
+    --font-kr:"IBM Plex Sans KR","Pretendard",-apple-system,"Apple SD Gothic Neo",sans-serif;
+    --ease:cubic-bezier(.215,.61,.355,1);
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;
+    background:var(--bg-base);color:var(--text-primary);font-family:var(--font-kr);
+    -webkit-font-smoothing:antialiased}
+  canvas{display:block;width:100vw;height:100vh;touch-action:none}
+  button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+  .t-mono{font-family:var(--font-latin);font-weight:500;font-size:12px;line-height:16px;letter-spacing:1.2px}
+  .t-h-l{font-family:var(--font-latin);font-weight:600;font-size:32px;line-height:40px;letter-spacing:-.8px}
+  .t-body{font-size:16px;line-height:28px}
+  .t-body-s{font-size:13px;line-height:22px}
+  .muted{color:var(--text-secondary)}
+
+  /* 상단 — 진행 막대 + 경로 */
+  #rail{position:fixed;top:0;left:0;right:0;height:2px;background:var(--border-line);z-index:20}
+  #rail i{display:block;height:100%;width:0;background:var(--point);
+    transition:width .5s var(--ease)}
+  #top{position:fixed;top:0;left:0;right:0;z-index:21;padding:28px 32px;
+    display:flex;align-items:baseline;gap:20px;pointer-events:none}
+  #back{pointer-events:auto;opacity:0;transform:translateX(-6px);
+    transition:opacity .4s var(--ease),transform .4s var(--ease),color .2s}
+  #back.on{opacity:1;transform:none}
+  #back:hover{color:var(--point)}
+  #crumb{color:var(--text-secondary)}
+  #crumb b{color:var(--text-primary);font-weight:500}
+
+  /* 하단 — 정보 */
+  #panel{position:fixed;left:32px;bottom:32px;width:min(420px,calc(100% - 64px));z-index:22;
+    opacity:0;transform:translateY(14px);pointer-events:none;
+    transition:opacity .5s var(--ease),transform .5s var(--ease)}
+  #panel.on{opacity:1;transform:none;pointer-events:auto}
+  #p-kick{color:var(--point);margin-bottom:14px}
+  #p-title{margin:0 0 4px;font-family:var(--font-kr);font-weight:500;font-size:28px;line-height:38px;letter-spacing:-.6px}
+  #p-sub{margin:0 0 16px;color:var(--text-secondary)}
+  #p-desc{margin:0 0 24px;max-width:38ch}
+  #go{display:inline-flex;align-items:center;gap:12px;padding:15px 26px;
+    background:var(--bg-inverse);color:var(--text-inverse);transition:background .25s var(--ease)}
+  #go:hover{background:var(--point)}
+  #go span{font-family:var(--font-latin);font-weight:500;font-size:13px;letter-spacing:1.2px}
+  #p-act{display:flex;align-items:center;gap:22px}
+  #p-yt{color:var(--text-secondary);text-decoration:none;border-bottom:1px solid var(--border-line);padding-bottom:2px}
+  #p-yt:hover{color:var(--point);border-color:var(--point)}
+
+  #hint{position:fixed;left:32px;bottom:32px;z-index:19;color:var(--text-secondary);
+    transition:opacity .4s var(--ease)}
+  #hint.off{opacity:0}
+
+  /* 재생 */
+  #player{position:fixed;inset:0;z-index:40;background:var(--bg-inverse);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:40px;
+    opacity:0;visibility:hidden;transition:opacity .45s var(--ease),visibility .45s}
+  #player.on{opacity:1;visibility:visible}
+  #frame{width:min(1100px,100%);aspect-ratio:16/9;background:#000}
+  #frame iframe{width:100%;height:100%;border:0;display:block}
+  #ptitle{color:var(--text-inverse);text-align:center}
+  #ptitle b{display:block;font-weight:500;font-size:20px;line-height:30px}
+  #ptitle span{color:rgba(255,255,255,.5)}
+  #pbar{display:flex;align-items:center;gap:28px}
+  #popen{color:rgba(255,255,255,.55);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:3px}
+  #popen:hover{color:#fff;border-color:#fff}
+  #pclose{color:rgba(255,255,255,.7);border-bottom:1px solid rgba(255,255,255,.3);padding-bottom:3px}
+  #pclose:hover{color:#fff;border-color:#fff}
+
+  /* 추가 UI */
+  #tools{position:fixed;top:0;right:0;z-index:23;padding:26px 32px;display:flex;gap:22px;align-items:center}
+  #tools button{color:var(--text-secondary)}
+  #tools button:hover{color:var(--point)}
+  #tools .add{color:var(--text-primary);display:flex;align-items:center;gap:8px}
+
+  #sheet{position:fixed;inset:0;z-index:50;display:flex;justify-content:flex-end;
+    background:rgba(17,17,17,.28);opacity:0;visibility:hidden;transition:opacity .4s var(--ease),visibility .4s}
+  #sheet.on{opacity:1;visibility:visible}
+  #sheet .box{width:min(460px,100%);height:100%;background:var(--bg-base);padding:36px 36px 40px;
+    overflow-y:auto;transform:translateX(24px);transition:transform .45s var(--ease)}
+  #sheet.on .box{transform:none}
+  #sheet h3{margin:0 0 30px;font-family:var(--font-latin);font-weight:600;font-size:22px;letter-spacing:-.4px}
+  .fld{margin-bottom:22px}
+  .fld > label{display:block;color:var(--text-secondary);margin-bottom:8px}
+  .fld input,.fld select,.fld textarea{width:100%;padding:13px 14px;border:1px solid var(--border-line);
+    background:var(--bg-base);font-family:var(--font-kr);font-size:15px;color:var(--text-primary);border-radius:0}
+  .fld textarea{resize:vertical;min-height:76px;line-height:26px}
+  .fld input:focus,.fld select:focus,.fld textarea:focus{outline:0;border-color:var(--point)}
+  .fld .help{color:var(--text-secondary);margin-top:7px}
+  .row{display:flex;gap:12px}
+  .row > *{flex:1}
+  .sheet-act{display:flex;gap:16px;align-items:center;margin-top:34px}
+  .sheet-act button.primary{background:var(--bg-inverse);color:var(--text-inverse);padding:15px 28px;
+    transition:background .25s var(--ease)}
+  .sheet-act button.primary:hover{background:var(--point)}
+  .sheet-act button.ghost{color:var(--text-secondary)}
+  .sheet-act button.ghost:hover{color:var(--text-primary)}
+  #err{color:#C0392B;margin-top:14px;min-height:20px}
+  .mine{margin-top:34px;border-top:1px solid var(--border-line);padding-top:20px}
+  .mine ul{margin:12px 0 0;padding:0;list-style:none}
+  .mine li{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid var(--border-line)}
+  .mine li span{color:var(--text-secondary)}
+  .mine li button{color:var(--text-secondary)}
+  .mine li button:hover{color:#C0392B}
+
+  @media (max-width:767px){
+    #top{padding:20px}
+    #panel,#hint{left:20px;bottom:24px;width:calc(100% - 40px)}
+    #p-title{font-size:23px;line-height:32px}
+    #tools{padding:18px 20px;gap:16px}
+    #sheet .box{padding:26px 20px 36px}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="cv"></canvas>
+
+<div id="rail"><i id="rail-i"></i></div>
+<div id="top">
+  <button id="back" class="t-mono">← BACK</button>
+  <div id="crumb" class="t-mono">INNER SPACE</div>
+</div>
+
+<div id="hint" class="t-mono">감정을 하나 고르세요</div>
+
+<div id="panel">
+  <div id="p-kick" class="t-mono"></div>
+  <h2 id="p-title"></h2>
+  <p id="p-sub" class="t-body-s"></p>
+  <p id="p-desc" class="t-body"></p>
+  <div id="p-act">
+    <button id="go"><span id="go-label">ENTER</span><span aria-hidden="true">→</span></button>
+    <a id="p-yt" class="t-mono" target="_blank" rel="noopener" hidden>YOUTUBE ↗</a>
+  </div>
+</div>
+
+<div id="tools">
+  <button id="export" class="t-mono">EXPORT</button>
+  <button id="open-add" class="add t-mono">+ ADD</button>
+</div>
+
+<div id="sheet">
+  <div class="box">
+    <h3>영감 추가</h3>
+
+    <div class="fld">
+      <label class="t-mono">1 · 감정</label>
+      <select id="f-emo"></select>
+      <input id="f-emo-new" placeholder="새 감정 이름 (예: 고요)" style="margin-top:10px;display:none">
+      <input id="f-emo-latin" placeholder="영문 표기 (예: STILLNESS)" style="margin-top:8px;display:none">
+      <div class="help t-body-s">목록에 없으면 “+ 새로 만들기”를 고르세요.</div>
+    </div>
+
+    <div class="fld">
+      <label class="t-mono">2 · 작품</label>
+      <select id="f-work"></select>
+      <input id="f-work-new" placeholder="새 작품 이름 (예: 모노노케 히메)" style="margin-top:10px;display:none">
+      <input id="f-work-latin" placeholder="영문 표기 (예: PRINCESS MONONOKE)" style="margin-top:8px;display:none">
+      <input id="f-work-sub" placeholder="만든 사람 (예: 宮崎駿 · 久石譲)" style="margin-top:8px;display:none">
+    </div>
+
+    <div class="fld">
+      <label class="t-mono">3 · 음악 · 영상</label>
+      <input id="f-name" placeholder="제목 (예: 아시타카 섹키)">
+      <div class="row" style="margin-top:8px">
+        <input id="f-latin" placeholder="영문 표기 (선택)">
+        <input id="f-sub" placeholder="부제 (선택)">
+      </div>
+    </div>
+
+    <div class="fld">
+      <label class="t-mono">4 · 유튜브 링크</label>
+      <input id="f-url" placeholder="https://www.youtube.com/watch?v=...">
+      <div class="help t-body-s">주소를 그대로 붙여 넣으면 됩니다. 공유 링크(youtu.be)도 됩니다.</div>
+    </div>
+
+    <div class="fld">
+      <label class="t-mono">5 · 한 줄 설명</label>
+      <textarea id="f-desc" placeholder="이 영상에서 무엇을 가져왔는지"></textarea>
+    </div>
+
+    <div id="err" class="t-body-s"></div>
+
+    <div class="sheet-act">
+      <button class="primary" id="save"><span class="t-mono">ADD</span></button>
+      <button class="ghost t-mono" id="cancel">CANCEL</button>
+    </div>
+
+    <div class="mine">
+      <div class="t-mono muted">내가 추가한 것</div>
+      <ul id="mine-list"></ul>
+    </div>
+  </div>
+</div>
+
+<div id="player">
+  <div id="ptitle"><b></b><span class="t-body-s"></span></div>
+  <div id="frame"></div>
+  <div id="pbar">
+    <a id="popen" class="t-mono" target="_blank" rel="noopener">YOUTUBE 에서 보기 ↗</a>
+    <button id="pclose" class="t-mono">CLOSE</button>
+  </div>
+</div>
+
+<script>
+/* ──────────────────────────────────────────────────────────────
+   INNER — 내면 탐색
+   Finpong 의 궤도 탐색(선택 → 기울기 → 드릴다운 → 뒤로)을 가져와
+   감정 → 작품 → 음악·영상 세 단계로 다시 짰습니다.
+   화면은 포트폴리오 토큰(흰 바탕 · #111 · #2D45FF · Archivo)을 그대로 씁니다.
+   ────────────────────────────────────────────────────────────── */
+
+const TREE = {
+  name:'내면', latin:'INNER',
+  children:[
+    { name:'용기', latin:'COURAGE', sub:'희망 · 용맹',
+      desc:'절망 속에서 찾아온 구원, 그리고 어둠을 두려워하지 않고 맞서는 마음.',
+      children:[
+        { name:'반지의 제왕', latin:'THE LORD OF THE RINGS', sub:'J.R.R. Tolkien · Howard Shore',
+          desc:'미나스 티리스가 무너지기 직전, 언덕 위에 로한의 기병대가 선다. 두려움과 작은 희망과 용맹이 한 장면에 다 들어 있다.',
+          children:[
+            { name:'로한의 돌격', latin:'RIDE OF THE ROHIRRIM', sub:'The Return of the King', yt:'7lwJOxN_gXc',
+              desc:'미나스 티리스를 구하러 온 기병대가 적진으로 돌진하는 순간, 로한의 주제가 바이올린으로 올라온다. 이 장면의 절정.' }
+          ]}
+      ]},
+    { name:'신비', latin:'WONDER', sub:'상상 · 미지',
+      desc:'인간의 상상을 자극하는 것들. 아직 모르는 공간을 머릿속에 세우게 만드는 감각.',
+      children:[
+        { name:'해리 포터', latin:'HARRY POTTER', sub:'J.K. Rowling · John Williams',
+          desc:'첼레스타의 맑은 음에서 시작해 오케스트라와 오르간으로 번진다. 신비는 큰 것이 아니라, 작은 것이 큰 공간에서 울릴 때 온다.',
+          children:[
+            { name:'헤드위그 테마', latin:"HEDWIG'S THEME", sub:'메인 테마', yt:'Crp_OSv8bc0',
+              desc:'오르간과 실로폰, 그리고 오케스트라. 호그와트라는 공간의 웅장함과 신비를 소리만으로 세운다.' }
+          ]},
+        { name:'야생의 숨결', latin:'BREATH OF THE WILD', sub:'任天堂 · 삼각형의 법칙',
+          desc:'게임으로 세계를 동경하게 된 첫 경우. 기억을 잃었다는 설정 하나로 세계를 모르는 사람도 그 안에 들어가게 만들고, 언덕과 산을 삼각형으로 배치해 시선을 가렸다 열어주며 다음 걸음을 플레이어가 직접 고르게 만든다.',
+          children:[
+            { name:'메인 테마', latin:'MAIN THEME', sub:'관악으로 낸 동양의 신비', yt:'tDkjr_cYO6M',
+              desc:'젤다 특유의 웅장함에 피리 같은 관악기로 동양의 신비를 얹었다. 내 세계를 동양의 소리로 짓고 싶다는 생각을 여기서 얻었다.' }
+          ]}
+      ]},
+    { name:'열망', latin:'DESIRE', sub:'각성 · 절정',
+      desc:'숨어 있던 열망과 재능을 깨워야 할 것 같은 마음. 나도 한 번은 절정을 태워보고 싶게 만드는 불.',
+      children:[
+        { name:'Awaken', latin:'AWAKEN', sub:'League of Legends · Ray Chen',
+          desc:'게임을 하지 않는데도 이 영상은 매번 나를 일으킨다. 인물들의 내면과 갈등을 번갈아 보여주며 문학의 구성처럼 긴장을 쌓다가, 바이올린이 그 꼭대기를 친다.',
+          children:[
+            { name:'시네마틱', latin:'CINEMATIC', sub:'Awaken (2019)', yt:'zF5Ddo9JdpY',
+              desc:'캐릭터들의 내면과 갈등이 번갈아 나오며 긴장이 점점 고조된다. 마음에 불을 지피는 영상.' },
+            { name:'Ray Chen 버전', latin:'RAY CHEN', sub:'바이올린 연주', yt:'EzGVJeIV2cQ',
+              desc:'실제로 이 곡에 참여한 바이올리니스트 Ray Chen 의 연주. 절정이 어디인지 연주만으로 드러난다.' }
+          ]}
+      ]},
+    { name:'동경', latin:'LONGING', sub:'세계를 향한 마음',
+      desc:'세계 자체를 동경하게 만든 것들. 나도 저런 세계를 짓고 싶다는 생각이 여기서 시작됐다.',
+      children:[
+        { name:'천공의 섬 라퓨타', latin:'CASTLE IN THE SKY', sub:'宮崎駿 · 久石譲',
+          desc:'내가 세계라는 것을 처음으로 동경하게 된 작품. 하늘을 제패했던 기술의 제국이지만, 그 심장을 뚫고 올라온 것은 나무였고 섬은 끝내 자연의 뜻대로 하늘로 사라진다. 인간은 기술을 동경하지만 자연에 대한 동경을 넘지 못한다는 것, 그리고 그 섬을 찾아 모인 사람들 사이의 정이 남는 작품이다.',
+          children:[
+            { name:'너를 태우고', latin:'KIMI WO NOSETE', sub:'엔딩 테마', yt:'Yy8MEO_2AYo',
+              desc:'섬이 하늘로 사라진 뒤에 남는 것. 나도 이런 여운을 남기는 작품을 만들고 싶다.' }
+          ]}
+      ]}
+  ]
+};
+
+/* ── 수치 ── */
+const R_HUB=52, R_NODE=40, ORBIT=[190,290];
+const MAXZ=3.2, MINZ=.55;
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const lerp=(a,b,t)=>a+(b-a)*t;
+const TAU=Math.PI*2;
+/* 각도 차이를 항상 -180°~180° 안으로 접습니다.
+   한 번만 빼고 더하던 예전 방식은 차이가 한 바퀴를 넘으면 접히지 않아
+   목표까지 여러 바퀴를 도는 문제가 있었습니다. */
+const wrap=d=>{ d=(d+Math.PI)%TAU; if(d<0)d+=TAU; return d-Math.PI; };
+const lerpA=(a,b,t)=>a+wrap(b-a)*t;
+/* 시간 기준 감속 — 프레임 수와 무관하게 같은 속도로 부드럽게 */
+const sm=(cur,goal,k,dt)=>lerp(cur,goal,1-Math.exp(-k*dt));
+const smA=(cur,goal,k,dt)=>lerpA(cur,goal,1-Math.exp(-k*dt));
+
+const cv=document.getElementById('cv'), c=cv.getContext('2d');
+let W=0,H=0,DPR=1,last=0,time=0;
+
+const cam={ zoom:1,tz:1, tilt:0,ttilt:0, rot:0,trot:0, x:0,tx:0, y:0,ty:0,
+            vx:0,vy:0, panning:false, manual:false };
+const view={ hub:null, nodes:[], ghosts:[], stack:[], focus:null };
+let hover=null;
+
+function resize(){
+  DPR=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight;
+  cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR); c.setTransform(DPR,0,0,DPR,0,0);
+}
+addEventListener('resize',resize);
+
+/* ── 단계 이동 ── */
+function makeNodes(node, backTo){
+  const kids=node.children||[];
+  return kids.map((k,i)=>{
+    const two = kids.length>3;
+    const ring = two ? i%2 : 0;
+    const inRing = kids.filter((_,j)=> two? j%2===ring : true).length;
+    const idx = kids.slice(0,i).filter((_,j)=> two? j%2===ring : true).length;
+    const back = backTo && k===backTo;          // 방금 나온 곳 — 중심에서 제자리로 돌아갑니다
+    return { data:k, orbit:ORBIT[ring], speed: ring? .10 : .14,
+      angle:(Math.PI*2/inRing)*idx + (ring?.7:0) - Math.PI/2,
+      r:R_NODE, x:0,y:0, scale: back? R_HUB/R_NODE : 1,
+      alpha:0, born:0, dim:1, lead:!!back };
+  });
+}
+/* from     : 중심으로 날아올 행성 (안으로 들어갈 때)
+   backTo   : 중심에서 제자리로 돌아갈 행성의 데이터 (밖으로 나올 때) */
+function enter(node,{keepGhost=true, from=null, backTo=null}={}){
+  if(keepGhost && view.nodes.length)
+    view.ghosts.push(...view.nodes.filter(n=>n!==from).map(n=>({...n, fade:1})));
+  view.hub = from
+    ? { data:node, x:from.x, y:from.y, r:from.r*from.scale, t:0 }   // 고른 행성이 중심으로 들어옵니다
+    : backTo
+      ? { data:node, x:0, y:0, r:R_NODE*.5, t:0 }                   // 상위 항성이 중심에서 자라납니다
+      : { data:node, x:0, y:0, r:R_HUB, t:1 };
+  view.nodes=makeNodes(node, backTo);
+  view.focus=null; cam.tz=1; cam.ttilt=0; cam.trot=0; cam.tx=0; cam.ty=0;
+  cam.vx=cam.vy=0; cam.manual=false;
+  chrome();
+}
+function drill(node){
+  if(!node.children||!node.children.length) return;
+  const from = view.nodes.find(n=>n.data===node) || null;
+  view.stack.push(view.hub.data);
+  enter(node,{from});
+}
+function goUp(){
+  if(!view.stack.length) return;
+  const leaving = view.hub.data;                 // 지금 중심에 있던 것
+  enter(view.stack.pop(), { backTo:leaving });
+}
+
+/* ── 화면 밖 UI ── */
+const panel=document.getElementById('panel'), goBtn=document.getElementById('go');
+const crumb=document.getElementById('crumb'), backBtn=document.getElementById('back');
+const hint=document.getElementById('hint'), railI=document.getElementById('rail-i');
+const player=document.getElementById('player'), frame=document.getElementById('frame');
+
+function chrome(){
+  const depth=view.stack.length;
+  backBtn.classList.toggle('on', depth>0);
+  railI.style.width = (depth/3*100)+'%';
+  const path=view.stack.concat([view.hub.data]).filter(n=>n.name!=='내면').map(n=>n.latin||n.name);
+  crumb.innerHTML = path.length ? path.map((p,i)=> i===path.length-1?'<b>'+p+'</b>':p).join(' &nbsp;/&nbsp; ')
+                                : 'INNER SPACE';
+  hint.textContent = depth===0?'감정을 하나 고르세요' : depth===1?'그 감정을 건드린 작품' : '누르면 재생됩니다';
+  hint.classList.toggle('off', !!view.focus);
+  panel.classList.toggle('on', !!view.focus);
+  if(view.focus){
+    const d=view.focus.data;
+    document.getElementById('p-kick').textContent=d.latin||'';
+    document.getElementById('p-title').textContent=d.name;
+    document.getElementById('p-sub').textContent=d.sub||'';
+    document.getElementById('p-desc').textContent=d.desc||'';
+    document.getElementById('go-label').textContent = d.yt?'PLAY':'ENTER';
+    const yl=document.getElementById('p-yt');
+    yl.hidden=!d.yt; if(d.yt) yl.href='https://www.youtube.com/watch?v='+d.yt;
+    goBtn.style.display = (d.yt||d.children)?'':'none';
+  }
+}
+backBtn.onclick=()=>{ if(view.focus) blur(); else goUp(); };
+goBtn.onclick=()=>{ const d=view.focus&&view.focus.data; if(!d) return; d.yt?play(d):drill(d); };
+
+function play(d){
+  frame.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+d.yt+'?autoplay=1&rel=0" '+
+    'allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+  document.querySelector('#ptitle b').textContent=d.name;
+  document.querySelector('#ptitle span').textContent=d.sub||'';
+  document.getElementById('popen').href='https://www.youtube.com/watch?v='+d.yt;
+  player.classList.add('on');
+}
+function stop(){ player.classList.remove('on'); setTimeout(()=>frame.innerHTML='',400); }
+document.getElementById('pclose').onclick=stop;
+addEventListener('keydown',e=>{ if(e.key!=='Escape') return;
+  if(player.classList.contains('on')) stop(); else if(view.focus) blur(); else goUp(); });
+
+/* ── 선택 ── */
+function focusNode(n){
+  view.focus=n; cam.tz=1.45; cam.ttilt=1;
+  cam.trot=((Math.PI/2-n.angle)%TAU+TAU)%TAU;
+  cam.tx=0; cam.ty=n.orbit*1.5*.52*.5; cam.manual=false; cam.vx=cam.vy=0;
+  chrome();
+}
+function blur(){ view.focus=null; cam.tz=1; cam.ttilt=0; cam.trot=0; cam.tx=0; cam.ty=0;
+  cam.manual=false; chrome(); }
+function step(dir){                                   // 스와이프로 형제 이동
+  if(!view.focus) return;
+  const list=[...view.nodes].sort((a,b)=>a.angle-b.angle);
+  let i=list.indexOf(view.focus);
+  i=(i+dir+list.length)%list.length;
+  focusNode(list[i]);
+}
+
+/* ── 좌표 ── */
+const anchorY=()=>H*(view.focus?.42:.5);
+function toWorld(px,py){ return { x:(px-W/2)/cam.zoom+cam.x, y:(py-anchorY())/cam.zoom+cam.y }; }
+function hit(wx,wy){
+  const ys=lerp(1,.52,cam.tilt);
+  for(let i=view.nodes.length-1;i>=0;i--){
+    const n=view.nodes[i], rx=n.r*n.scale*1.25, ry=n.r*n.scale*ys*1.7;
+    if(((wx-n.x)**2)/(rx*rx)+((wy-n.y)**2)/(ry*ry)<=1) return n;
+  }
+  return null;
+}
+
+/* ── 입력: 탭 / 패닝 / 핀치 / 스와이프 ── */
+const P={ down:false, moved:false, sx:0, sy:0, lx:0, ly:0, pinch:null, id:null, acted:false };
+function down(x,y){
+  P.down=true; P.moved=false; P.acted=false; P.sx=P.lx=x; P.sy=P.ly=y;
+  cam.vx=cam.vy=0; cam.panning=true;
+}
+function move(x,y){
+  if(!P.down) return;
+  const dx=x-P.lx, dy=y-P.ly;
+  if(Math.abs(x-P.sx)>6||Math.abs(y-P.sy)>6) P.moved=true;
+  if(!view.focus){                                    // 선택 없을 때만 화면을 끌 수 있습니다
+    cam.x-=dx/cam.zoom; cam.y-=dy/cam.zoom;
+    cam.vx=-dx/cam.zoom; cam.vy=-dy/cam.zoom; cam.manual=true;
+  }
+  P.lx=x; P.ly=y;
+}
+function up(x,y){
+  if(!P.down) return; P.down=false; cam.panning=false;
+  if(view.focus && P.moved){                          // 선택 중 가로 스와이프 = 형제 이동
+    const d=x-P.sx;
+    if(Math.abs(d)>50) step(d>0?1:-1);
+    return;
+  }
+  if(P.moved) return;
+  const w=toWorld(x,y), n=hit(w.x,w.y);
+  if(n){ if(view.focus===n){ const d=n.data; d.yt?play(d):drill(d); } else focusNode(n); }
+  else if(view.focus) blur();                         // 배경 탭 → 선택 해제
+  else goUp();                                        // 그 다음 배경 탭 → 한 단계 위로
+}
+cv.addEventListener('pointerdown',e=>{ if(e.pointerType==='mouse'&&e.button!==0) return;
+  cv.setPointerCapture(e.pointerId); down(e.clientX,e.clientY); });
+cv.addEventListener('pointermove',e=>{
+  const w=toWorld(e.clientX,e.clientY); hover=hit(w.x,w.y);
+  cv.style.cursor=hover?'pointer':(P.down?'grabbing':'default');
+  move(e.clientX,e.clientY);
+});
+cv.addEventListener('pointerup',e=>up(e.clientX,e.clientY));
+cv.addEventListener('pointercancel',()=>{P.down=false;cam.panning=false;});
+
+/* 휠 = 줌, 트랙패드 핀치도 여기로 들어옵니다 */
+cv.addEventListener('wheel',e=>{ e.preventDefault();
+  const k=Math.exp(-e.deltaY*(e.ctrlKey?.01:.0016));
+  cam.tz=clamp(cam.tz*k,MINZ,MAXZ);
+}, {passive:false});
+
+/* 두 손가락 핀치 */
+const touches=new Map();
+cv.addEventListener('touchstart',e=>{
+  for(const t of e.changedTouches) touches.set(t.identifier,{x:t.clientX,y:t.clientY});
+  if(touches.size===2){ P.down=false; cam.panning=false;
+    P.pinch={ d:pinchDist(), z:cam.tz }; }
+},{passive:true});
+cv.addEventListener('touchmove',e=>{
+  for(const t of e.changedTouches) if(touches.has(t.identifier)) touches.set(t.identifier,{x:t.clientX,y:t.clientY});
+  if(P.pinch && touches.size===2){ e.preventDefault();
+    const d=pinchDist();
+    cam.tz=clamp(P.pinch.z*(d/P.pinch.d),MINZ,MAXZ);
+    if(cam.tz>=MAXZ-.01 && view.focus && view.focus.data.children && !P.acted){
+      P.acted=true; drill(view.focus.data);           // 끝까지 벌리면 한 단계 안으로
+    } else if(cam.tz<=MINZ+.01 && view.stack.length && !P.acted){
+      P.acted=true; goUp();                           // 끝까지 오므리면 한 단계 밖으로
+    }
+  }
+},{passive:false});
+function endTouch(e){
+  for(const t of e.changedTouches) touches.delete(t.identifier);
+  if(touches.size<2){ if(P.pinch && !P.acted && Math.abs(cam.tz-P.pinch.z)/P.pinch.z<.12) cam.tz=P.pinch.z;
+    P.pinch=null; P.acted=false; }
+}
+cv.addEventListener('touchend',endTouch,{passive:true});
+cv.addEventListener('touchcancel',endTouch,{passive:true});
+function pinchDist(){ const [a,b]=[...touches.values()]; return Math.hypot(a.x-b.x,a.y-b.y); }
+
+/* ── 그리기 ── */
+const hexA=(h,a)=>{ const n=parseInt(h.slice(1),16);
+  return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+a+')'; };
+const INK='#111111', LINE='#E4E4E1', SUB='#8A8A8A', POINT='#2D45FF';
+
+function frameLoop(now){
+  requestAnimationFrame(frameLoop);
+  const dt=Math.min(.05,(now-(last||now))/1000); last=now; time+=dt;
+
+  /* 카메라 — 시간 기준 감속 */
+  cam.zoom=sm(cam.zoom,cam.tz,3.2,dt);
+  cam.tilt=sm(cam.tilt,cam.ttilt,3.0,dt);
+  cam.rot =smA(cam.rot,cam.trot,3.0,dt);
+  cam.rot=((cam.rot%TAU)+TAU)%TAU; cam.trot=((cam.trot%TAU)+TAU)%TAU;
+  if(!cam.panning && !cam.manual){ cam.x=sm(cam.x,cam.tx,3.0,dt); cam.y=sm(cam.y,cam.ty,3.0,dt); }
+  if(!cam.panning && cam.manual){                       // 관성
+    cam.x+=cam.vx; cam.y+=cam.vy;
+    cam.vx*=Math.pow(.02,dt); cam.vy*=Math.pow(.02,dt);
+    if(Math.hypot(cam.vx,cam.vy)<.02){ cam.vx=cam.vy=0;
+      if(Math.hypot(cam.x-cam.tx,cam.y-cam.ty)>ORBIT[1]*1.2) cam.manual=false; }
+  }
+  const ys=lerp(1,.52,cam.tilt);
+
+  c.clearRect(0,0,W,H);
+  c.fillStyle='#FFFFFF'; c.fillRect(0,0,W,H);
+
+  c.save();
+  c.translate(W/2,anchorY()); c.scale(cam.zoom,cam.zoom); c.translate(-cam.x,-cam.y);
+
+  /* 궤도 */
+  [...new Set(view.nodes.map(n=>n.orbit))].forEach(r=>{
+    const orb=r*(1+.55*cam.tilt)*(1-Math.pow(1-view.hub.t,3));
+    c.save(); c.translate(view.hub.x,view.hub.y); c.scale(1,ys);
+    c.globalAlpha=view.hub.t;
+    c.strokeStyle=LINE; c.lineWidth=1/cam.zoom;
+    c.beginPath(); c.arc(0,0,orb,0,7); c.stroke(); c.restore();
+  });
+
+  /* 중심 — 고른 행성이 안쪽으로 들어오는 동안 */
+  const hub=view.hub;
+  hub.t=Math.min(1,hub.t+dt*2.1);
+  hub.x=sm(hub.x,0,6,dt); hub.y=sm(hub.y,0,6,dt); hub.r=sm(hub.r,R_HUB,6,dt);
+
+  /* 상태 갱신 — 중심이 자리를 잡은 뒤에 위성이 펼쳐집니다 */
+  const gate = 1-Math.pow(1-hub.t,2);
+  view.nodes.forEach((n,i)=>{
+    n.angle=(n.angle + n.speed*dt*(view.focus?.15:1))%TAU;   // 0~360° 안에 묶어 둡니다
+    n.born = Math.min(1, n.born + dt*(n.lead? 2.6 : (1.6 + i*.12)*(view.hub.t>.35?1:0) )*(n.lead?1:gate));
+    const ease = 1-Math.pow(1-n.born,3);
+    const a=n.angle+cam.rot, orb=n.orbit*(1+.55*cam.tilt);
+    n.x=hub.x+Math.cos(a)*orb*ease; n.y=hub.y+Math.sin(a)*orb*ease*ys;
+    const near=(Math.sin(a)+1)/2;
+    const want = view.focus===n ? 1.38 : (cam.ttilt? lerp(.82,1.06,near) : 1);
+    n.scale=sm(n.scale,want,7,dt);
+    n.dim=sm(n.dim,(view.focus&&view.focus!==n)?.32:1,7,dt);
+    n.alpha=ease;
+  });
+
+  /* 사라지는 이전 단계 */
+  for(let i=view.ghosts.length-1;i>=0;i--){
+    const g=view.ghosts[i];
+    g.fade-=dt*2.2; g.scale=sm(g.scale,.6,4,dt);
+    if(g.fade<=0){ view.ghosts.splice(i,1); continue; }
+    c.globalAlpha=g.fade*.5; drawNode(g,true); c.globalAlpha=1;
+  }
+
+  const by=n=>Math.sin(n.angle+cam.rot);
+  view.nodes.filter(n=>by(n)<0).sort((a,b)=>by(a)-by(b)).forEach(n=>drawNode(n));
+  drawHub();
+  view.nodes.filter(n=>by(n)>=0).sort((a,b)=>by(a)-by(b)).forEach(n=>drawNode(n));
+
+  c.restore();
+}
+
+function drawHub(){
+  const h=view.hub, d=h.data, r=h.r, x=h.x, y=h.y;
+  c.fillStyle='#FFFFFF'; c.beginPath(); c.arc(x,y,r,0,7); c.fill();
+  c.strokeStyle=INK; c.lineWidth=1.4/Math.max(1,cam.zoom*.6); c.stroke();
+  c.fillStyle=INK; c.textAlign='center'; c.textBaseline='middle';
+  c.font='500 '+(14*r/R_HUB).toFixed(1)+'px "IBM Plex Sans KR", sans-serif';
+  c.fillText(d.name==='내면'?'나':d.name, x, y);
+  if(d.latin){
+    c.globalAlpha=h.t;
+    c.fillStyle=SUB; c.font='500 10px Archivo, sans-serif';
+    c.fillText(d.latin, x, y+r+16);
+    c.globalAlpha=1;
+  }
+}
+
+function drawNode(n,ghost){
+  const d=n.data, r=n.r*n.scale, on=(view.focus===n);
+  c.save();
+  if(!ghost) c.globalAlpha=n.alpha*n.dim;
+
+  if(on){                                              // 선택 — 검정으로 채움
+    c.fillStyle=INK; c.beginPath(); c.arc(n.x,n.y,r,0,7); c.fill();
+    c.strokeStyle=POINT; c.lineWidth=1.2; c.beginPath(); c.arc(n.x,n.y,r+9,0,7); c.stroke();
+  } else {
+    c.fillStyle='#FFFFFF'; c.beginPath(); c.arc(n.x,n.y,r,0,7); c.fill();
+    c.strokeStyle=(hover===n)?POINT:INK; c.lineWidth=(hover===n)?1.6:1.2; c.stroke();
+  }
+
+  c.textAlign='center'; c.textBaseline='middle';
+  c.fillStyle=on?'#FFFFFF':INK;
+  const label=d.name.length>9?d.name.slice(0,8)+'…':d.name;
+  let fs=13*n.scale;                                   // 긴 이름은 글자를 줄여 원 안에 넣습니다
+  c.font='500 '+fs.toFixed(1)+'px "IBM Plex Sans KR", sans-serif';
+  const maxW=r*1.62;
+  if(c.measureText(label).width>maxW){
+    fs=Math.max(9*n.scale, fs*maxW/c.measureText(label).width);
+    c.font='500 '+fs.toFixed(1)+'px "IBM Plex Sans KR", sans-serif';
+  }
+  c.fillText(label,n.x,n.y);
+
+  if(d.latin){
+    c.fillStyle=on?POINT:SUB; c.font='500 10px Archivo, sans-serif';
+    const lt=d.latin.length>20?d.latin.slice(0,19)+'…':d.latin;
+    c.fillText(lt,n.x,n.y+r+16);
+  }
+  c.restore();
+}
+
+/* ──────────────────────────────────────────────
+   영감 추가 — 감정 / 작품 / 음악·영상 세 단계를 폼으로 받아
+   같은 나무에 끼워 넣습니다. 추가한 것은 이 브라우저에 저장되고,
+   EXPORT 로 코드에 붙여 넣을 형태로 뽑을 수 있습니다.
+   ────────────────────────────────────────────── */
+const KEY='inner.additions.v1';
+let MINE = [];
+try { MINE = JSON.parse(localStorage.getItem(KEY)||'[]'); } catch(e){ MINE=[]; }
+const saveMine=()=>{ try{ localStorage.setItem(KEY, JSON.stringify(MINE)); }catch(e){} };
+
+const ytId = u => {
+  u=(u||'').trim();
+  const m = u.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+  if(m) return m[1];
+  return /^[A-Za-z0-9_-]{11}$/.test(u) ? u : null;
+};
+const find=(list,name)=>list.find(x=>x.name===name);
+
+/* 저장분을 TREE 에 붙입니다 */
+function applyMine(){
+  MINE.forEach(a=>{
+    let emo=find(TREE.children,a.emo);
+    if(!emo){ emo={ name:a.emo, latin:a.emoLatin||'', sub:'', desc:'', children:[] }; TREE.children.push(emo); }
+    emo.children=emo.children||[];
+    let work=find(emo.children,a.work);
+    if(!work){ work={ name:a.work, latin:a.workLatin||'', sub:a.workSub||'', desc:'', children:[] }; emo.children.push(work); }
+    work.children=work.children||[];
+    if(!find(work.children,a.name))
+      work.children.push({ name:a.name, latin:a.latin||'', sub:a.sub||'', desc:a.desc||'', yt:a.yt });
+  });
+}
+applyMine();
+
+/* 폼 */
+const sheet=document.getElementById('sheet');
+const $=id=>document.getElementById(id);
+const NEW='__new__';
+
+function fillEmo(){
+  $('f-emo').innerHTML = TREE.children.map(e=>'<option>'+e.name+'</option>').join('')
+    + '<option value="'+NEW+'">+ 새로 만들기</option>';
+  toggleEmo(); fillWork();
+}
+function toggleEmo(){
+  const isNew=$('f-emo').value===NEW;
+  $('f-emo-new').style.display=isNew?'':'none';
+  $('f-emo-latin').style.display=isNew?'':'none';
+}
+function fillWork(){
+  const emo=find(TREE.children,$('f-emo').value);
+  const works=(emo&&emo.children)||[];
+  $('f-work').innerHTML = works.map(w=>'<option>'+w.name+'</option>').join('')
+    + '<option value="'+NEW+'">+ 새로 만들기</option>';
+  if(!works.length) $('f-work').value=NEW;
+  toggleWork();
+}
+function toggleWork(){
+  const isNew=$('f-work').value===NEW;
+  ['f-work-new','f-work-latin','f-work-sub'].forEach(id=>$(id).style.display=isNew?'':'none');
+}
+$('f-emo').onchange=()=>{ toggleEmo(); if($('f-emo').value===NEW){ $('f-work').innerHTML='<option value="'+NEW+'">+ 새로 만들기</option>'; } else fillWork(); toggleWork(); };
+$('f-work').onchange=toggleWork;
+
+function renderMine(){
+  $('mine-list').innerHTML = MINE.length
+    ? MINE.map((a,i)=>'<li><span class="t-body-s">'+a.emo+' / '+a.work+' / <b style="color:var(--text-primary);font-weight:500">'+a.name+'</b></span>'
+        +'<button class="t-mono" data-i="'+i+'">DELETE</button></li>').join('')
+    : '<li><span class="t-body-s">아직 없습니다</span></li>';
+  $('mine-list').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    MINE.splice(+b.dataset.i,1); saveMine(); rebuild();
+  });
+}
+
+/* 나무를 처음부터 다시 만들고 화면을 되돌립니다 */
+function rebuild(){
+  TREE.children.forEach(e=>{                       // 사용자가 만든 가지를 걷어냅니다
+    if(e.__mine){ e.__drop=true; return; }
+    (e.children||[]).forEach(w=>{
+      if(w.children) w.children=w.children.filter(i=>!i.__mine);
+    });
+    e.children=(e.children||[]).filter(w=>!w.__mine);
+  });
+  TREE.children=TREE.children.filter(e=>!e.__drop);
+  MINE.forEach(a=>{
+    let emo=find(TREE.children,a.emo);
+    if(!emo){ emo={ name:a.emo, latin:a.emoLatin||'', sub:'', desc:'', children:[], __mine:true }; TREE.children.push(emo); }
+    let work=find(emo.children,a.work);
+    if(!work){ work={ name:a.work, latin:a.workLatin||'', sub:a.workSub||'', desc:'', children:[], __mine:true }; emo.children.push(work); }
+    if(!find(work.children,a.name))
+      work.children.push({ name:a.name, latin:a.latin||'', sub:a.sub||'', desc:a.desc||'', yt:a.yt, __mine:true });
+  });
+  view.stack=[]; enter(TREE,{keepGhost:false});
+  fillEmo(); renderMine();
+}
+
+$('open-add').onclick=()=>{ fillEmo(); renderMine(); $('err').textContent=''; sheet.classList.add('on'); };
+$('cancel').onclick=()=>sheet.classList.remove('on');
+sheet.addEventListener('pointerdown',e=>{ if(e.target===sheet) sheet.classList.remove('on'); });
+
+$('save').onclick=()=>{
+  const emoName = $('f-emo').value===NEW ? $('f-emo-new').value.trim() : $('f-emo').value;
+  const workName= $('f-work').value===NEW ? $('f-work-new').value.trim() : $('f-work').value;
+  const name=$('f-name').value.trim(), id=ytId($('f-url').value);
+  if(!emoName)  return fail('감정을 고르거나 새로 적어주세요.');
+  if(!workName) return fail('작품을 고르거나 새로 적어주세요.');
+  if(!name)     return fail('음악이나 영상의 제목을 적어주세요.');
+  if(!id)       return fail('유튜브 주소를 확인해주세요.');
+  MINE.push({ emo:emoName, emoLatin:$('f-emo-latin').value.trim(),
+    work:workName, workLatin:$('f-work-latin').value.trim(), workSub:$('f-work-sub').value.trim(),
+    name, latin:$('f-latin').value.trim(), sub:$('f-sub').value.trim(),
+    desc:$('f-desc').value.trim(), yt:id });
+  saveMine(); rebuild();
+  ['f-emo-new','f-emo-latin','f-work-new','f-work-latin','f-work-sub','f-name','f-latin','f-sub','f-url','f-desc']
+    .forEach(i=>$(i).value='');
+  $('err').style.color='var(--point)'; $('err').textContent='추가했습니다.';
+  setTimeout(()=>{ $('err').textContent=''; $('err').style.color=''; },1800);
+};
+function fail(m){ $('err').style.color=''; $('err').textContent=m; }
+
+/* 코드에 붙여 넣을 형태로 내보내기 */
+$('export').onclick=()=>{
+  const txt=JSON.stringify(MINE,null,2);
+  const blob=new Blob([txt],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download='inner-additions.json'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+
+addEventListener('keydown',e=>{ if(e.key==='Escape'&&sheet.classList.contains('on')) sheet.classList.remove('on'); });
+
+resize(); enter(TREE,{keepGhost:false}); fillEmo(); renderMine(); requestAnimationFrame(frameLoop);
+</script>
+</body>
+</html>
