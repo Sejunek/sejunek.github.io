@@ -137,7 +137,7 @@ window.PROJECTS = [
   role:"신가전 컨셉 디자인 제안",
   tool:"Rhino 3D · Keyshot · Adobe Ps · Ai",
   summary:"'포스트코로나 시대를 위한 신가전 컨셉 디자인'을 주제로 한 코웨이 상품개발센터 주관 디자인 챌린지입니다. 우수상(은상)을 수상했습니다.",
-  pages:[1,50],
+  pages:[1,51],
   award:"우수상 · 코웨이 산학 디자인 챌린지 2020" }
 
 ];
