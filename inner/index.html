@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>INNER — 내면 탐색</title>
+<title>WORLD — 내면 탐색</title>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -128,7 +128,7 @@
 <div id="rail"><i id="rail-i"></i></div>
 <div id="top">
   <button id="back" class="t-mono">← BACK</button>
-  <div id="crumb" class="t-mono">INNER SPACE</div>
+  <div id="crumb" class="t-mono">WORLD</div>
 </div>
 
 <div id="hint" class="t-mono">감정을 하나 고르세요</div>
@@ -167,6 +167,7 @@
       <input id="f-work-new" placeholder="새 작품 이름 (예: 모노노케 히메)" style="margin-top:10px;display:none">
       <input id="f-work-latin" placeholder="영문 표기 (예: PRINCESS MONONOKE)" style="margin-top:8px;display:none">
       <input id="f-work-sub" placeholder="만든 사람 (예: 宮崎駿 · 久石譲)" style="margin-top:8px;display:none">
+      <input id="f-work-img" placeholder="포스터 이미지 주소 (선택)" style="margin-top:8px;display:none">
     </div>
 
     <div class="fld">
@@ -221,12 +222,13 @@
    ────────────────────────────────────────────────────────────── */
 
 const TREE = {
-  name:'내면', latin:'INNER',
+  name:'세계', latin:'WORLD',
   children:[
     { name:'용기', latin:'COURAGE', sub:'희망 · 용맹',
       desc:'절망 속에서 찾아온 구원, 그리고 어둠을 두려워하지 않고 맞서는 마음.',
       children:[
         { name:'반지의 제왕', latin:'THE LORD OF THE RINGS', sub:'J.R.R. Tolkien · Howard Shore',
+          img:'',   // 포스터 이미지 경로 (예: '../assets/img/inner/lotr.jpg')
           desc:'미나스 티리스가 무너지기 직전, 언덕 위에 로한의 기병대가 선다. 두려움과 작은 희망과 용맹이 한 장면에 다 들어 있다.',
           children:[
             { name:'로한의 돌격', latin:'RIDE OF THE ROHIRRIM', sub:'The Return of the King', yt:'7lwJOxN_gXc',
@@ -355,9 +357,9 @@ function chrome(){
   const depth=view.stack.length;
   backBtn.classList.toggle('on', depth>0);
   railI.style.width = (depth/3*100)+'%';
-  const path=view.stack.concat([view.hub.data]).filter(n=>n.name!=='내면').map(n=>n.latin||n.name);
+  const path=view.stack.concat([view.hub.data]).filter(n=>n.name!=='세계').map(n=>n.latin||n.name);
   crumb.innerHTML = path.length ? path.map((p,i)=> i===path.length-1?'<b>'+p+'</b>':p).join(' &nbsp;/&nbsp; ')
-                                : 'INNER SPACE';
+                                : 'WORLD';
   hint.textContent = depth===0?'감정을 하나 고르세요' : depth===1?'그 감정을 건드린 작품' : '누르면 재생됩니다';
   hint.classList.toggle('off', !!view.focus);
   panel.classList.toggle('on', !!view.focus);
@@ -390,10 +392,19 @@ addEventListener('keydown',e=>{ if(e.key!=='Escape') return;
   if(player.classList.contains('on')) stop(); else if(view.focus) blur(); else goUp(); });
 
 /* ── 선택 ── */
+const IMGS=new Map();                                  // 포스터 이미지 캐시
+function poster(src){
+  if(!src) return null;
+  if(!IMGS.has(src)){ const im=new Image(); im.src=src; IMGS.set(src,im); }
+  const im=IMGS.get(src);
+  return (im.complete && im.naturalWidth) ? im : null;
+}
 function focusNode(n){
-  view.focus=n; cam.tz=1.45; cam.ttilt=1;
+  view.focus=n; n.since=performance.now();             // 포스터는 조금 뒤에 나타납니다
+  n.shot=0;
+  cam.tz=1.45; cam.ttilt=1;
   cam.trot=((Math.PI/2-n.angle)%TAU+TAU)%TAU;
-  cam.tx=0; cam.ty=n.orbit*1.5*.52*.5; cam.manual=false; cam.vx=cam.vy=0;
+  cam.manual=false; cam.vx=cam.vy=0;
   chrome();
 }
 function blur(){ view.focus=null; cam.tz=1; cam.ttilt=0; cam.trot=0; cam.tx=0; cam.ty=0;
@@ -505,6 +516,8 @@ function frameLoop(now){
   cam.tilt=sm(cam.tilt,cam.ttilt,3.0,dt);
   cam.rot =smA(cam.rot,cam.trot,3.0,dt);
   cam.rot=((cam.rot%TAU)+TAU)%TAU; cam.trot=((cam.trot%TAU)+TAU)%TAU;
+  if(view.focus){ cam.tx=view.focus.x; cam.ty=view.focus.y; }   // 선택한 행성을 따라갑니다
+  else if(!view.focus && !cam.panning){ cam.tx=view.hub.x; cam.ty=view.hub.y; }
   if(!cam.panning && !cam.manual){ cam.x=sm(cam.x,cam.tx,3.0,dt); cam.y=sm(cam.y,cam.ty,3.0,dt); }
   if(!cam.panning && cam.manual){                       // 관성
     cam.x+=cam.vx; cam.y+=cam.vy;
@@ -546,6 +559,8 @@ function frameLoop(now){
     const want = view.focus===n ? 1.38 : (cam.ttilt? lerp(.82,1.06,near) : 1);
     n.scale=sm(n.scale,want,7,dt);
     n.dim=sm(n.dim,(view.focus&&view.focus!==n)?.32:1,7,dt);
+    const wantShot = (view.focus===n && n.data.img && (performance.now()-(n.since||0))>420) ? 1 : 0;
+    n.shot=sm(n.shot||0,wantShot,4.5,dt);
     n.alpha=ease;
   });
 
@@ -571,7 +586,7 @@ function drawHub(){
   c.strokeStyle=INK; c.lineWidth=1.4/Math.max(1,cam.zoom*.6); c.stroke();
   c.fillStyle=INK; c.textAlign='center'; c.textBaseline='middle';
   c.font='500 '+(14*r/R_HUB).toFixed(1)+'px "IBM Plex Sans KR", sans-serif';
-  c.fillText(d.name==='내면'?'나':d.name, x, y);
+  c.fillText(d.name, x, y);
   if(d.latin){
     c.globalAlpha=h.t;
     c.fillStyle=SUB; c.font='500 10px Archivo, sans-serif';
@@ -587,6 +602,15 @@ function drawNode(n,ghost){
 
   if(on){                                              // 선택 — 검정으로 채움
     c.fillStyle=INK; c.beginPath(); c.arc(n.x,n.y,r,0,7); c.fill();
+    const im=poster(d.img), sh=(n.shot||0);
+    if(im && sh>0.01){                                 // 한글 제목 자리에 포스터가 들어옵니다
+      c.save(); c.globalAlpha=(n.alpha*n.dim)*sh;
+      c.beginPath(); c.arc(n.x,n.y,r,0,7); c.clip();
+      const s=Math.max(2*r/im.naturalWidth, 2*r/im.naturalHeight);
+      const w=im.naturalWidth*s, h=im.naturalHeight*s;
+      c.drawImage(im, n.x-w/2, n.y-h/2, w, h);
+      c.restore();
+    }
     c.strokeStyle=POINT; c.lineWidth=1.2; c.beginPath(); c.arc(n.x,n.y,r+9,0,7); c.stroke();
   } else {
     c.fillStyle='#FFFFFF'; c.beginPath(); c.arc(n.x,n.y,r,0,7); c.fill();
@@ -603,7 +627,11 @@ function drawNode(n,ghost){
     fs=Math.max(9*n.scale, fs*maxW/c.measureText(label).width);
     c.font='500 '+fs.toFixed(1)+'px "IBM Plex Sans KR", sans-serif';
   }
-  c.fillText(label,n.x,n.y);
+  if(!(on && d.img && (n.shot||0)>.5)){                 // 포스터가 덮은 뒤에는 글자를 지웁니다
+    c.globalAlpha=(n.alpha*n.dim)*(on&&d.img?1-(n.shot||0):1);
+    c.fillText(label,n.x,n.y);
+    c.globalAlpha=n.alpha*n.dim;
+  }
 
   if(d.latin){
     c.fillStyle=on?POINT:SUB; c.font='500 10px Archivo, sans-serif';
@@ -638,7 +666,7 @@ function applyMine(){
     if(!emo){ emo={ name:a.emo, latin:a.emoLatin||'', sub:'', desc:'', children:[] }; TREE.children.push(emo); }
     emo.children=emo.children||[];
     let work=find(emo.children,a.work);
-    if(!work){ work={ name:a.work, latin:a.workLatin||'', sub:a.workSub||'', desc:'', children:[] }; emo.children.push(work); }
+    if(!work){ work={ name:a.work, latin:a.workLatin||'', sub:a.workSub||'', img:a.workImg||'', desc:'', children:[] }; emo.children.push(work); }
     work.children=work.children||[];
     if(!find(work.children,a.name))
       work.children.push({ name:a.name, latin:a.latin||'', sub:a.sub||'', desc:a.desc||'', yt:a.yt });
@@ -671,7 +699,7 @@ function fillWork(){
 }
 function toggleWork(){
   const isNew=$('f-work').value===NEW;
-  ['f-work-new','f-work-latin','f-work-sub'].forEach(id=>$(id).style.display=isNew?'':'none');
+  ['f-work-new','f-work-latin','f-work-sub','f-work-img'].forEach(id=>$(id).style.display=isNew?'':'none');
 }
 $('f-emo').onchange=()=>{ toggleEmo(); if($('f-emo').value===NEW){ $('f-work').innerHTML='<option value="'+NEW+'">+ 새로 만들기</option>'; } else fillWork(); toggleWork(); };
 $('f-work').onchange=toggleWork;
@@ -700,7 +728,7 @@ function rebuild(){
     let emo=find(TREE.children,a.emo);
     if(!emo){ emo={ name:a.emo, latin:a.emoLatin||'', sub:'', desc:'', children:[], __mine:true }; TREE.children.push(emo); }
     let work=find(emo.children,a.work);
-    if(!work){ work={ name:a.work, latin:a.workLatin||'', sub:a.workSub||'', desc:'', children:[], __mine:true }; emo.children.push(work); }
+    if(!work){ work={ name:a.work, latin:a.workLatin||'', sub:a.workSub||'', img:a.workImg||'', desc:'', children:[], __mine:true }; emo.children.push(work); }
     if(!find(work.children,a.name))
       work.children.push({ name:a.name, latin:a.latin||'', sub:a.sub||'', desc:a.desc||'', yt:a.yt, __mine:true });
   });
@@ -722,10 +750,11 @@ $('save').onclick=()=>{
   if(!id)       return fail('유튜브 주소를 확인해주세요.');
   MINE.push({ emo:emoName, emoLatin:$('f-emo-latin').value.trim(),
     work:workName, workLatin:$('f-work-latin').value.trim(), workSub:$('f-work-sub').value.trim(),
+    workImg:$('f-work-img').value.trim(),
     name, latin:$('f-latin').value.trim(), sub:$('f-sub').value.trim(),
     desc:$('f-desc').value.trim(), yt:id });
   saveMine(); rebuild();
-  ['f-emo-new','f-emo-latin','f-work-new','f-work-latin','f-work-sub','f-name','f-latin','f-sub','f-url','f-desc']
+  ['f-emo-new','f-emo-latin','f-work-new','f-work-latin','f-work-sub','f-work-img','f-name','f-latin','f-sub','f-url','f-desc']
     .forEach(i=>$(i).value='');
   $('err').style.color='var(--point)'; $('err').textContent='추가했습니다.';
   setTimeout(()=>{ $('err').textContent=''; $('err').style.color=''; },1800);
