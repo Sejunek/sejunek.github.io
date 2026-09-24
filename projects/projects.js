@@ -9,7 +9,7 @@
    프레임을 골라 JPG 로 내보낸 뒤, 아래 폴더에 그대로 넣으세요.
 
      썸네일   assets/img/thumb/thumb_<slug>.jpg
-     PC 상세  assets/img/<slug>/<slug>_01_main.jpg
+     PC 상세  assets/img/<slug>/<slug>_01_main.webp
                               <slug>_02_flow.jpg
                               <slug>_03_ui.jpg
                               <slug>_04_detail.jpg
@@ -172,13 +172,13 @@ window.PJ = {
   //
   // pages 쓰는 법 — 두 가지입니다.
   //
-  //  1) 숫자 두 개 = 범위. 번호만 붙은 jpg 를 순서대로 읽습니다.
-  //       pages: [1, 10]      → assets/img/<slug>/1.jpg … 10.jpg
-  //       pages: [11, 22]     → 11.jpg … 22.jpg  (내보낸 페이지 번호 그대로)
+  //  1) 숫자 두 개 = 범위. 번호만 붙은 webp 를 순서대로 읽습니다.
+  //       pages: [1, 10]      → assets/img/<slug>/1.webp … 10.webp
+  //       pages: [11, 22]     → 11.webp … 22.webp  (내보낸 페이지 번호 그대로)
   //
   //  2) 목록 = 파일을 직접 나열. 중간에 짧은 영상을 끼워 넣을 때 씁니다.
   //       pages: ["36", "37", "demo.mp4", "38", "39"]
-  //     확장자가 없으면 .jpg 로 봅니다. 순서가 그대로 화면 순서입니다.
+  //     확장자가 없으면 .webp 로 봅니다. 순서가 그대로 화면 순서입니다.
   //     .mp4 / .webm 은 소리 없이 자동 반복 재생됩니다.
   shots: function (p, base) {
     if (p.pages) {
@@ -188,7 +188,7 @@ window.PJ = {
       // 목록으로 준 경우
       if (p.pages.length && typeof p.pages[0] === 'string') {
         p.pages.forEach(function (item) {
-          var file = /\.[a-z0-9]+$/i.test(item) ? item : (item + '.jpg');
+          var file = /\.[a-z0-9]+$/i.test(item) ? item : (item + '.webp');
           out.push({ pc: dir + file, mo: '', name: p.slug + '_' + file.replace(/\.[^.]+$/, '') });
         });
         return out;
@@ -197,15 +197,15 @@ window.PJ = {
       // 숫자 범위로 준 경우
       var from = p.pages[0], to = p.pages[1];
       for (var i = from; i <= to; i++) {
-        out.push({ pc: dir + i + '.jpg', mo: '', name: p.slug + '_' + i });
+        out.push({ pc: dir + i + '.webp', mo: '', name: p.slug + '_' + i });
       }
       return out;
     }
     var names = p.shots || ['01_main', '02_flow', '03_ui', '04_detail'];
     return names.map(function (n) {
       return {
-        pc: (base || '') + 'assets/img/' + p.slug + '/' + p.slug + '_' + n + '.jpg',
-        mo: (base || '') + 'assets/img/' + p.slug + '/' + p.slug + '_' + n + '@mo.jpg',
+        pc: (base || '') + 'assets/img/' + p.slug + '/' + p.slug + '_' + n + '.webp',
+        mo: (base || '') + 'assets/img/' + p.slug + '/' + p.slug + '_' + n + '@mo.webp',
         name: p.slug + '_' + n
       };
     });
