@@ -221,14 +221,14 @@
    화면은 포트폴리오 토큰(흰 바탕 · #111 · #2D45FF · Archivo)을 그대로 씁니다.
    ────────────────────────────────────────────────────────────── */
 
-const TREE = {
+const WORLD = {
   name:'세계', latin:'WORLD',
   children:[
     { name:'용기', latin:'COURAGE', sub:'희망 · 용맹',
       desc:'절망 속에서 찾아온 구원, 그리고 어둠을 두려워하지 않고 맞서는 마음.',
       children:[
         { name:'반지의 제왕', latin:'THE LORD OF THE RINGS', sub:'J.R.R. Tolkien · Howard Shore',
-          img:'../assets/img/inner/lotr.webp',
+          img:'',   // 포스터 이미지 경로 (예: '../assets/img/inner/lotr.jpg')
           desc:'미나스 티리스가 무너지기 직전, 언덕 위에 로한의 기병대가 선다. 두려움과 작은 희망과 용맹이 한 장면에 다 들어 있다.',
           children:[
             { name:'로한의 돌격', latin:'RIDE OF THE ROHIRRIM', sub:'The Return of the King', yt:'7lwJOxN_gXc',
@@ -267,7 +267,6 @@ const TREE = {
       desc:'세계 자체를 동경하게 만든 것들. 나도 저런 세계를 짓고 싶다는 생각이 여기서 시작됐다.',
       children:[
         { name:'천공의 섬 라퓨타', latin:'CASTLE IN THE SKY', sub:'宮崎駿 · 久石譲',
-          img:'../assets/img/inner/laputa.webp',
           desc:'내가 세계라는 것을 처음으로 동경하게 된 작품. 하늘을 제패했던 기술의 제국이지만, 그 심장을 뚫고 올라온 것은 나무였고 섬은 끝내 자연의 뜻대로 하늘로 사라진다. 인간은 기술을 동경하지만 자연에 대한 동경을 넘지 못한다는 것, 그리고 그 섬을 찾아 모인 사람들 사이의 정이 남는 작품이다.',
           children:[
             { name:'너를 태우고', latin:'KIMI WO NOSETE', sub:'엔딩 테마', yt:'Yy8MEO_2AYo',
@@ -343,7 +342,7 @@ function drill(node){
   enter(node,{from});
 }
 function goUp(){
-  if(!view.stack.length) return;
+  if(!view.stack.length){ backToMulti(); return; }
   const leaving = view.hub.data;                 // 지금 중심에 있던 것
   enter(view.stack.pop(), { backTo:leaving });
 }
@@ -356,6 +355,13 @@ const player=document.getElementById('player'), frame=document.getElementById('f
 
 function chrome(){
   const depth=view.stack.length;
+  if(uni.mode==='multi'){
+    backBtn.classList.remove('on'); railI.style.width='0%';
+    crumb.textContent='MULTIVERSE';
+    hint.textContent='좌우로 넘기고, 가운데를 누르면 들어갑니다';
+    hint.classList.remove('off'); panel.classList.remove('on');
+    return;
+  }
   backBtn.classList.toggle('on', depth>0);
   railI.style.width = (depth/3*100)+'%';
   const path=view.stack.concat([view.hub.data]).filter(n=>n.name!=='세계').map(n=>n.latin||n.name);
@@ -389,7 +395,14 @@ function play(d){
 }
 function stop(){ player.classList.remove('on'); setTimeout(()=>frame.innerHTML='',400); }
 document.getElementById('pclose').onclick=stop;
-addEventListener('keydown',e=>{ if(e.key!=='Escape') return;
+addEventListener('keydown',e=>{
+  if(uni.mode==='multi'){
+    if(e.key==='ArrowRight') uniStep(1);
+    if(e.key==='ArrowLeft')  uniStep(-1);
+    if(e.key==='Enter') openUniverse(uni.t);
+    return;
+  }
+  if(e.key!=='Escape') return;
   if(player.classList.contains('on')) stop(); else if(view.focus) blur(); else goUp(); });
 
 /* ── 선택 ── */
@@ -438,6 +451,11 @@ function down(x,y){
 }
 function move(x,y){
   if(!P.down) return;
+  if(uni.mode==='multi'){
+    if(Math.abs(x-P.sx)>6) P.moved=true;
+    uni.drag=-(x-P.sx)/(Math.min(W,H)*0.34);          // 끌면 따라옵니다
+    P.lx=x; P.ly=y; return;
+  }
   const dx=x-P.lx, dy=y-P.ly;
   if(Math.abs(x-P.sx)>6||Math.abs(y-P.sy)>6) P.moved=true;
   if(!view.focus){                                    // 선택 없을 때만 화면을 끌 수 있습니다
@@ -448,6 +466,17 @@ function move(x,y){
 }
 function up(x,y){
   if(!P.down) return; P.down=false; cam.panning=false;
+  if(uni.mode==='multi'){
+    const dx=x-P.sx;
+    if(Math.abs(dx)>48){ uni.drag=0; uniStep(dx>0?-1:1); return; }
+    uni.drag=0;
+    if(!P.moved){
+      const R0=Math.min(W,H)*0.20;
+      if(Math.hypot(x-W/2, y-H*0.46) < R0) openUniverse(uni.t);   // 가운데를 누르면 들어갑니다
+      else if(x<W/2) uniStep(-1); else uniStep(1);
+    }
+    return;
+  }
   if(view.focus && P.moved){                          // 선택 중 가로 스와이프 = 형제 이동
     const d=x-P.sx;
     if(Math.abs(d)>50) step(d>0?1:-1);
@@ -471,6 +500,7 @@ cv.addEventListener('pointercancel',()=>{P.down=false;cam.panning=false;});
 
 /* 휠 = 줌, 트랙패드 핀치도 여기로 들어옵니다 */
 cv.addEventListener('wheel',e=>{ e.preventDefault();
+  if(uni.mode==='multi'){ uniStep(Math.sign(e.deltaY||e.deltaX)); return; }
   const k=Math.exp(-e.deltaY*(e.ctrlKey?.01:.0016));
   cam.tz=clamp(cam.tz*k,MINZ,MAXZ);
 }, {passive:false});
@@ -511,6 +541,12 @@ const INK='#111111', LINE='#E4E4E1', SUB='#8A8A8A', POINT='#2D45FF';
 function frameLoop(now){
   requestAnimationFrame(frameLoop);
   const dt=Math.min(.05,(now-(last||now))/1000); last=now; time+=dt;
+
+  if(uni.mode==='multi'){
+    c.fillStyle='#FFFFFF'; c.fillRect(0,0,W,H);
+    drawMulti(dt);
+    return;
+  }
 
   /* 카메라 — 시간 기준 감속 */
   cam.zoom=sm(cam.zoom,cam.tz,3.2,dt);
@@ -647,6 +683,7 @@ function drawNode(n,ghost){
    같은 나무에 끼워 넣습니다. 추가한 것은 이 브라우저에 저장되고,
    EXPORT 로 코드에 붙여 넣을 형태로 뽑을 수 있습니다.
    ────────────────────────────────────────────── */
+const CUR=()=>UNIVERSES? UNIVERSES[uni.i] : WORLD;
 const KEY='inner.additions.v1';
 let MINE = [];
 try { MINE = JSON.parse(localStorage.getItem(KEY)||'[]'); } catch(e){ MINE=[]; }
@@ -663,8 +700,8 @@ const find=(list,name)=>list.find(x=>x.name===name);
 /* 저장분을 TREE 에 붙입니다 */
 function applyMine(){
   MINE.forEach(a=>{
-    let emo=find(TREE.children,a.emo);
-    if(!emo){ emo={ name:a.emo, latin:a.emoLatin||'', sub:'', desc:'', children:[] }; TREE.children.push(emo); }
+    let emo=find(CUR().children,a.emo);
+    if(!emo){ emo={ name:a.emo, latin:a.emoLatin||'', sub:'', desc:'', children:[] }; CUR().children.push(emo); }
     emo.children=emo.children||[];
     let work=find(emo.children,a.work);
     if(!work){ work={ name:a.work, latin:a.workLatin||'', sub:a.workSub||'', img:a.workImg||'', desc:'', children:[] }; emo.children.push(work); }
@@ -681,7 +718,7 @@ const $=id=>document.getElementById(id);
 const NEW='__new__';
 
 function fillEmo(){
-  $('f-emo').innerHTML = TREE.children.map(e=>'<option>'+e.name+'</option>').join('')
+  $('f-emo').innerHTML = CUR().children.map(e=>'<option>'+e.name+'</option>').join('')
     + '<option value="'+NEW+'">+ 새로 만들기</option>';
   toggleEmo(); fillWork();
 }
@@ -691,7 +728,7 @@ function toggleEmo(){
   $('f-emo-latin').style.display=isNew?'':'none';
 }
 function fillWork(){
-  const emo=find(TREE.children,$('f-emo').value);
+  const emo=find(CUR().children,$('f-emo').value);
   const works=(emo&&emo.children)||[];
   $('f-work').innerHTML = works.map(w=>'<option>'+w.name+'</option>').join('')
     + '<option value="'+NEW+'">+ 새로 만들기</option>';
@@ -717,17 +754,17 @@ function renderMine(){
 
 /* 나무를 처음부터 다시 만들고 화면을 되돌립니다 */
 function rebuild(){
-  TREE.children.forEach(e=>{                       // 사용자가 만든 가지를 걷어냅니다
+  CUR().children.forEach(e=>{                       // 사용자가 만든 가지를 걷어냅니다
     if(e.__mine){ e.__drop=true; return; }
     (e.children||[]).forEach(w=>{
       if(w.children) w.children=w.children.filter(i=>!i.__mine);
     });
     e.children=(e.children||[]).filter(w=>!w.__mine);
   });
-  TREE.children=TREE.children.filter(e=>!e.__drop);
+  CUR().children=CUR().children.filter(e=>!e.__drop);
   MINE.forEach(a=>{
-    let emo=find(TREE.children,a.emo);
-    if(!emo){ emo={ name:a.emo, latin:a.emoLatin||'', sub:'', desc:'', children:[], __mine:true }; TREE.children.push(emo); }
+    let emo=find(CUR().children,a.emo);
+    if(!emo){ emo={ name:a.emo, latin:a.emoLatin||'', sub:'', desc:'', children:[], __mine:true }; CUR().children.push(emo); }
     let work=find(emo.children,a.work);
     if(!work){ work={ name:a.work, latin:a.workLatin||'', sub:a.workSub||'', img:a.workImg||'', desc:'', children:[], __mine:true }; emo.children.push(work); }
     if(!find(work.children,a.name))
@@ -773,7 +810,79 @@ $('export').onclick=()=>{
 
 addEventListener('keydown',e=>{ if(e.key==='Escape'&&sheet.classList.contains('on')) sheet.classList.remove('on'); });
 
-resize(); enter(TREE,{keepGhost:false}); fillEmo(); renderMine(); requestAnimationFrame(frameLoop);
+/* ──────────────────────────────────────────────
+   멀티버스 — 우주 하나가 곧 하나의 행성계입니다.
+   좌우로 넘기고, 가운데 것만 정원, 옆으로 갈수록 기울어 뒤로 물러납니다.
+   ────────────────────────────────────────────── */
+const UNIVERSES = [
+  WORLD,
+  { name:'경제', latin:'ECONOMY', desc:'돈이 움직이는 방식을 이해하게 해준 것들.', children:[] },
+  { name:'교훈', latin:'LESSON',  desc:'실패에서 배운 것, 다시 보게 된 문장들.',   children:[] },
+  { name:'문학', latin:'LITERATURE', desc:'문장이 오래 남은 것들.',               children:[] },
+  { name:'공간', latin:'SPACE',   desc:'가보고 싶게 만든 장소와 건축.',            children:[] }
+];
+let uni = { i:0, t:0, drag:0, mode:'multi' };     // mode: multi | system
+
+function openUniverse(k){
+  uni.i=wrapN(Math.round(k)); uni.t=Math.round(k); uni.mode='system';
+  view.stack=[]; enter(UNIVERSES[uni.i],{keepGhost:false});
+  chrome();
+}
+function backToMulti(){
+  uni.mode='multi'; view.focus=null; view.ghosts.length=0;
+  cam.tz=1; cam.ttilt=0; cam.trot=0; cam.tx=cam.ty=0; cam.manual=false;
+  chrome();
+}
+const UN=()=>UNIVERSES.length;
+const wrapN=v=>{ const n=UN(); return ((v%n)+n)%n; };
+const dWrap=d=>{ const n=UN(); d=((d%n)+n)%n; return d>n/2 ? d-n : d; };   // 좌우로 계속 이어집니다
+function uniStep(d){ uni.t=uni.t+d; }
+
+/* 한 우주를 원 하나로 그립니다 — 가운데는 정원, 옆은 기울어져 좁아집니다 */
+function drawMulti(dt){
+  uni.t=sm(uni.t, Math.round(uni.t+uni.drag), 6, dt);
+  uni.i=wrapN(Math.round(uni.t));
+  const R0=Math.min(W,H)*0.20, GAP=R0*1.62;
+  const order=UNIVERSES.map((u,i)=>({u,i,d:dWrap(i-uni.t)}))
+    .sort((a,b)=>Math.abs(b.d)-Math.abs(a.d));       // 먼 것부터
+  order.forEach(({u,i,d})=>{
+    const ad=Math.abs(d);
+    const x=W/2 + Math.sign(d)*GAP*(ad/(1+.42*ad));  // 옆으로 갈수록 촘촘히 겹칩니다
+    const y=H*0.46;
+    const sc=1/(1+.40*ad);
+    const sx=Math.cos(Math.min(1.12, ad*0.62));       // 가로로 눕혀 기울어 보이게
+    const al=Math.max(0, 1-.28*ad);
+    const r=R0*sc;
+    c.save(); c.globalAlpha=al;
+    c.translate(x,y); c.scale(sx,1);
+    c.fillStyle='#FFFFFF'; c.beginPath(); c.arc(0,0,r,0,7); c.fill();
+    const im=poster(u.img);
+    if(im){ c.save(); c.beginPath(); c.arc(0,0,r,0,7); c.clip();
+      const k=Math.max(2*r/im.naturalWidth,2*r/im.naturalHeight);
+      c.drawImage(im,-im.naturalWidth*k/2,-im.naturalHeight*k/2,im.naturalWidth*k,im.naturalHeight*k);
+      c.restore(); }
+    c.strokeStyle=ad<.5?INK:LINE; c.lineWidth=ad<.5?1.6:1.2; c.beginPath(); c.arc(0,0,r,0,7); c.stroke();
+    if(!im){
+      c.fillStyle=INK; c.textAlign='center'; c.textBaseline='middle';
+      c.font='500 '+(20*sc).toFixed(1)+'px "IBM Plex Sans KR", sans-serif';
+      c.scale(1/sx,1); c.fillText(u.name,0,0); c.scale(sx,1);
+    }
+    c.restore();
+    if(ad<.5){                                        // 가운데 것에만 이름과 안내
+      c.save(); c.globalAlpha=1-ad*2;
+      c.fillStyle=SUB; c.textAlign='center'; c.font='500 11px Archivo, sans-serif';
+      c.fillText(u.latin, x, y+r+26);
+      c.fillStyle=INK; c.font='500 24px "IBM Plex Sans KR", sans-serif';
+      c.fillText(u.name, x, y+r+62);
+      const n=(u.children||[]).length;
+      c.fillStyle=SUB; c.font='400 13px "IBM Plex Sans KR", sans-serif';
+      c.fillText(n? n+'개의 감정' : '아직 비어 있습니다', x, y+r+92);
+      c.restore();
+    }
+  });
+}
+
+resize(); enter(UNIVERSES[0],{keepGhost:false}); fillEmo(); renderMine(); requestAnimationFrame(frameLoop);
 </script>
 </body>
 </html>
