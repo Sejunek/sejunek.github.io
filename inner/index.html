@@ -476,8 +476,8 @@ function up(x,y){
       if(Math.abs(uni.v)<.004) uni.target=Math.round(uni.t);
       return;
     }
-    const R0=Math.min(W,H)*0.20;
-    if(Math.hypot(x-W/2, y-H*0.46) < R0) openUniverse(uni.t);     // 가운데를 누르면 들어갑니다
+    const R0=Math.min(W,H)*0.185;
+    if(Math.hypot(x-W/2, y-(H*0.46-R0)) < R0) openUniverse(uni.t);     // 가운데를 누르면 들어갑니다
     else uniStep(x<W/2 ? -1 : 1);
     return;
   }
@@ -856,44 +856,80 @@ function drawMulti(dt){
     }
   }
   uni.i=wrapN(Math.round(uni.t));
-  const R0=Math.min(W,H)*0.20, GAP=R0*1.62;
+
+  const R0=Math.min(W,H)*0.185, GAP=R0*1.66;
+  const BASE=H*0.46;                                  // 원이 놓인 바닥 선
   const order=UNIVERSES.map((u,i)=>({u,i,d:dWrap(i-uni.t)}))
-    .sort((a,b)=>Math.abs(b.d)-Math.abs(a.d));       // 먼 것부터
-  order.forEach(({u,i,d})=>{
+    .sort((a,b)=>Math.abs(b.d)-Math.abs(a.d));        // 먼 것부터
+
+  order.forEach(({u,d})=>{
     const ad=Math.abs(d);
-    const x=W/2 + Math.sign(d)*GAP*(ad/(1+.42*ad));  // 옆으로 갈수록 촘촘히 겹칩니다
-    const y=H*0.46;
+    const x=W/2 + Math.sign(d)*GAP*(ad/(1+.42*ad));   // 옆으로 갈수록 촘촘히 겹칩니다
     const sc=1/(1+.40*ad);
-    const sx=ad<.02 ? 1 : Math.cos(Math.min(1.12, ad*0.62));    // 가운데는 언제나 정원
+    const sx=ad<.02 ? 1 : Math.cos(Math.min(1.12, ad*0.62));   // 가운데는 언제나 정원
     const al=Math.max(0, 1-.28*ad);
     const r=R0*sc;
-    c.save(); c.globalAlpha=al;
-    c.translate(x,y); c.scale(sx,1);
-    c.fillStyle='#FFFFFF'; c.beginPath(); c.arc(0,0,r,0,7); c.fill();
-    const im=poster(u.img);
-    if(im){ c.save(); c.beginPath(); c.arc(0,0,r,0,7); c.clip();
-      const k=Math.max(2*r/im.naturalWidth,2*r/im.naturalHeight);
-      c.drawImage(im,-im.naturalWidth*k/2,-im.naturalHeight*k/2,im.naturalWidth*k,im.naturalHeight*k);
-      c.restore(); }
-    c.strokeStyle=ad<.5?INK:LINE; c.lineWidth=ad<.5?1.6:1.2; c.beginPath(); c.arc(0,0,r,0,7); c.stroke();
-    if(!im){                                          // 글자도 원과 함께 기울어집니다
-      c.fillStyle=INK; c.textAlign='center'; c.textBaseline='middle';
-      c.font='500 '+(20*sc).toFixed(1)+'px "IBM Plex Sans KR", sans-serif';
-      c.fillText(u.name,0,0);
+
+    /* 원 하나를 그립니다 — 본체와 반사에서 같이 씁니다 */
+    const face=(ctx)=>{
+      ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.arc(0,0,r,0,7); ctx.fill();
+      const im=poster(u.img);
+      if(im){
+        ctx.save(); ctx.beginPath(); ctx.arc(0,0,r,0,7); ctx.clip();
+        const k=Math.max(2*r/im.naturalWidth, 2*r/im.naturalHeight);
+        ctx.drawImage(im,-im.naturalWidth*k/2,-im.naturalHeight*k/2,im.naturalWidth*k,im.naturalHeight*k);
+        ctx.restore();
+      } else {
+        ctx.fillStyle=INK; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.font='500 '+(20*sc).toFixed(1)+'px "IBM Plex Sans KR", sans-serif';
+        ctx.fillText(u.name,0,0);
+      }
+      ctx.strokeStyle=ad<.5?INK:LINE; ctx.lineWidth=ad<.5?1.6:1.2;
+      ctx.beginPath(); ctx.arc(0,0,r,0,7); ctx.stroke();
+    };
+
+    // 본체 — 바닥 선 위에 놓입니다
+    c.save(); c.globalAlpha=al; c.translate(x, BASE-r); c.scale(sx,1); face(c); c.restore();
+
+    // 바닥 반사 — 위아래를 뒤집고 아래로 갈수록 흐려집니다
+    const pad=4, size=Math.ceil((r+pad)*2);
+    if(size>2){
+      const off=refCanvas(size);
+      const oc=off.getContext('2d');
+      oc.setTransform(1,0,0,1,0,0); oc.clearRect(0,0,size,size);
+      oc.save(); oc.translate(size/2,size/2); face(oc); oc.restore();
+      oc.globalCompositeOperation='destination-out';   // 아래로 갈수록 지웁니다
+      const g=oc.createLinearGradient(0,0,0,size);     // 뒤집히므로 위쪽이 더 많이 지워집니다
+      g.addColorStop(0,'rgba(0,0,0,1)'); g.addColorStop(.35,'rgba(0,0,0,.88)'); g.addColorStop(1,'rgba(0,0,0,0)');
+      oc.fillStyle=g; oc.fillRect(0,0,size,size);
+      oc.globalCompositeOperation='source-over';
+      c.save();
+      c.globalAlpha=al*0.17;
+      c.translate(x, BASE+r+3); c.scale(sx,-1);        // 바닥 선을 기준으로 뒤집습니다
+      c.drawImage(off, -size/2, -size/2);
+      c.restore();
     }
-    c.restore();
+
     if(ad<.5){                                        // 가운데 것에만 이름과 안내
-      c.save(); c.globalAlpha=1-ad*2;
-      c.fillStyle=SUB; c.textAlign='center'; c.font='500 11px Archivo, sans-serif';
-      c.fillText(u.latin, x, y+r+26);
-      c.fillStyle=INK; c.font='500 24px "IBM Plex Sans KR", sans-serif';
-      c.fillText(u.name, x, y+r+62);
+      const ty=BASE+r*1.15;
+      c.save(); c.globalAlpha=1-ad*2; c.textAlign='center';
+      c.fillStyle=SUB; c.font='500 11px Archivo, sans-serif';
+      c.fillText(u.latin, x, ty+40);
+      c.fillStyle=INK; c.font='500 26px "IBM Plex Sans KR", sans-serif';
+      c.fillText(u.name, x, ty+76);
       const n=(u.children||[]).length;
       c.fillStyle=SUB; c.font='400 13px "IBM Plex Sans KR", sans-serif';
-      c.fillText(n? n+'개의 감정' : '아직 비어 있습니다', x, y+r+92);
+      c.fillText(n? n+'개의 감정' : '아직 비어 있습니다', x, ty+106);
       c.restore();
     }
   });
+}
+
+/* 반사용 임시 캔버스 — 크기가 바뀔 때만 다시 만듭니다 */
+let _ref=null;
+function refCanvas(size){
+  if(!_ref || _ref.width!==size){ _ref=document.createElement('canvas'); _ref.width=_ref.height=size; }
+  return _ref;
 }
 
 resize(); enter(UNIVERSES[0],{keepGhost:false}); fillEmo(); renderMine(); requestAnimationFrame(frameLoop);
