@@ -864,7 +864,7 @@ function drawMulti(dt){
     const x=W/2 + Math.sign(d)*GAP*(ad/(1+.42*ad));  // 옆으로 갈수록 촘촘히 겹칩니다
     const y=H*0.46;
     const sc=1/(1+.40*ad);
-    const sx=ad<.004 ? 1 : Math.cos(Math.min(1.12, ad*0.62));   // 가운데는 언제나 정원
+    const sx=ad<.02 ? 1 : Math.cos(Math.min(1.12, ad*0.62));    // 가운데는 언제나 정원
     const al=Math.max(0, 1-.28*ad);
     const r=R0*sc;
     c.save(); c.globalAlpha=al;
@@ -876,10 +876,10 @@ function drawMulti(dt){
       c.drawImage(im,-im.naturalWidth*k/2,-im.naturalHeight*k/2,im.naturalWidth*k,im.naturalHeight*k);
       c.restore(); }
     c.strokeStyle=ad<.5?INK:LINE; c.lineWidth=ad<.5?1.6:1.2; c.beginPath(); c.arc(0,0,r,0,7); c.stroke();
-    if(!im){
+    if(!im){                                          // 글자도 원과 함께 기울어집니다
       c.fillStyle=INK; c.textAlign='center'; c.textBaseline='middle';
       c.font='500 '+(20*sc).toFixed(1)+'px "IBM Plex Sans KR", sans-serif';
-      c.scale(1/sx,1); c.fillText(u.name,0,0); c.scale(sx,1);
+      c.fillText(u.name,0,0);
     }
     c.restore();
     if(ad<.5){                                        // 가운데 것에만 이름과 안내
