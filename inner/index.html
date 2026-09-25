@@ -821,10 +821,16 @@ addEventListener('keydown',e=>{ if(e.key==='Escape'&&sheet.classList.contains('o
    ────────────────────────────────────────────── */
 const UNIVERSES = [
   WORLD,
-  { name:'경제', latin:'ECONOMY', desc:'돈이 움직이는 방식을 이해하게 해준 것들.', children:[] },
-  { name:'교훈', latin:'LESSON',  desc:'실패에서 배운 것, 다시 보게 된 문장들.',   children:[] },
-  { name:'문학', latin:'LITERATURE', desc:'문장이 오래 남은 것들.',               children:[] },
-  { name:'공간', latin:'SPACE',   desc:'가보고 싶게 만든 장소와 건축.',            children:[] }
+  { name:'문학',   latin:'LITERATURE', desc:'문장이 오래 남은 것들. 시와 소설, 그리고 한 줄로 남은 말.', children:[] },
+  { name:'음악',   latin:'MUSIC',      desc:'가사 없이도 장면이 그려지는 소리들.',                    children:[] },
+  { name:'공간',   latin:'SPACE',      desc:'가보고 싶게 만든 장소와 건축, 무대.',                    children:[] },
+  { name:'사람',   latin:'PEOPLE',     desc:'만든 사람 쪽이 더 궁금해진 경우들.',                     children:[] },
+  { name:'기술',   latin:'CRAFT',      desc:'어떻게 만들었는지가 인상에 남은 것들.',                  children:[] },
+  { name:'자연',   latin:'NATURE',     desc:'사람이 만든 것보다 오래 남은 풍경.',                     children:[] },
+  { name:'실패',   latin:'FAILURE',    desc:'돌아보면 방향을 바꿔놓은 순간들.',                       children:[] },
+  { name:'교훈',   latin:'LESSON',     desc:'다시 보게 된 문장과 태도.',                              children:[] },
+  { name:'경제',   latin:'ECONOMY',    desc:'돈과 사람이 움직이는 방식에 대해 배운 것.',              children:[] },
+  { name:'유머',   latin:'HUMOR',      desc:'힘을 빼게 만든 것들.',                                   children:[] }
 ];
 let uni = { i:0, t:0, target:0, base:0, dragging:false, v:0, mode:'multi' };  // mode: multi | system
 
@@ -861,7 +867,7 @@ function drawMulti(dt){
   const BASE=H*0.46;                                  // 원이 놓인 바닥 선
   const maxAd=Math.max(1, Math.floor(UN()/2));        // 양옆으로 이만큼까지 보입니다
   const edge=W/2 - R0*0.28;                           // 마지막 것이 화면 끝에 닿게
-  const stepOut=Math.max(R0*0.40, (edge - R0*0.95)/Math.max(1,maxAd-1));
+  const stepOut=Math.min(R0*0.46, Math.max(R0*0.26, (edge - R0*0.95)/Math.max(1,maxAd-1)));
   const order=UNIVERSES.map((u,i)=>({u,i,d:dWrap(i-uni.t)}))
     .sort((a,b)=>Math.abs(b.d)-Math.abs(a.d));        // 먼 것부터
   const near=Math.min(...order.map(o=>Math.abs(o.d)));   // 가장 앞에 있는 것
@@ -871,9 +877,9 @@ function drawMulti(dt){
     // 첫 이웃은 가운데에 크게 겹치고, 그 뒤부터는 화면 끝까지 고르게 벌어집니다
     const off1=R0*0.95*Math.min(ad,1) + stepOut*Math.max(0,ad-1);
     const x=W/2 + Math.sign(d)*off1;
-    const sc=1/(1+.16*ad);                            // 크기는 조금만 줄어듭니다
+    const sc=1/(1+.26*ad);                            // 뒤로 갈수록 조금씩 작아집니다
     const sx=(ad<=near+1e-6) ? 1 : Math.cos(Math.min(1.40, ad*1.15));   // 맨 앞의 것은 언제나 정원
-    const al=Math.max(0, 1-.16*ad);
+    const al=Math.max(.18, 1-.13*ad);
     const r=R0*sc;
 
     /* 원 하나를 그립니다 — 본체와 반사에서 같이 씁니다 */
