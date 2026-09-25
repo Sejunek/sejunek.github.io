@@ -300,8 +300,15 @@ const view={ hub:null, nodes:[], ghosts:[], stack:[], focus:null };
 let hover=null;
 
 function resize(){
-  DPR=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight;
-  cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR); c.setTransform(DPR,0,0,DPR,0,0);
+  /* 캔버스가 실제로 차지한 크기를 재서 버퍼를 맞춥니다.
+     innerHeight 로 잡으면 모바일에서 주소창 때문에 CSS 높이(100vh)와 어긋나
+     원이 세로로 늘어나 보입니다. */
+  DPR=Math.min(2,devicePixelRatio||1);
+  const r=cv.getBoundingClientRect();
+  W=r.width||innerWidth; H=r.height||innerHeight;
+  const bw=Math.max(1,Math.round(W*DPR)), bh=Math.max(1,Math.round(H*DPR));
+  cv.width=bw; cv.height=bh;
+  c.setTransform(bw/W, 0, 0, bh/H, 0, 0);     // 반올림 오차까지 잡아 정원을 유지합니다
 }
 addEventListener('resize',resize);
 
@@ -477,7 +484,7 @@ function up(x,y){
       return;
     }
     const R0=Math.min(W,H)*0.185;
-    if(Math.hypot(x-W/2, y-(H*0.46-R0)) < R0) openUniverse(uni.t);     // 가운데를 누르면 들어갑니다
+    if(Math.hypot(x-W/2, y-H*0.42) < R0) openUniverse(uni.t);     // 가운데를 누르면 들어갑니다
     else uniStep(x<W/2 ? -1 : 1);
     return;
   }
@@ -864,7 +871,7 @@ function drawMulti(dt){
   uni.i=wrapN(Math.round(uni.t));
 
   const R0=Math.min(W,H)*0.185;
-  const BASE=H*0.46;                                  // 원이 놓인 바닥 선
+  const CY=H*0.42;                                    // 모든 원의 중심이 놓인 가로선
   const maxAd=Math.max(1, Math.floor(UN()/2));        // 양옆으로 이만큼까지 보입니다
   const edge=W/2 - R0*0.28;                           // 마지막 것이 화면 끝에 닿게
   const stepOut=Math.min(R0*0.46, Math.max(R0*0.26, (edge - R0*0.95)/Math.max(1,maxAd-1)));
@@ -900,8 +907,8 @@ function drawMulti(dt){
       ctx.beginPath(); ctx.arc(0,0,r,0,7); ctx.stroke();
     };
 
-    // 본체 — 바닥 선 위에 놓입니다
-    c.save(); c.globalAlpha=al; c.translate(x, BASE-r); c.scale(sx,1); face(c); c.restore();
+    // 본체 — 중심선 위에 나란히 놓입니다
+    c.save(); c.globalAlpha=al; c.translate(x, CY); c.scale(sx,1); face(c); c.restore();
 
     // 바닥 반사 — 위아래를 뒤집고 아래로 갈수록 흐려집니다
     const pad=4, size=Math.ceil((r+pad)*2);
@@ -917,13 +924,13 @@ function drawMulti(dt){
       oc.globalCompositeOperation='source-over';
       c.save();
       c.globalAlpha=al*0.17;
-      c.translate(x, BASE+r+3); c.scale(sx,-1);        // 바닥 선을 기준으로 뒤집습니다
+      c.translate(x, CY+2*r+3); c.scale(sx,-1);        // 제 아래에 뒤집어 붙입니다
       c.drawImage(off, -size/2, -size/2);
       c.restore();
     }
 
     if(ad<.5){                                        // 가운데 것에만 이름과 안내
-      const ty=BASE+r*1.15;
+      const ty=CY+r*2.05;
       c.save(); c.globalAlpha=1-ad*2; c.textAlign='center';
       c.fillStyle=SUB; c.font='500 11px Archivo, sans-serif';
       c.fillText(u.latin, x, ty+40);
