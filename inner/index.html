@@ -448,12 +448,15 @@ const P={ down:false, moved:false, sx:0, sy:0, lx:0, ly:0, pinch:null, id:null, 
 function down(x,y){
   P.down=true; P.moved=false; P.acted=false; P.sx=P.lx=x; P.sy=P.ly=y;
   cam.vx=cam.vy=0; cam.panning=true;
+  if(uni.mode==='multi'){ uni.dragging=true; uni.base=uni.t; uni.v=0; }
 }
 function move(x,y){
   if(!P.down) return;
   if(uni.mode==='multi'){
-    if(Math.abs(x-P.sx)>6) P.moved=true;
-    uni.drag=-(x-P.sx)/(Math.min(W,H)*0.34);          // 끌면 따라옵니다
+    if(Math.abs(x-P.sx)>5) P.moved=true;
+    const span=Math.min(W,H)*0.30;                    // 이만큼 끌면 한 칸
+    uni.t = uni.base - (x-P.sx)/span;                 // 손가락을 그대로 따라갑니다
+    uni.v = -(x-P.lx)/span*0.55;                      // 놓았을 때 쓸 속도
     P.lx=x; P.ly=y; return;
   }
   const dx=x-P.lx, dy=y-P.ly;
@@ -467,14 +470,15 @@ function move(x,y){
 function up(x,y){
   if(!P.down) return; P.down=false; cam.panning=false;
   if(uni.mode==='multi'){
-    const dx=x-P.sx;
-    if(Math.abs(dx)>48){ uni.drag=0; uniStep(dx>0?-1:1); return; }
-    uni.drag=0;
-    if(!P.moved){
-      const R0=Math.min(W,H)*0.20;
-      if(Math.hypot(x-W/2, y-H*0.46) < R0) openUniverse(uni.t);   // 가운데를 누르면 들어갑니다
-      else if(x<W/2) uniStep(-1); else uniStep(1);
+    uni.dragging=false;
+    if(P.moved){
+      uni.target=Math.round(uni.t + uni.v*5);         // 던진 만큼 더 넘어갑니다
+      if(Math.abs(uni.v)<.004) uni.target=Math.round(uni.t);
+      return;
     }
+    const R0=Math.min(W,H)*0.20;
+    if(Math.hypot(x-W/2, y-H*0.46) < R0) openUniverse(uni.t);     // 가운데를 누르면 들어갑니다
+    else uniStep(x<W/2 ? -1 : 1);
     return;
   }
   if(view.focus && P.moved){                          // 선택 중 가로 스와이프 = 형제 이동
@@ -496,7 +500,8 @@ cv.addEventListener('pointermove',e=>{
   move(e.clientX,e.clientY);
 });
 cv.addEventListener('pointerup',e=>up(e.clientX,e.clientY));
-cv.addEventListener('pointercancel',()=>{P.down=false;cam.panning=false;});
+cv.addEventListener('pointercancel',()=>{P.down=false;cam.panning=false;
+  if(uni.mode==='multi'){ uni.dragging=false; uni.target=Math.round(uni.t); }});
 
 /* 휠 = 줌, 트랙패드 핀치도 여기로 들어옵니다 */
 cv.addEventListener('wheel',e=>{ e.preventDefault();
@@ -821,10 +826,10 @@ const UNIVERSES = [
   { name:'문학', latin:'LITERATURE', desc:'문장이 오래 남은 것들.',               children:[] },
   { name:'공간', latin:'SPACE',   desc:'가보고 싶게 만든 장소와 건축.',            children:[] }
 ];
-let uni = { i:0, t:0, drag:0, mode:'multi' };     // mode: multi | system
+let uni = { i:0, t:0, target:0, base:0, dragging:false, v:0, mode:'multi' };  // mode: multi | system
 
 function openUniverse(k){
-  uni.i=wrapN(Math.round(k)); uni.t=Math.round(k); uni.mode='system';
+  uni.i=wrapN(Math.round(k)); uni.t=uni.target=Math.round(k); uni.mode='system';
   view.stack=[]; enter(UNIVERSES[uni.i],{keepGhost:false});
   chrome();
 }
@@ -836,11 +841,20 @@ function backToMulti(){
 const UN=()=>UNIVERSES.length;
 const wrapN=v=>{ const n=UN(); return ((v%n)+n)%n; };
 const dWrap=d=>{ const n=UN(); d=((d%n)+n)%n; return d>n/2 ? d-n : d; };   // 좌우로 계속 이어집니다
-function uniStep(d){ uni.t=uni.t+d; }
+function uniStep(d){ uni.target=Math.round(uni.target)+d; uni.v=0; }
 
 /* 한 우주를 원 하나로 그립니다 — 가운데는 정원, 옆은 기울어져 좁아집니다 */
 function drawMulti(dt){
-  uni.t=sm(uni.t, Math.round(uni.t+uni.drag), 6, dt);
+  if(!uni.dragging){
+    if(Math.abs(uni.v)>.0004){                       // 놓은 뒤 남은 속도로 미끄러집니다
+      uni.t+=uni.v; uni.v*=Math.pow(.00025,dt);
+      uni.target=Math.round(uni.t+uni.v*6);
+    } else {
+      uni.v=0;
+      uni.t=sm(uni.t,uni.target,11,dt);
+      if(Math.abs(uni.t-uni.target)<.004) uni.t=uni.target;   // 끝까지 붙여 정원으로 만듭니다
+    }
+  }
   uni.i=wrapN(Math.round(uni.t));
   const R0=Math.min(W,H)*0.20, GAP=R0*1.62;
   const order=UNIVERSES.map((u,i)=>({u,i,d:dWrap(i-uni.t)}))
@@ -850,7 +864,7 @@ function drawMulti(dt){
     const x=W/2 + Math.sign(d)*GAP*(ad/(1+.42*ad));  // 옆으로 갈수록 촘촘히 겹칩니다
     const y=H*0.46;
     const sc=1/(1+.40*ad);
-    const sx=Math.cos(Math.min(1.12, ad*0.62));       // 가로로 눕혀 기울어 보이게
+    const sx=ad<.004 ? 1 : Math.cos(Math.min(1.12, ad*0.62));   // 가운데는 언제나 정원
     const al=Math.max(0, 1-.28*ad);
     const r=R0*sc;
     c.save(); c.globalAlpha=al;
