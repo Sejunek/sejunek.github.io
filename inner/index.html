@@ -859,15 +859,20 @@ function drawMulti(dt){
 
   const R0=Math.min(W,H)*0.185;
   const BASE=H*0.46;                                  // 원이 놓인 바닥 선
+  const maxAd=Math.max(1, Math.floor(UN()/2));        // 양옆으로 이만큼까지 보입니다
+  const edge=W/2 - R0*0.28;                           // 마지막 것이 화면 끝에 닿게
+  const stepOut=Math.max(R0*0.40, (edge - R0*0.95)/Math.max(1,maxAd-1));
   const order=UNIVERSES.map((u,i)=>({u,i,d:dWrap(i-uni.t)}))
     .sort((a,b)=>Math.abs(b.d)-Math.abs(a.d));        // 먼 것부터
+  const near=Math.min(...order.map(o=>Math.abs(o.d)));   // 가장 앞에 있는 것
 
   order.forEach(({u,d})=>{
     const ad=Math.abs(d);
-    const off1=R0*(0.95*Math.min(ad,1) + 0.40*Math.max(0,ad-1));  // 첫 이웃은 크게 겹치고, 그 뒤는 얇게 쌓입니다
+    // 첫 이웃은 가운데에 크게 겹치고, 그 뒤부터는 화면 끝까지 고르게 벌어집니다
+    const off1=R0*0.95*Math.min(ad,1) + stepOut*Math.max(0,ad-1);
     const x=W/2 + Math.sign(d)*off1;
     const sc=1/(1+.16*ad);                            // 크기는 조금만 줄어듭니다
-    const sx=ad<.02 ? 1 : Math.cos(Math.min(1.40, ad*1.15));   // 옆은 급격히 눕습니다 (가운데만 정원)
+    const sx=(ad<=near+1e-6) ? 1 : Math.cos(Math.min(1.40, ad*1.15));   // 맨 앞의 것은 언제나 정원
     const al=Math.max(0, 1-.16*ad);
     const r=R0*sc;
 
