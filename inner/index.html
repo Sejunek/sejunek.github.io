@@ -65,8 +65,27 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:40px;
     opacity:0;visibility:hidden;transition:opacity .45s var(--ease),visibility .45s}
   #player.on{opacity:1;visibility:visible}
-  #frame{width:min(1100px,100%);aspect-ratio:16/9;background:#000}
-  #frame iframe{width:100%;height:100%;border:0;display:block}
+  #stage{width:min(1100px,100%);max-height:62vh;display:flex;align-items:center;justify-content:center}
+  #stage iframe{width:min(1100px,100%);aspect-ratio:16/9;border:0;display:block;background:#000}
+  #stage img{max-width:100%;max-height:62vh;display:block}
+  #stage audio{width:min(680px,100%)}
+  #stage .prose{max-width:62ch;max-height:56vh;overflow-y:auto;color:#EDEDED;font-size:17px;line-height:32px;white-space:pre-wrap}
+  #note-wrap{width:min(680px,100%)}
+  #note-view{color:rgba(255,255,255,.72);white-space:pre-wrap;font-size:15px;line-height:27px}
+  #note-edit{width:100%;min-height:96px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.22);
+    color:#fff;padding:14px;font-family:var(--font-kr);font-size:15px;line-height:27px;border-radius:0}
+  #note-edit:focus{outline:0;border-color:#fff}
+  #note-btn,#note-save{color:rgba(255,255,255,.7);border-bottom:1px solid rgba(255,255,255,.3);padding-bottom:3px}
+  #note-btn:hover,#note-save:hover{color:#fff;border-color:#fff}
+  #usheet{position:fixed;inset:0;z-index:52;display:flex;justify-content:flex-end;background:rgba(17,17,17,.28);
+    opacity:0;visibility:hidden;transition:opacity .4s var(--ease),visibility .4s}
+  #usheet.on{opacity:1;visibility:visible}
+  #usheet .box{width:min(460px,100%);height:100%;background:var(--bg-base);padding:36px 36px 40px;overflow-y:auto;
+    transform:translateX(24px);transition:transform .45s var(--ease)}
+  #usheet.on .box{transform:none}
+  #uerr{color:#C0392B;margin-top:14px;min-height:20px}
+  #crumb b{color:var(--text-primary);font-weight:500}
+  #crumb .lv{color:var(--text-secondary)}
   #ptitle{color:var(--text-inverse);text-align:center}
   #ptitle b{display:block;font-weight:500;font-size:20px;line-height:30px}
   #ptitle span{color:rgba(255,255,255,.5)}
@@ -151,64 +170,69 @@
 
 <div id="sheet">
   <div class="box">
-    <h3>영감 추가</h3>
-
-    <div class="fld">
-      <label class="t-mono">1 · 감정</label>
-      <select id="f-emo"></select>
-      <input id="f-emo-new" placeholder="새 감정 이름 (예: 고요)" style="margin-top:10px;display:none">
-      <input id="f-emo-latin" placeholder="영문 표기 (예: STILLNESS)" style="margin-top:8px;display:none">
-      <div class="help t-body-s">목록에 없으면 “+ 새로 만들기”를 고르세요.</div>
-    </div>
-
-    <div class="fld">
-      <label class="t-mono">2 · 작품</label>
-      <select id="f-work"></select>
-      <input id="f-work-new" placeholder="새 작품 이름 (예: 모노노케 히메)" style="margin-top:10px;display:none">
-      <input id="f-work-latin" placeholder="영문 표기 (예: PRINCESS MONONOKE)" style="margin-top:8px;display:none">
-      <input id="f-work-sub" placeholder="만든 사람 (예: 宮崎駿 · 久石譲)" style="margin-top:8px;display:none">
-      <input id="f-work-img" placeholder="포스터 이미지 주소 (선택)" style="margin-top:8px;display:none">
-    </div>
-
-    <div class="fld">
-      <label class="t-mono">3 · 음악 · 영상</label>
-      <input id="f-name" placeholder="제목 (예: 아시타카 섹키)">
-      <div class="row" style="margin-top:8px">
-        <input id="f-latin" placeholder="영문 표기 (선택)">
-        <input id="f-sub" placeholder="부제 (선택)">
-      </div>
-    </div>
-
-    <div class="fld">
-      <label class="t-mono">4 · 유튜브 링크</label>
-      <input id="f-url" placeholder="https://www.youtube.com/watch?v=...">
-      <div class="help t-body-s">주소를 그대로 붙여 넣으면 됩니다. 공유 링크(youtu.be)도 됩니다.</div>
-    </div>
-
-    <div class="fld">
-      <label class="t-mono">5 · 한 줄 설명</label>
-      <textarea id="f-desc" placeholder="이 영상에서 무엇을 가져왔는지"></textarea>
-    </div>
-
+    <h3 id="sh-title">추가</h3>
+    <div id="fields"></div>
     <div id="err" class="t-body-s"></div>
-
     <div class="sheet-act">
       <button class="primary" id="save"><span class="t-mono">ADD</span></button>
       <button class="ghost t-mono" id="cancel">CANCEL</button>
     </div>
-
     <div class="mine">
-      <div class="t-mono muted">내가 추가한 것</div>
+      <div class="t-mono muted">이 우주에 내가 추가한 것</div>
       <ul id="mine-list"></ul>
+    </div>
+  </div>
+</div>
+
+<div id="usheet">
+  <div class="box">
+    <h3>새 우주 만들기</h3>
+    <div class="fld">
+      <label class="t-mono">이름</label>
+      <input id="u-name" placeholder="예: 문학">
+      <input id="u-latin" placeholder="영문 표기 (예: LITERATURE)" style="margin-top:8px">
+    </div>
+    <div class="fld">
+      <label class="t-mono">한 줄 설명</label>
+      <input id="u-desc" placeholder="이 우주가 무엇을 담는지">
+    </div>
+    <div class="fld">
+      <label class="t-mono">위계</label>
+      <input id="u-levels" placeholder="감정, 작품, 음악·영상">
+      <div class="help t-body-s">쉼표로 구분합니다. 적은 개수만큼 단계가 생깁니다. 두 단계여도 되고 네 단계여도 됩니다.</div>
+    </div>
+    <div class="fld">
+      <label class="t-mono">마지막 단계에 담는 것</label>
+      <select id="u-leaf">
+        <option value="youtube">유튜브 영상</option>
+        <option value="text">글</option>
+        <option value="image">이미지</option>
+        <option value="audio">음악 파일</option>
+      </select>
+    </div>
+    <div id="uerr" class="t-body-s"></div>
+    <div class="sheet-act">
+      <button class="primary" id="usave"><span class="t-mono">CREATE</span></button>
+      <button class="ghost t-mono" id="ucancel">CANCEL</button>
+    </div>
+    <div class="mine">
+      <div class="t-mono muted">내가 만든 우주</div>
+      <ul id="uni-list"></ul>
     </div>
   </div>
 </div>
 
 <div id="player">
   <div id="ptitle"><b></b><span class="t-body-s"></span></div>
-  <div id="frame"></div>
+  <div id="stage"></div>
+  <div id="note-wrap">
+    <div id="note-view" class="t-body"></div>
+    <textarea id="note-edit" placeholder="이 영상에서 무엇을 가져왔는지, 지금 떠오른 생각" hidden></textarea>
+  </div>
   <div id="pbar">
-    <a id="popen" class="t-mono" target="_blank" rel="noopener">YOUTUBE 에서 보기 ↗</a>
+    <button id="note-btn" class="t-mono">생각 쓰기</button>
+    <button id="note-save" class="t-mono" hidden>저장</button>
+    <a id="popen" class="t-mono" target="_blank" rel="noopener" hidden>원본 열기 ↗</a>
     <button id="pclose" class="t-mono">CLOSE</button>
   </div>
 </div>
@@ -221,8 +245,11 @@
    화면은 포트폴리오 토큰(흰 바탕 · #111 · #2D45FF · Archivo)을 그대로 씁니다.
    ────────────────────────────────────────────────────────────── */
 
+const $=id=>document.getElementById(id);
+
 const WORLD = {
-  name:'세계', latin:'WORLD',
+  name:'세계', latin:'WORLD', desc:'내가 나의 세계를 짓고 싶게 만든 것들.',
+  levels:['감정','작품','음악·영상'], leaf:'youtube',
   children:[
     { name:'용기', latin:'COURAGE', sub:'희망 · 용맹',
       desc:'절망 속에서 찾아온 구원, 그리고 어둠을 두려워하지 않고 맞서는 마음.',
@@ -369,12 +396,17 @@ function chrome(){
     hint.classList.remove('off'); panel.classList.remove('on');
     return;
   }
-  backBtn.classList.toggle('on', depth>0);
-  railI.style.width = (depth/3*100)+'%';
-  const path=view.stack.concat([view.hub.data]).filter(n=>n.name!=='세계').map(n=>n.latin||n.name);
-  crumb.innerHTML = path.length ? path.map((p,i)=> i===path.length-1?'<b>'+p+'</b>':p).join(' &nbsp;/&nbsp; ')
-                                : 'WORLD';
-  hint.textContent = depth===0?'감정을 하나 고르세요' : depth===1?'그 감정을 건드린 작품' : '누르면 재생됩니다';
+  const u=CUR(), lv=levelsOf(u), total=lv.length;
+  backBtn.classList.toggle('on', true);
+  railI.style.width = Math.min(100, depth/total*100)+'%';
+
+  /* 우주 이름 → 지금까지 고른 이름 → 지금 단계 이름 */
+  const chain=[u.name].concat(view.stack.slice(1).concat([view.hub.data]).map(n=>n.name));
+  const here=lv[Math.min(depth,total-1)];
+  crumb.innerHTML = chain.map((n,i)=> i===chain.length-1
+      ? '<b>'+n+'</b>' : n).join(' &nbsp;/&nbsp; ')
+    + ' &nbsp;<span class="lv">· '+here+' ('+(depth+1)+'/'+total+')</span>';
+  hint.textContent = depth<total-1 ? (lv[depth]+' 을(를) 고르세요') : '누르면 열립니다';
   hint.classList.toggle('off', !!view.focus);
   panel.classList.toggle('on', !!view.focus);
   if(view.focus){
@@ -383,30 +415,74 @@ function chrome(){
     document.getElementById('p-title').textContent=d.name;
     document.getElementById('p-sub').textContent=d.sub||'';
     document.getElementById('p-desc').textContent=d.desc||'';
-    document.getElementById('go-label').textContent = d.yt?'PLAY':'ENTER';
+    document.getElementById('go-label').textContent = isLeaf(d)?(d.text?'READ':d.img?'VIEW':d.audio?'LISTEN':'PLAY'):'ENTER';
     const yl=document.getElementById('p-yt');
     yl.hidden=!d.yt; if(d.yt) yl.href='https://www.youtube.com/watch?v='+d.yt;
-    goBtn.style.display = (d.yt||d.children)?'':'none';
+    goBtn.style.display = (isLeaf(d) || (d.children&&d.children.length)) ? '' : 'none';
   }
 }
 backBtn.onclick=()=>{ if(view.focus) blur(); else goUp(); };
-goBtn.onclick=()=>{ const d=view.focus&&view.focus.data; if(!d) return; d.yt?play(d):drill(d); };
+goBtn.onclick=()=>{ const d=view.focus&&view.focus.data; if(!d) return; isLeaf(d)?play(d):drill(d); };
 
+const isLeaf=d=>!!(d.yt||d.text||d.img&&!d.children||d.audio) && !(d.children&&d.children.length);
+let curLeaf=null;
+
+function noteKey(d){
+  const path=view.stack.concat([view.hub.data]).map(n=>n.name).join('/');
+  return (CUR().name)+'::'+path+'/'+d.name;
+}
 function play(d){
-  frame.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+d.yt+'?autoplay=1&rel=0" '+
-    'allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+  curLeaf=d;
+  const stage=document.getElementById('stage'), open=document.getElementById('popen');
+  open.hidden=true;
+  if(d.yt){
+    stage.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+d.yt+'?autoplay=1&rel=0" '+
+      'allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+    open.hidden=false; open.href='https://www.youtube.com/watch?v='+d.yt; open.textContent='YOUTUBE 에서 보기 ↗';
+  } else if(d.text){
+    stage.innerHTML='<div class="prose"></div>';
+    stage.querySelector('.prose').textContent=d.text;
+  } else if(d.audio){
+    stage.innerHTML='<audio controls autoplay src="'+d.audio+'"></audio>';
+  } else if(d.img){
+    stage.innerHTML='<img alt="">'; stage.querySelector('img').src=d.img;
+  } else {
+    stage.innerHTML='<div class="prose">내용이 아직 없습니다.</div>';
+  }
   document.querySelector('#ptitle b').textContent=d.name;
   document.querySelector('#ptitle span').textContent=d.sub||'';
-  document.getElementById('popen').href='https://www.youtube.com/watch?v='+d.yt;
+  showNote(d);
   player.classList.add('on');
 }
-function stop(){ player.classList.remove('on'); setTimeout(()=>frame.innerHTML='',400); }
+function showNote(d){
+  const t=(STORE.notes||{})[noteKey(d)]||'';
+  $('note-view').textContent=t;
+  $('note-view').hidden=!t;
+  $('note-edit').hidden=true; $('note-edit').value=t;
+  $('note-save').hidden=true;
+  $('note-btn').textContent=t?'생각 고치기':'생각 쓰기';
+  $('note-btn').hidden=false;
+}
+$('note-btn').onclick=()=>{
+  $('note-edit').hidden=false; $('note-view').hidden=true;
+  $('note-save').hidden=false; $('note-btn').hidden=true;
+  $('note-edit').focus();
+};
+$('note-save').onclick=()=>{
+  if(!curLeaf) return;
+  STORE.notes=STORE.notes||{};
+  const v=$('note-edit').value.trim();
+  if(v) STORE.notes[noteKey(curLeaf)]=v; else delete STORE.notes[noteKey(curLeaf)];
+  saveStore(); showNote(curLeaf);
+};
+function stop(){ player.classList.remove('on'); curLeaf=null;
+  setTimeout(()=>{ document.getElementById('stage').innerHTML=''; },400); }
 document.getElementById('pclose').onclick=stop;
 addEventListener('keydown',e=>{
   if(uni.mode==='multi'){
     if(e.key==='ArrowRight') uniStep(1);
     if(e.key==='ArrowLeft')  uniStep(-1);
-    if(e.key==='Enter') openUniverse(uni.t);
+    if(e.key==='Enter'){ if(CUR().__add) openUniSheet(); else openUniverse(uni.t); }
     return;
   }
   if(e.key!=='Escape') return;
@@ -487,7 +563,10 @@ function up(x,y){
       return;
     }
     const R0=Math.min(W,H)*0.185;
-    if(Math.hypot(x-W/2, y-H*0.42) < R0) openUniverse(uni.t);     // 가운데를 누르면 들어갑니다
+    if(Math.hypot(x-W/2, y-H*0.42) < R0){
+      if(CUR().__add) openUniSheet(); else openUniverse(uni.t);      // 가운데를 누르면 들어갑니다
+      return;
+    }
     else uniStep(x<W/2 ? -1 : 1);
     return;
   }
@@ -498,7 +577,7 @@ function up(x,y){
   }
   if(P.moved) return;
   const w=toWorld(x,y), n=hit(w.x,w.y);
-  if(n){ if(view.focus===n){ const d=n.data; d.yt?play(d):drill(d); } else focusNode(n); }
+  if(n){ if(view.focus===n){ const d=n.data; isLeaf(d)?play(d):drill(d); } else focusNode(n); }
   else if(view.focus) blur();                         // 배경 탭 → 선택 해제
   else goUp();                                        // 그 다음 배경 탭 → 한 단계 위로
 }
@@ -698,157 +777,283 @@ function drawNode(n,ghost){
 }
 
 /* ──────────────────────────────────────────────
-   영감 추가 — 감정 / 작품 / 음악·영상 세 단계를 폼으로 받아
-   같은 나무에 끼워 넣습니다. 추가한 것은 이 브라우저에 저장되고,
-   EXPORT 로 코드에 붙여 넣을 형태로 뽑을 수 있습니다.
+   저장소 — 이 브라우저에 남습니다.
+     universes : 내가 만든 우주(위계와 내용 전부)
+     additions : 기본 우주(세계)에 덧붙인 것
+     notes     : 마지막 단계마다 적어둔 생각
    ────────────────────────────────────────────── */
-const CUR=()=>UNIVERSES? UNIVERSES[uni.i] : WORLD;
-const KEY='inner.additions.v1';
-let MINE = [];
-try { MINE = JSON.parse(localStorage.getItem(KEY)||'[]'); } catch(e){ MINE=[]; }
-const saveMine=()=>{ try{ localStorage.setItem(KEY, JSON.stringify(MINE)); }catch(e){} };
+const KEY='inner.store.v2';
+let STORE={ universes:[], additions:[], notes:{} };
+try{
+  const raw=JSON.parse(localStorage.getItem(KEY)||'null');
+  if(raw) STORE=Object.assign(STORE,raw);
+  else {                                            // 예전 저장분을 옮겨옵니다
+    const old=JSON.parse(localStorage.getItem('inner.additions.v1')||'[]');
+    if(old.length) STORE.additions=old;
+  }
+}catch(e){}
+function saveStore(){
+  try{ localStorage.setItem(KEY, JSON.stringify(STORE)); }
+  catch(e){ alert('저장 공간이 가득 찼습니다. 이미지나 음악 파일을 줄이거나 지워주세요.'); }
+}
 
-const ytId = u => {
-  u=(u||'').trim();
-  const m = u.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
-  if(m) return m[1];
-  return /^[A-Za-z0-9_-]{11}$/.test(u) ? u : null;
-};
-const find=(list,name)=>list.find(x=>x.name===name);
+const NEW='__new__';
+const find=(list,name)=>(list||[]).find(x=>x.name===name);
+const ytId=u=>{ u=(u||'').trim();
+  const m=u.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+  return m? m[1] : (/^[A-Za-z0-9_-]{11}$/.test(u)? u : null); };
+const CUR=()=>UNIVERSES[uni.i];
+const levelsOf=u=>(u&&u.levels)||['감정','작품','음악·영상'];
+const leafOf=u=>(u&&u.leaf)||'youtube';
 
-/* 저장분을 TREE 에 붙입니다 */
-function applyMine(){
-  MINE.forEach(a=>{
-    let emo=find(CUR().children,a.emo);
-    if(!emo){ emo={ name:a.emo, latin:a.emoLatin||'', sub:'', desc:'', children:[] }; CUR().children.push(emo); }
-    emo.children=emo.children||[];
-    let work=find(emo.children,a.work);
-    if(!work){ work={ name:a.work, latin:a.workLatin||'', sub:a.workSub||'', img:a.workImg||'', desc:'', children:[] }; emo.children.push(work); }
-    work.children=work.children||[];
-    if(!find(work.children,a.name))
-      work.children.push({ name:a.name, latin:a.latin||'', sub:a.sub||'', desc:a.desc||'', yt:a.yt });
+/* 기본 우주(세계)에 덧붙인 것을 붙입니다 */
+function applyAdditions(){
+  STORE.additions.forEach(a=>{
+    let node=WORLD, path=a.path||[a.emo,a.work];       // 예전 형식도 받아줍니다
+    path.forEach((nm,k)=>{
+      node.children=node.children||[];
+      let next=find(node.children,nm);
+      if(!next){ next={ name:nm, latin:(k===0?a.emoLatin:a.workLatin)||'', sub:(k===1?a.workSub:'')||'',
+                        img:(k===1?a.workImg:'')||'', desc:'', children:[], __mine:true };
+                 node.children.push(next); }
+      node=next;
+    });
+    node.children=node.children||[];
+    if(!find(node.children,a.name)) node.children.push(leafNode(a));
   });
 }
-applyMine();
+function leafNode(a){
+  return { name:a.name, latin:a.latin||'', sub:a.sub||'', desc:a.desc||'',
+           yt:a.yt||'', text:a.text||'', img:a.img||'', audio:a.audio||'', __mine:true };
+}
 
-/* 폼 */
-const sheet=document.getElementById('sheet');
-const $=id=>document.getElementById(id);
-const NEW='__new__';
+/* 우주 목록을 다시 만듭니다 — 세계 + 내가 만든 것 + 새로 만들기 타일 */
+function buildUniverses(){
+  WORLD.children.forEach(c=>{ c.__drop=c.__mine; });
+  WORLD.children=WORLD.children.filter(c=>!c.__drop);
+  (function strip(n){ if(!n.children) return; n.children=n.children.filter(c=>!c.__mine); n.children.forEach(strip); })(WORLD);
+  applyAdditions();
+  UNIVERSES.length=0;
+  UNIVERSES.push(WORLD, ...STORE.universes, { __add:true, name:'새 우주', latin:'NEW', children:[] });
+}
 
-function fillEmo(){
-  $('f-emo').innerHTML = CUR().children.map(e=>'<option>'+e.name+'</option>').join('')
-    + '<option value="'+NEW+'">+ 새로 만들기</option>';
-  toggleEmo(); fillWork();
+/* ── 항목 추가 시트 — 우주의 위계에 맞춰 칸이 만들어집니다 ── */
+const sheet=$('sheet'), usheet=$('usheet');
+let picks=[];                                        // 단계별로 고른 값
+
+function buildFields(){
+  const u=CUR(), lv=levelsOf(u), leaf=leafOf(u);
+  $('sh-title').textContent=u.name+' 에 추가';
+  let html='';
+  lv.forEach((name,k)=>{
+    const last=k===lv.length-1;
+    html+='<div class="fld"><label class="t-mono">'+(k+1)+' · '+name+'</label>';
+    if(!last){
+      html+='<select data-lv="'+k+'" class="lvsel"></select>'
+         +  '<input data-new="'+k+'" placeholder="새 '+name+' 이름" style="margin-top:10px;display:none">'
+         +  '<input data-newlatin="'+k+'" placeholder="영문 표기 (선택)" style="margin-top:8px;display:none">'
+         +  '<input data-newsub="'+k+'" placeholder="부제 · 만든 사람 (선택)" style="margin-top:8px;display:none">'
+         +  '<input data-newimg="'+k+'" placeholder="대표 이미지 주소 (선택)" style="margin-top:8px;display:none">';
+    } else {
+      html+='<input id="f-name" placeholder="'+name+' 제목">'
+         +  '<div class="row" style="margin-top:8px"><input id="f-latin" placeholder="영문 표기 (선택)">'
+         +  '<input id="f-sub" placeholder="부제 (선택)"></div>';
+    }
+    html+='</div>';
+  });
+  if(leaf==='youtube')
+    html+='<div class="fld"><label class="t-mono">유튜브 링크</label><input id="f-url" placeholder="https://www.youtube.com/watch?v=...">'
+        + '<div class="help t-body-s">주소를 그대로 붙여 넣으면 됩니다.</div></div>';
+  if(leaf==='text')
+    html+='<div class="fld"><label class="t-mono">글</label><textarea id="f-text" style="min-height:160px" placeholder="여기에 씁니다"></textarea></div>';
+  if(leaf==='image')
+    html+='<div class="fld"><label class="t-mono">이미지</label><input type="file" id="f-file" accept="image/*">'
+        + '<div class="help t-body-s">올린 이미지는 가로 1000px 로 줄여 이 브라우저에 저장합니다.</div></div>';
+  if(leaf==='audio')
+    html+='<div class="fld"><label class="t-mono">음악 파일</label><input type="file" id="f-file" accept="audio/*">'
+        + '<div class="help t-body-s">3MB 아래 파일만 저장됩니다. 큰 파일은 링크를 쓰세요.</div>'
+        + '<input id="f-url" placeholder="또는 음악 주소 (mp3 링크)" style="margin-top:8px"></div>';
+  html+='<div class="fld"><label class="t-mono">한 줄 설명</label><textarea id="f-desc" placeholder="무엇을 가져왔는지"></textarea></div>';
+  $('fields').innerHTML=html;
+  picks=lv.slice(0,-1).map(()=>null);
+  refreshSelects();
 }
-function toggleEmo(){
-  const isNew=$('f-emo').value===NEW;
-  $('f-emo-new').style.display=isNew?'':'none';
-  $('f-emo-latin').style.display=isNew?'':'none';
+function nodeAt(depth){                              // 지금 고른 경로의 노드
+  let node=CUR();
+  for(let k=0;k<depth;k++){
+    if(!node) return null;
+    node=find(node.children||[], picks[k]);
+  }
+  return node;
 }
-function fillWork(){
-  const emo=find(CUR().children,$('f-emo').value);
-  const works=(emo&&emo.children)||[];
-  $('f-work').innerHTML = works.map(w=>'<option>'+w.name+'</option>').join('')
-    + '<option value="'+NEW+'">+ 새로 만들기</option>';
-  if(!works.length) $('f-work').value=NEW;
-  toggleWork();
+function refreshSelects(){
+  const lv=levelsOf(CUR());
+  lv.slice(0,-1).forEach((name,k)=>{
+    const sel=$('fields').querySelector('[data-lv="'+k+'"]'); if(!sel) return;
+    const parent=nodeAt(k);
+    const list=(parent&&parent.children)||[];
+    sel.innerHTML=list.map(x=>'<option>'+x.name+'</option>').join('')+'<option value="'+NEW+'">+ 새로 만들기</option>';
+    if(picks[k]&&list.some(x=>x.name===picks[k])) sel.value=picks[k]; else { sel.value=list.length?list[0].name:NEW; }
+    picks[k]=sel.value;
+    toggleNew(k);
+    sel.onchange=()=>{ picks[k]=sel.value; toggleNew(k);
+      for(let m=k+1;m<picks.length;m++) picks[m]=null; refreshSelects(); };
+  });
 }
-function toggleWork(){
-  const isNew=$('f-work').value===NEW;
-  ['f-work-new','f-work-latin','f-work-sub','f-work-img'].forEach(id=>$(id).style.display=isNew?'':'none');
+function toggleNew(k){
+  const isNew=picks[k]===NEW;
+  ['new','newlatin','newsub','newimg'].forEach(a=>{
+    const el=$('fields').querySelector('[data-'+a+'="'+k+'"]'); if(el) el.style.display=isNew?'':'none';
+  });
 }
-$('f-emo').onchange=()=>{ toggleEmo(); if($('f-emo').value===NEW){ $('f-work').innerHTML='<option value="'+NEW+'">+ 새로 만들기</option>'; } else fillWork(); toggleWork(); };
-$('f-work').onchange=toggleWork;
+function fieldVal(attr,k){ const el=$('fields').querySelector('[data-'+attr+'="'+k+'"]'); return el? el.value.trim():''; }
 
 function renderMine(){
-  $('mine-list').innerHTML = MINE.length
-    ? MINE.map((a,i)=>'<li><span class="t-body-s">'+a.emo+' / '+a.work+' / <b style="color:var(--text-primary);font-weight:500">'+a.name+'</b></span>'
+  const mine=(CUR()===WORLD)? STORE.additions
+    : (STORE.universes.includes(CUR())? (CUR().__items||[]) : []);
+  $('mine-list').innerHTML = mine.length
+    ? mine.map((a,i)=>'<li><span class="t-body-s">'+(a.path||[]).join(' / ')+' / <b style="color:var(--text-primary);font-weight:500">'+a.name+'</b></span>'
         +'<button class="t-mono" data-i="'+i+'">DELETE</button></li>').join('')
     : '<li><span class="t-body-s">아직 없습니다</span></li>';
   $('mine-list').querySelectorAll('button').forEach(b=>b.onclick=()=>{
-    MINE.splice(+b.dataset.i,1); saveMine(); rebuild();
+    mine.splice(+b.dataset.i,1); saveStore(); rebuild();
   });
 }
 
-/* 나무를 처음부터 다시 만들고 화면을 되돌립니다 */
 function rebuild(){
-  CUR().children.forEach(e=>{                       // 사용자가 만든 가지를 걷어냅니다
-    if(e.__mine){ e.__drop=true; return; }
-    (e.children||[]).forEach(w=>{
-      if(w.children) w.children=w.children.filter(i=>!i.__mine);
-    });
-    e.children=(e.children||[]).filter(w=>!w.__mine);
-  });
-  CUR().children=CUR().children.filter(e=>!e.__drop);
-  MINE.forEach(a=>{
-    let emo=find(CUR().children,a.emo);
-    if(!emo){ emo={ name:a.emo, latin:a.emoLatin||'', sub:'', desc:'', children:[], __mine:true }; CUR().children.push(emo); }
-    let work=find(emo.children,a.work);
-    if(!work){ work={ name:a.work, latin:a.workLatin||'', sub:a.workSub||'', img:a.workImg||'', desc:'', children:[], __mine:true }; emo.children.push(work); }
-    if(!find(work.children,a.name))
-      work.children.push({ name:a.name, latin:a.latin||'', sub:a.sub||'', desc:a.desc||'', yt:a.yt, __mine:true });
-  });
-  view.stack=[]; enter(TREE,{keepGhost:false});
-  fillEmo(); renderMine();
+  const keep=uni.i;
+  buildUniverses();
+  uni.i=Math.min(keep, UNIVERSES.length-1);
+  if(uni.mode==='system'){ view.stack=[]; enter(UNIVERSES[uni.i],{keepGhost:false}); }
+  buildFields(); renderMine(); renderUniList();
 }
 
-$('open-add').onclick=()=>{ fillEmo(); renderMine(); $('err').textContent=''; sheet.classList.add('on'); };
+/* 파일을 작게 줄여 문자열로 저장합니다 */
+function readImage(file){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onload=()=>{ const im=new Image();
+      im.onload=()=>{ const k=Math.min(1,1000/Math.max(im.width,im.height));
+        const cn=document.createElement('canvas'); cn.width=im.width*k; cn.height=im.height*k;
+        cn.getContext('2d').drawImage(im,0,0,cn.width,cn.height);
+        res(cn.toDataURL('image/jpeg',.82)); };
+      im.onerror=rej; im.src=fr.result; };
+    fr.onerror=rej; fr.readAsDataURL(file);
+  });
+}
+function readAudio(file){
+  return new Promise((res,rej)=>{
+    if(file.size>3*1024*1024) return rej(new Error('big'));
+    const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(file);
+  });
+}
+
+$('open-add').onclick=()=>{ if(CUR().__add) return openUniSheet();
+  buildFields(); renderMine(); $('err').textContent=''; sheet.classList.add('on'); };
 $('cancel').onclick=()=>sheet.classList.remove('on');
 sheet.addEventListener('pointerdown',e=>{ if(e.target===sheet) sheet.classList.remove('on'); });
 
-$('save').onclick=()=>{
-  const emoName = $('f-emo').value===NEW ? $('f-emo-new').value.trim() : $('f-emo').value;
-  const workName= $('f-work').value===NEW ? $('f-work-new').value.trim() : $('f-work').value;
-  const name=$('f-name').value.trim(), id=ytId($('f-url').value);
-  if(!emoName)  return fail('감정을 고르거나 새로 적어주세요.');
-  if(!workName) return fail('작품을 고르거나 새로 적어주세요.');
-  if(!name)     return fail('음악이나 영상의 제목을 적어주세요.');
-  if(!id)       return fail('유튜브 주소를 확인해주세요.');
-  MINE.push({ emo:emoName, emoLatin:$('f-emo-latin').value.trim(),
-    work:workName, workLatin:$('f-work-latin').value.trim(), workSub:$('f-work-sub').value.trim(),
-    workImg:$('f-work-img').value.trim(),
-    name, latin:$('f-latin').value.trim(), sub:$('f-sub').value.trim(),
-    desc:$('f-desc').value.trim(), yt:id });
-  saveMine(); rebuild();
-  ['f-emo-new','f-emo-latin','f-work-new','f-work-latin','f-work-sub','f-work-img','f-name','f-latin','f-sub','f-url','f-desc']
-    .forEach(i=>$(i).value='');
+$('save').onclick=async ()=>{
+  const u=CUR(), lv=levelsOf(u), leaf=leafOf(u);
+  const path=[];
+  for(let k=0;k<lv.length-1;k++){
+    const nm = picks[k]===NEW ? fieldVal('new',k) : picks[k];
+    if(!nm) return fail(lv[k]+' 을(를) 고르거나 새로 적어주세요.');
+    path.push(nm);
+  }
+  const name=($('f-name').value||'').trim();
+  if(!name) return fail(lv[lv.length-1]+' 제목을 적어주세요.');
+
+  const item={ path, name, latin:($('f-latin').value||'').trim(), sub:($('f-sub').value||'').trim(),
+               desc:($('f-desc').value||'').trim() };
+  for(let k=0;k<lv.length-1;k++){
+    if(picks[k]===NEW){ item.newAt=item.newAt||{}; item.newAt[k]={ latin:fieldVal('newlatin',k), sub:fieldVal('newsub',k), img:fieldVal('newimg',k) }; }
+  }
+  try{
+    if(leaf==='youtube'){ const id=ytId($('f-url').value); if(!id) return fail('유튜브 주소를 확인해주세요.'); item.yt=id; }
+    if(leaf==='text'){ item.text=($('f-text').value||'').trim(); if(!item.text) return fail('글을 적어주세요.'); }
+    if(leaf==='image'){ const f=$('f-file').files[0]; if(!f) return fail('이미지를 골라주세요.'); item.img=await readImage(f); }
+    if(leaf==='audio'){
+      const f=$('f-file').files[0], url=($('f-url').value||'').trim();
+      if(f) item.audio=await readAudio(f);
+      else if(url) item.audio=url;
+      else return fail('음악 파일이나 주소가 필요합니다.');
+    }
+  }catch(e){ return fail(e.message==='big' ? '3MB 가 넘습니다. 링크를 쓰거나 파일을 줄여주세요.' : '파일을 읽지 못했습니다.'); }
+
+  if(u===WORLD) STORE.additions.push(item);
+  else { u.__items=u.__items||[]; u.__items.push(item); attachItem(u,item); }
+  saveStore(); rebuild();
   $('err').style.color='var(--point)'; $('err').textContent='추가했습니다.';
-  setTimeout(()=>{ $('err').textContent=''; $('err').style.color=''; },1800);
+  setTimeout(()=>{ $('err').textContent=''; $('err').style.color=''; },1600);
 };
+function attachItem(u,a){
+  let node=u;
+  (a.path||[]).forEach((nm,k)=>{
+    node.children=node.children||[];
+    let next=find(node.children,nm);
+    if(!next){ const meta=(a.newAt&&a.newAt[k])||{};
+      next={ name:nm, latin:meta.latin||'', sub:meta.sub||'', img:meta.img||'', desc:'', children:[] };
+      node.children.push(next); }
+    node=next;
+  });
+  node.children=node.children||[];
+  if(!find(node.children,a.name)) node.children.push(leafNode(a));
+}
 function fail(m){ $('err').style.color=''; $('err').textContent=m; }
 
-/* 코드에 붙여 넣을 형태로 내보내기 */
+/* ── 새 우주 만들기 ── */
+function openUniSheet(){ $('uerr').textContent=''; renderUniList(); usheet.classList.add('on'); }
+$('ucancel').onclick=()=>usheet.classList.remove('on');
+usheet.addEventListener('pointerdown',e=>{ if(e.target===usheet) usheet.classList.remove('on'); });
+$('usave').onclick=()=>{
+  const name=$('u-name').value.trim();
+  const levels=$('u-levels').value.split(',').map(x=>x.trim()).filter(Boolean);
+  if(!name) return ($('uerr').textContent='이름을 적어주세요.');
+  if(levels.length<2) return ($('uerr').textContent='위계를 두 단계 이상 적어주세요.');
+  STORE.universes.push({ name, latin:$('u-latin').value.trim().toUpperCase(),
+    desc:$('u-desc').value.trim(), levels, leaf:$('u-leaf').value, children:[], __items:[] });
+  saveStore();
+  buildUniverses(); renderUniList();
+  ['u-name','u-latin','u-desc','u-levels'].forEach(i=>$(i).value='');
+  usheet.classList.remove('on');
+  uni.target=uni.t=UNIVERSES.length-2;               // 방금 만든 우주로 이동
+};
+function renderUniList(){
+  $('uni-list').innerHTML = STORE.universes.length
+    ? STORE.universes.map((u,i)=>'<li><span class="t-body-s"><b style="color:var(--text-primary);font-weight:500">'+u.name+'</b> · '
+        +u.levels.join(' → ')+'</span><button class="t-mono" data-i="'+i+'">DELETE</button></li>').join('')
+    : '<li><span class="t-body-s">아직 없습니다</span></li>';
+  $('uni-list').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    if(!confirm('이 우주와 그 안의 내용을 지웁니다.')) return;
+    STORE.universes.splice(+b.dataset.i,1); saveStore();
+    buildUniverses(); uni.i=uni.t=uni.target=0; renderUniList();
+  });
+}
+
+/* ── 내보내기 ── */
 $('export').onclick=()=>{
-  const txt=JSON.stringify(MINE,null,2);
-  const blob=new Blob([txt],{type:'application/json'});
+  const blob=new Blob([JSON.stringify(STORE,null,2)],{type:'application/json'});
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob); a.download='inner-additions.json'; a.click();
+  a.href=URL.createObjectURL(blob); a.download='inner-store.json'; a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 };
 
-addEventListener('keydown',e=>{ if(e.key==='Escape'&&sheet.classList.contains('on')) sheet.classList.remove('on'); });
+addEventListener('keydown',e=>{
+  if(e.key!=='Escape') return;
+  if(usheet.classList.contains('on')) usheet.classList.remove('on');
+  else if(sheet.classList.contains('on')) sheet.classList.remove('on');
+});
 
 /* ──────────────────────────────────────────────
    멀티버스 — 우주 하나가 곧 하나의 행성계입니다.
    좌우로 넘기고, 가운데 것만 정원, 옆으로 갈수록 기울어 뒤로 물러납니다.
    ────────────────────────────────────────────── */
-const UNIVERSES = [
-  WORLD,
-  { name:'문학',   latin:'LITERATURE', desc:'문장이 오래 남은 것들. 시와 소설, 그리고 한 줄로 남은 말.', children:[] },
-  { name:'음악',   latin:'MUSIC',      desc:'가사 없이도 장면이 그려지는 소리들.',                    children:[] },
-  { name:'공간',   latin:'SPACE',      desc:'가보고 싶게 만든 장소와 건축, 무대.',                    children:[] },
-  { name:'사람',   latin:'PEOPLE',     desc:'만든 사람 쪽이 더 궁금해진 경우들.',                     children:[] },
-  { name:'기술',   latin:'CRAFT',      desc:'어떻게 만들었는지가 인상에 남은 것들.',                  children:[] },
-  { name:'자연',   latin:'NATURE',     desc:'사람이 만든 것보다 오래 남은 풍경.',                     children:[] },
-  { name:'실패',   latin:'FAILURE',    desc:'돌아보면 방향을 바꿔놓은 순간들.',                       children:[] },
-  { name:'교훈',   latin:'LESSON',     desc:'다시 보게 된 문장과 태도.',                              children:[] },
-  { name:'경제',   latin:'ECONOMY',    desc:'돈과 사람이 움직이는 방식에 대해 배운 것.',              children:[] },
-  { name:'유머',   latin:'HUMOR',      desc:'힘을 빼게 만든 것들.',                                   children:[] }
-];
+const UNIVERSES = [];   // buildUniverses() 가 채웁니다
 let uni = { i:0, t:0, target:0, base:0, dragging:false, v:0, mode:'multi', fade:0, intro:0 };
 
 function openUniverse(k){
+  if(UNIVERSES[wrapN(Math.round(k))].__add) return openUniSheet();
   uni.i=wrapN(Math.round(k)); uni.t=uni.target=Math.round(k); uni.v=0;
   uni.mode='system'; uni.fade=1;                      // 멀티버스가 잠깐 남아 흩어집니다
   view.stack=[];
@@ -908,6 +1113,14 @@ function drawMulti(dt, ghost){
     /* 원 하나를 그립니다 — 본체와 반사에서 같이 씁니다 */
     const face=(ctx)=>{
       ctx.fillStyle='#FFFFFF'; ctx.beginPath(); ctx.arc(0,0,r,0,7); ctx.fill();
+      if(u.__add){                                   // 새 우주 만들기 타일
+        ctx.save(); ctx.setLineDash([6,7]); ctx.strokeStyle=SUB; ctx.lineWidth=1.2;
+        ctx.beginPath(); ctx.arc(0,0,r,0,7); ctx.stroke(); ctx.setLineDash([]);
+        ctx.strokeStyle=INK; ctx.lineWidth=1.6;
+        const k=r*0.22;
+        ctx.beginPath(); ctx.moveTo(-k,0); ctx.lineTo(k,0); ctx.moveTo(0,-k); ctx.lineTo(0,k); ctx.stroke();
+        ctx.restore(); return;
+      }
       const im=poster(u.img);
       if(im){
         ctx.save(); ctx.beginPath(); ctx.arc(0,0,r,0,7); ctx.clip();
@@ -952,9 +1165,14 @@ function drawMulti(dt, ghost){
       c.fillText(u.latin, x, ty+40);
       c.fillStyle=INK; c.font='500 26px "IBM Plex Sans KR", sans-serif';
       c.fillText(u.name, x, ty+76);
-      const n=(u.children||[]).length;
       c.fillStyle=SUB; c.font='400 13px "IBM Plex Sans KR", sans-serif';
-      c.fillText(n? n+'개의 감정' : '아직 비어 있습니다', x, ty+106);
+      if(u.__add) c.fillText('누르면 새 우주를 만듭니다', x, ty+106);
+      else {
+        const n=(u.children||[]).length, lv=levelsOf(u);
+        c.fillText(n? n+'개의 '+lv[0] : '아직 비어 있습니다', x, ty+106);
+        c.fillStyle='rgba(138,138,138,.75)'; c.font='500 10.5px Archivo, sans-serif';
+        c.fillText(lv.join('  →  '), x, ty+130);
+      }
       c.restore();
     }
   });
@@ -967,7 +1185,8 @@ function refCanvas(size){
   return _ref;
 }
 
-resize(); enter(UNIVERSES[0],{keepGhost:false}); fillEmo(); renderMine(); requestAnimationFrame(frameLoop);
+buildUniverses();
+resize(); enter(UNIVERSES[0],{keepGhost:false}); renderMine(); renderUniList(); requestAnimationFrame(frameLoop);
 </script>
 </body>
 </html>
