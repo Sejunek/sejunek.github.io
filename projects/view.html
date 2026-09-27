@@ -198,7 +198,12 @@
     var all169 = shots169.length > 0 && shots169.every(function (r) {
       var ratio = r.pc.w / r.pc.h; return ratio > 1.7 && ratio < 1.85;
     });
-    if (all169) document.documentElement.classList.add('is-snap');
+    if (all169) {
+      document.documentElement.classList.add('is-snap');
+      // 한 화면에 한 장 — 끄려면 아래 줄의 true 를 false 로 바꿉니다
+      var FIT_SLIDES = true;
+      if (FIT_SLIDES) document.documentElement.classList.add('is-fit');
+    }
 
     // 확대 보기는 이미지가 붙은 다음에 연결합니다
     var tag = document.createElement('script');
