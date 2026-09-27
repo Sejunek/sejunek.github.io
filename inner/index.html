@@ -846,7 +846,7 @@ const UNIVERSES = [
   { name:'경제',   latin:'ECONOMY',    desc:'돈과 사람이 움직이는 방식에 대해 배운 것.',              children:[] },
   { name:'유머',   latin:'HUMOR',      desc:'힘을 빼게 만든 것들.',                                   children:[] }
 ];
-let uni = { i:0, t:0, target:0, base:0, dragging:false, v:0, mode:'multi' };  // mode: multi | system
+let uni = { i:0, t:0, target:0, base:0, dragging:false, v:0, mode:'multi', fade:0, intro:0 };
 
 function openUniverse(k){
   uni.i=wrapN(Math.round(k)); uni.t=uni.target=Math.round(k); uni.v=0;
@@ -857,7 +857,8 @@ function openUniverse(k){
   chrome();
 }
 function backToMulti(){
-  uni.mode='multi'; uni.fade=0; view.focus=null; view.ghosts.length=0;
+  uni.mode='multi'; uni.fade=0; uni.intro=1;          // 1 → 0 으로 펼쳐집니다
+  view.focus=null; view.ghosts.length=0;
   cam.tz=1; cam.ttilt=0; cam.trot=0; cam.tx=cam.ty=0; cam.manual=false;
   chrome();
 }
@@ -881,6 +882,8 @@ function drawMulti(dt, ghost){
     if(Math.abs(uni.target-uni.t)<.0012 && Math.abs(uni.v)<.02){ uni.t=uni.target; uni.v=0; }
   }
   if(!ghost) uni.i=wrapN(Math.round(uni.t));
+  if(!ghost && uni.intro>0) uni.intro=Math.max(0, uni.intro-dt*2.6);
+  const io=uni.intro, ease=1-Math.pow(io,2);          // 0 → 1 로 펼쳐지는 정도
 
   const R0=Math.min(W,H)*0.185;
   const CY=H*0.42;                                    // 모든 원의 중심이 놓인 가로선
@@ -889,18 +892,18 @@ function drawMulti(dt, ghost){
   const stepOut=Math.min(R0*0.46, Math.max(R0*0.26, (edge - R0*0.95)/Math.max(1,maxAd-1)));
   const order=UNIVERSES.map((u,i)=>({u,i,d:dWrap(i-uni.t)}))
     .sort((a,b)=>Math.abs(b.d)-Math.abs(a.d));        // 먼 것부터
-  const near=Math.min(...order.map(o=>Math.abs(o.d)));   // 가장 앞에 있는 것
 
   order.forEach(({u,d})=>{
     const ad=Math.abs(d);
     if(ghost && ad<.02) return;              // 고른 원은 항성이 되었으니 건너뜁니다
     // 첫 이웃은 가운데에 크게 겹치고, 그 뒤부터는 화면 끝까지 고르게 벌어집니다
     const off1=R0*0.95*Math.min(ad,1) + stepOut*Math.max(0,ad-1);
-    const x=W/2 + Math.sign(d)*off1;
+    const x=W/2 + Math.sign(d)*off1*ease;             // 나올 때는 가운데에서 퍼져 나옵니다
     const sc=1/(1+.26*ad);                            // 뒤로 갈수록 조금씩 작아집니다
-    const sx=(ad<=near+1e-6) ? 1 : Math.cos(Math.min(1.40, ad*1.15));   // 맨 앞의 것은 언제나 정원
-    const al=Math.max(.18, 1-.13*ad)*(ghost||1);
-    const r=R0*sc;
+    /* 기울기는 거리에 따라 이어집니다. 다 붙으면 ad 가 정확히 0 이 되어 정원이 됩니다. */
+    const sx=Math.cos(Math.min(1.40, ad*1.15));
+    const al=Math.max(.18, 1-.13*ad)*(ghost||1)*(ad<.02? 1 : ease);
+    const r=R0*sc*(ad<.02 ? (R_HUB/R0 + (1-R_HUB/R0)*ease) : 1);   // 가운데는 항성 크기에서 자랍니다
 
     /* 원 하나를 그립니다 — 본체와 반사에서 같이 씁니다 */
     const face=(ctx)=>{
