@@ -139,7 +139,8 @@
     #top{padding:20px}
     #panel,#hint{left:20px;bottom:24px;width:calc(100% - 40px)}
     #p-title{font-size:23px;line-height:32px}
-    #steps .seg{width:26px} #steps{top:22px}
+    #steps .seg{width:22px} #steps{top:58px}
+    #crumb{max-width:58vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     #tools{padding:18px 20px;gap:16px}
     #sheet .box{padding:26px 20px 36px}
   }
@@ -309,7 +310,10 @@ const WORLD = {
 };
 
 /* ── 수치 ── */
-const R_HUB=52, R_NODE=40, ORBIT=[190,290];
+/* 기준 치수 — 화면 크기에 맞춰 SZ 로 줄여 씁니다 */
+const B_HUB=52, B_NODE=40, B_ORBIT=[190,290];
+let SZ=1;                                        // resize() 에서 계산합니다
+const R_HUB=()=>B_HUB*SZ, R_NODE=()=>B_NODE*SZ, ORBIT=()=>[B_ORBIT[0]*SZ, B_ORBIT[1]*SZ];
 const MAXZ=3.2, MINZ=.55;
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const lerp=(a,b,t)=>a+(b-a)*t;
@@ -331,6 +335,14 @@ const cam={ zoom:1,tz:1, tilt:0,ttilt:0, rot:0,trot:0, x:0,tx:0, y:0,ty:0,
 const view={ hub:null, nodes:[], ghosts:[], stack:[], focus:null };
 let hover=null;
 
+/* 좁은 화면에서는 덜 확대하고 궤도도 덜 벌립니다 */
+const FZ=()=>W<620?1.14:1.45;                      // 선택했을 때 배율
+const EXP=()=>W<620?0.22:0.55;                     // 기울 때 궤도가 벌어지는 정도
+function fitScale(){
+  const needW=(B_ORBIT[1]*(1+EXP()) + B_NODE*1.5)*FZ();
+  const needH=(B_ORBIT[1]*(1+EXP())*0.52 + B_NODE*1.6)*FZ();
+  return clamp(Math.min((W*0.5)*0.92/needW, (H*0.40)*0.92/needH, 1), .30, 1);
+}
 function resize(){
   /* 캔버스가 실제로 차지한 크기를 재서 버퍼를 맞춥니다.
      innerHeight 로 잡으면 모바일에서 주소창 때문에 CSS 높이(100vh)와 어긋나
@@ -341,6 +353,7 @@ function resize(){
   const bw=Math.max(1,Math.round(W*DPR)), bh=Math.max(1,Math.round(H*DPR));
   cv.width=bw; cv.height=bh;
   c.setTransform(bw/W, 0, 0, bh/H, 0, 0);     // 반올림 오차까지 잡아 정원을 유지합니다
+  SZ=fitScale();
 }
 addEventListener('resize',resize);
 
@@ -353,9 +366,9 @@ function makeNodes(node, backTo){
     const inRing = kids.filter((_,j)=> two? j%2===ring : true).length;
     const idx = kids.slice(0,i).filter((_,j)=> two? j%2===ring : true).length;
     const back = backTo && k===backTo;          // 방금 나온 곳 — 중심에서 제자리로 돌아갑니다
-    return { data:k, orbit:ORBIT[ring], speed: ring? .10 : .14,
+    return { data:k, orbit:ORBIT()[ring], speed: ring? .10 : .14,
       angle:(Math.PI*2/inRing)*idx + (ring?.7:0) - Math.PI/2,
-      r:R_NODE, x:0,y:0, scale: back? R_HUB/R_NODE : 1,
+      r:R_NODE(), x:0,y:0, scale: back? R_HUB()/R_NODE() : 1,
       alpha:0, born:0, dim:1, lead:!!back };
   });
 }
@@ -367,8 +380,8 @@ function enter(node,{keepGhost=true, from=null, backTo=null}={}){
   view.hub = from
     ? { data:node, x:from.x, y:from.y, r:from.r*from.scale, t:0 }   // 고른 행성이 중심으로 들어옵니다
     : backTo
-      ? { data:node, x:0, y:0, r:R_NODE*.5, t:0 }                   // 상위 항성이 중심에서 자라납니다
-      : { data:node, x:0, y:0, r:R_HUB, t:1 };
+      ? { data:node, x:0, y:0, r:R_NODE()*.5, t:0 }                   // 상위 항성이 중심에서 자라납니다
+      : { data:node, x:0, y:0, r:R_HUB(), t:1 };
   view.nodes=makeNodes(node, backTo);
   view.focus=null; cam.tz=1; cam.ttilt=0; cam.trot=0; cam.tx=0; cam.ty=0;
   cam.vx=cam.vy=0; cam.manual=false;
@@ -510,7 +523,7 @@ function poster(src){
 function focusNode(n){
   view.focus=n; n.since=performance.now();             // 포스터는 조금 뒤에 나타납니다
   n.shot=0;
-  cam.tz=1.45; cam.ttilt=1;
+  cam.tz=FZ(); cam.ttilt=1;
   cam.trot=((Math.PI/2-n.angle)%TAU+TAU)%TAU;
   cam.manual=false; cam.vx=cam.vy=0;
   chrome();
@@ -668,7 +681,7 @@ function frameLoop(now){
     cam.x+=cam.vx; cam.y+=cam.vy;
     cam.vx*=Math.pow(.02,dt); cam.vy*=Math.pow(.02,dt);
     if(Math.hypot(cam.vx,cam.vy)<.02){ cam.vx=cam.vy=0;
-      if(Math.hypot(cam.x-cam.tx,cam.y-cam.ty)>ORBIT[1]*1.2) cam.manual=false; }
+      if(Math.hypot(cam.x-cam.tx,cam.y-cam.ty)>ORBIT()[1]*1.2) cam.manual=false; }
   }
   const ys=lerp(1,.52,cam.tilt);
 
@@ -681,7 +694,7 @@ function frameLoop(now){
 
   /* 궤도 */
   [...new Set(view.nodes.map(n=>n.orbit))].forEach(r=>{
-    const orb=r*(1+.55*cam.tilt)*(1-Math.pow(1-view.hub.t,3));
+    const orb=r*(1+EXP()*cam.tilt)*(1-Math.pow(1-view.hub.t,3));
     c.save(); c.translate(view.hub.x,view.hub.y); c.scale(1,ys);
     c.globalAlpha=view.hub.t;
     c.strokeStyle=LINE; c.lineWidth=1/cam.zoom;
@@ -691,7 +704,7 @@ function frameLoop(now){
   /* 중심 — 고른 행성이 안쪽으로 들어오는 동안 */
   const hub=view.hub;
   hub.t=Math.min(1,hub.t+dt*2.1);
-  hub.x=sm(hub.x,0,6,dt); hub.y=sm(hub.y,0,6,dt); hub.r=sm(hub.r,R_HUB,6,dt);
+  hub.x=sm(hub.x,0,6,dt); hub.y=sm(hub.y,0,6,dt); hub.r=sm(hub.r,R_HUB(),6,dt);
 
   /* 상태 갱신 — 중심이 자리를 잡은 뒤에 위성이 펼쳐집니다 */
   const gate = 1-Math.pow(1-hub.t,2);
@@ -731,7 +744,7 @@ function drawHub(){
   c.fillStyle='#FFFFFF'; c.beginPath(); c.arc(x,y,r,0,7); c.fill();
   c.strokeStyle=INK; c.lineWidth=1.4/Math.max(1,cam.zoom*.6); c.stroke();
   c.fillStyle=INK; c.textAlign='center'; c.textBaseline='middle';
-  c.font='500 '+(14*r/R_HUB).toFixed(1)+'px "IBM Plex Sans KR", sans-serif';
+  c.font='500 '+(14*r/R_HUB()).toFixed(1)+'px "IBM Plex Sans KR", sans-serif';
   c.fillText(d.name, x, y);
   if(d.latin){
     c.globalAlpha=h.t;
@@ -1119,7 +1132,7 @@ function drawMulti(dt, ghost){
     /* 기울기는 거리에 따라 이어집니다. 다 붙으면 ad 가 정확히 0 이 되어 정원이 됩니다. */
     const sx=Math.cos(Math.min(1.40, ad*1.15));
     const al=Math.max(.18, 1-.13*ad)*(ghost||1)*(ad<.02? 1 : ease);
-    const r=R0*sc*(ad<.02 ? (R_HUB/R0 + (1-R_HUB/R0)*ease) : 1);   // 가운데는 항성 크기에서 자랍니다
+    const r=R0*sc*(ad<.02 ? (R_HUB()/R0 + (1-R_HUB()/R0)*ease) : 1);  // 가운데는 항성 크기에서 자랍니다
 
     /* 원 하나를 그립니다 — 본체와 반사에서 같이 씁니다 */
     const face=(ctx)=>{
