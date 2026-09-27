@@ -1027,29 +1027,3 @@ body.zoom-open { overflow: hidden; }
 @media (min-width: 768px) and (max-width: 1023px) {
   html.is-snap { scroll-padding-top: 53px; }
 }
-
-/* ---- 한 화면에 한 장 ----
-   스냅이 걸린 페이지에서 슬라이드 높이를 화면 높이에 맞춥니다.
-   가로가 줄어 남는 좌우는 .stack 의 옅은 회색 바탕이 채웁니다.
-   되돌리려면 <html> 에서 is-fit 을 빼거나(view.html 의 FIT_SLIDES=false)
-   이 블록만 지우면 됩니다. */
-@media (min-width: 768px) {
-  html.is-snap.is-fit .stack > picture,
-  html.is-snap.is-fit .stack > video {
-    max-width: none;
-    display: flex;
-    justify-content: center;
-  }
-  html.is-snap.is-fit .stack img,
-  html.is-snap.is-fit .stack video {
-    width: auto;
-    max-width: 1200px;
-    max-height: calc(100vh - 81px - var(--s-64));
-    height: auto;
-    margin-inline: auto;
-  }
-}
-@media (min-width: 768px) and (max-width: 1023px) {
-  html.is-snap.is-fit .stack img,
-  html.is-snap.is-fit .stack video { max-height: calc(100vh - 53px - var(--s-32)); }
-}
