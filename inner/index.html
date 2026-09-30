@@ -341,7 +341,9 @@ const EXP=()=>W<620?0.22:0.55;                     // 기울 때 궤도가 벌�
 function fitScale(){
   const needW=(B_ORBIT[1]*(1+EXP()) + B_NODE*1.5)*FZ();
   const needH=(B_ORBIT[1]*(1+EXP())*0.52 + B_NODE*1.6)*FZ();
-  return clamp(Math.min((W*0.5)*0.92/needW, (H*0.40)*0.92/needH, 1), .30, 1);
+  /* 넉넉한 화면에서는 원래 크기 그대로 둡니다 — 좁을 때만 줄입니다 */
+  if(W>=900 && H>=680) return 1;
+  return clamp(Math.min((W*0.5)*0.96/needW, (H*0.42)*0.96/needH, 1), .30, 1);
 }
 function resize(){
   /* 캔버스가 실제로 차지한 크기를 재서 버퍼를 맞춥니다.
