@@ -314,7 +314,8 @@ const WORLD = {
 const B_HUB=52, B_NODE=40, B_ORBIT=[190,290];
 let SZ=1;                                        // resize() 에서 계산합니다
 const R_HUB=()=>B_HUB*SZ, R_NODE=()=>B_NODE*SZ, ORBIT=()=>[B_ORBIT[0]*SZ, B_ORBIT[1]*SZ];
-const MAXZ=3.2, MINZ=.55;
+const MAXZ_B=3.2, MINZ_B=.55;
+const MAXZ=()=>MAXZ_B*BZ(), MINZ=()=>MINZ_B*BZ();
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const lerp=(a,b,t)=>a+(b-a)*t;
 const TAU=Math.PI*2;
@@ -337,8 +338,11 @@ let hover=null;
 
 /* 좁은 화면에서는 확대만 덜 합니다 — 크기·궤도는 원래 그대로 둡니다 */
 const NEED_W=B_ORBIT[1]*1.55 + B_NODE*1.5, NEED_H=B_ORBIT[1]*1.55*0.52 + B_NODE*1.6;
-const FZ=()=>(W>=900&&H>=680) ? 1.45
-           : clamp(Math.min(W*0.47/NEED_W, H*0.40/NEED_H), .30, 1.45);   // 좁으면 덜 확대
+const WIDE=()=>W>=900&&H>=680;
+/* 좁은 화면은 기본 줌을 뒤로 빼서 행성계 전체가 한눈에 들어오게 합니다 */
+const BZ=()=>WIDE()?1:clamp(Math.min(W*0.46/(B_ORBIT[1]+B_NODE*1.4), H*0.40/(B_ORBIT[1]*0.55+B_NODE*1.4)),.30,1);
+const FZ=()=>WIDE() ? 1.45
+           : Math.max(BZ()*1.12, clamp(Math.min(W*0.47/NEED_W, H*0.40/NEED_H), .30, 1.45));  // 좁으면 덜 확대
 const EXP=()=>0.55;                                // 기울 때 궤도가 벌어지는 정도
 function fitScale(){ return 1; }
 function resize(){
@@ -381,7 +385,7 @@ function enter(node,{keepGhost=true, from=null, backTo=null}={}){
       ? { data:node, x:0, y:0, r:R_NODE()*.5, t:0 }                   // 상위 항성이 중심에서 자라납니다
       : { data:node, x:0, y:0, r:R_HUB(), t:1 };
   view.nodes=makeNodes(node, backTo);
-  view.focus=null; cam.tz=1; cam.ttilt=0; cam.trot=0; cam.tx=0; cam.ty=0;
+  view.focus=null; cam.tz=BZ(); cam.ttilt=0; cam.trot=0; cam.tx=0; cam.ty=0;
   cam.vx=cam.vy=0; cam.manual=false;
   chrome();
 }
@@ -526,7 +530,7 @@ function focusNode(n){
   cam.manual=false; cam.vx=cam.vy=0;
   chrome();
 }
-function blur(){ view.focus=null; cam.tz=1; cam.ttilt=0; cam.trot=0; cam.tx=0; cam.ty=0;
+function blur(){ view.focus=null; cam.tz=BZ(); cam.ttilt=0; cam.trot=0; cam.tx=0; cam.ty=0;
   cam.manual=false; chrome(); }
 function step(dir){                                   // 스와이프로 형제 이동
   if(!view.focus) return;
@@ -618,7 +622,7 @@ cv.addEventListener('pointercancel',()=>{P.down=false;cam.panning=false;
 cv.addEventListener('wheel',e=>{ e.preventDefault();
   if(uni.mode==='multi'){ uniStep(Math.sign(e.deltaY||e.deltaX)); return; }
   const k=Math.exp(-e.deltaY*(e.ctrlKey?.01:.0016));
-  cam.tz=clamp(cam.tz*k,MINZ,MAXZ);
+  cam.tz=clamp(cam.tz*k,MINZ(),MAXZ());
 }, {passive:false});
 
 /* 두 손가락 핀치 */
@@ -632,10 +636,10 @@ cv.addEventListener('touchmove',e=>{
   for(const t of e.changedTouches) if(touches.has(t.identifier)) touches.set(t.identifier,{x:t.clientX,y:t.clientY});
   if(P.pinch && touches.size===2){ e.preventDefault();
     const d=pinchDist();
-    cam.tz=clamp(P.pinch.z*(d/P.pinch.d),MINZ,MAXZ);
-    if(cam.tz>=MAXZ-.01 && view.focus && view.focus.data.children && !P.acted){
+    cam.tz=clamp(P.pinch.z*(d/P.pinch.d),MINZ(),MAXZ());
+    if(cam.tz>=MAXZ()-.01 && view.focus && view.focus.data.children && !P.acted){
       P.acted=true; drill(view.focus.data);           // 끝까지 벌리면 한 단계 안으로
-    } else if(cam.tz<=MINZ+.01 && view.stack.length && !P.acted){
+    } else if(cam.tz<=MINZ()+.01 && view.stack.length && !P.acted){
       P.acted=true; goUp();                           // 끝까지 오므리면 한 단계 밖으로
     }
   }
@@ -1086,7 +1090,7 @@ function openUniverse(k){
 function backToMulti(){
   uni.mode='multi'; uni.fade=0; uni.intro=1;          // 1 → 0 으로 펼쳐집니다
   view.focus=null; view.ghosts.length=0;
-  cam.tz=1; cam.ttilt=0; cam.trot=0; cam.tx=cam.ty=0; cam.manual=false;
+  cam.tz=BZ(); cam.ttilt=0; cam.trot=0; cam.tx=cam.ty=0; cam.manual=false;
   chrome();
 }
 const UN=()=>UNIVERSES.length;
