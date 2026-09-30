@@ -335,16 +335,12 @@ const cam={ zoom:1,tz:1, tilt:0,ttilt:0, rot:0,trot:0, x:0,tx:0, y:0,ty:0,
 const view={ hub:null, nodes:[], ghosts:[], stack:[], focus:null };
 let hover=null;
 
-/* 좁은 화면에서는 덜 확대하고 궤도도 덜 벌립니다 */
-const FZ=()=>W<620?1.14:1.45;                      // 선택했을 때 배율
-const EXP=()=>W<620?0.22:0.55;                     // 기울 때 궤도가 벌어지는 정도
-function fitScale(){
-  const needW=(B_ORBIT[1]*(1+EXP()) + B_NODE*1.5)*FZ();
-  const needH=(B_ORBIT[1]*(1+EXP())*0.52 + B_NODE*1.6)*FZ();
-  /* 넉넉한 화면에서는 원래 크기 그대로 둡니다 — 좁을 때만 줄입니다 */
-  if(W>=900 && H>=680) return 1;
-  return clamp(Math.min((W*0.5)*0.96/needW, (H*0.42)*0.96/needH, 1), .30, 1);
-}
+/* 좁은 화면에서는 확대만 덜 합니다 — 크기·궤도는 원래 그대로 둡니다 */
+const NEED_W=B_ORBIT[1]*1.55 + B_NODE*1.5, NEED_H=B_ORBIT[1]*1.55*0.52 + B_NODE*1.6;
+const FZ=()=>(W>=900&&H>=680) ? 1.45
+           : clamp(Math.min(W*0.47/NEED_W, H*0.40/NEED_H), .30, 1.45);   // 좁으면 덜 확대
+const EXP=()=>0.55;                                // 기울 때 궤도가 벌어지는 정도
+function fitScale(){ return 1; }
 function resize(){
   /* 캔버스가 실제로 차지한 크기를 재서 버퍼를 맞춥니다.
      innerHeight 로 잡으면 모바일에서 주소창 때문에 CSS 높이(100vh)와 어긋나
