@@ -146,7 +146,7 @@ window.PROJECTS = [
    썸네일이 아직 없는 프로젝트를 목록·상세에서 전부 빼둡니다.
    썸네일이 준비되면 그 slug 만 아래 배열에서 지우면 되고,
    전부 되돌리려면 배열을 비우면 됩니다 → window.HIDDEN = []; */
-window.HIDDEN = ["crown","nrp","rsd","nsc","ipt","homepage","bookstore","erp","print"];
+window.HIDDEN = ["crown","nrp","rsd","homepage","bookstore","erp","print"];
 
 /* ---------- 여기서부터는 공용 헬퍼 (건드리지 않아도 됩니다) ---------- */
 window.PJ = {
