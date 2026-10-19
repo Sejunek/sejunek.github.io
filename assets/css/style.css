@@ -1027,3 +1027,15 @@ body.zoom-open { overflow: hidden; }
 @media (min-width: 768px) and (max-width: 1023px) {
   html.is-snap { scroll-padding-top: 53px; }
 }
+
+/* ---- 유튜브 임베드 ----
+   상세페이지 맨 앞에 16:9 로 붙습니다. projects.js 의 yt 필드가 있을 때만 생깁니다. */
+.ytbox {
+  display: block;
+  max-width: 1200px;
+  margin: 0 auto var(--s-24);
+  aspect-ratio: 16 / 9;
+  background: var(--text-primary);
+  border: 1px solid var(--border-line);
+}
+.ytbox iframe { display: block; width: 100%; height: 100%; border: 0; }
