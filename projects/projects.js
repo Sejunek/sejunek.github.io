@@ -71,7 +71,7 @@ window.PROJECTS = [
   pages:[7,11] },
 
 { slug:"hippocampus", title:"Hippocampus — VR Learning Data LMS", cat:"UX·UI DESIGN", filter:"uxui",
-  year:"2024", period:"2023.06 — 2024.04",
+  year:"2024", period:"2023.06 — 2024.04 출시",
   role:"UX 기획 · UI 디자인 및 컴포넌트 제작 · 개발 외주 소통 및 일정 관리",
   tool:"Figma",
   summary:"VR 시뮬레이터의 학습 데이터를 교수자가 확인하고 관리하는 LMS를 개편했습니다. UX 기획부터 UI 컴포넌트 제작까지 맡았고, 개발 외주 업체와의 소통과 일정 관리를 담당했습니다.",
