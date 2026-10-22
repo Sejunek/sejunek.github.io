@@ -98,6 +98,8 @@
   // ---- 이미지 스택 -------------------------------------------------
   // 파일이 실제로 있는지 먼저 확인하고, 있는 장만 순서대로 붙입니다.
   var stack = document.querySelector('[data-stack]');
+  // seamless — 장과 장, 글과 이미지의 경계를 없애 한 장처럼 이어 보이게 합니다
+  if (p.seamless) stack.classList.add('stack--seamless');
   var shots = PJ.shots(p, '../');
 
   function probe(src) {

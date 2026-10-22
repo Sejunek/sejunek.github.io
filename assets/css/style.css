@@ -1070,3 +1070,28 @@ body.zoom-open { overflow: hidden; }
   .pnote__title { font-size: 18px; }
   .pnote__body { font-size: 14px; }
 }
+
+/* ---- seamless 상세페이지 ----
+   장과 장, 글과 이미지의 경계를 지워 한 장처럼 이어 보이게 합니다.
+   projects.js 의 seamless:true 일 때만 켜집니다. 끄려면 그 줄을 지우세요. */
+.stack--seamless {
+  background: var(--bg-base);
+  border-top: 0;
+  border-bottom: 0;
+  padding: 0;
+}
+.stack--seamless img,
+.stack--seamless video { border: 0; background: var(--bg-base); display: block; }
+.stack--seamless picture + picture,
+.stack--seamless > img + img { margin-top: 0; }
+.stack--seamless > picture,
+.stack--seamless > video,
+.stack--seamless > img { margin-bottom: 0; }
+.stack--seamless .pnote {
+  background: var(--bg-base);
+  padding-top: var(--s-64);
+  padding-bottom: var(--s-64);
+}
+@media (max-width: 767px) {
+  .stack--seamless .pnote { padding-top: var(--s-40); padding-bottom: var(--s-40); }
+}
