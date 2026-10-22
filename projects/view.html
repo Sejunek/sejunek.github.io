@@ -172,17 +172,35 @@
     });
   })).then(function (results) {
     var shown = 0;
-    results.forEach(function (r) {
-      if (!r.pc.ok) return;
 
-      // 영상은 소리 없이 자동 반복 — GIF 처럼 보이되 용량은 훨씬 작습니다
+    // notes — projects.js 에 적어둔 글을 해당 장 앞에 끼워 넣습니다
+    function note(n) {
+      var t = p.notes && p.notes[n];
+      if (!t) return;
+      var sec = document.createElement('div');
+      sec.className = 'pnote';
+      var lab = document.createElement('p'); lab.className = 'pnote__label'; lab.textContent = t[0];
+      var ttl = document.createElement('h2'); ttl.className = 'pnote__title'; ttl.textContent = t[1];
+      var bod = document.createElement('p'); bod.className = 'pnote__body'; bod.textContent = t[2];
+      sec.appendChild(lab); sec.appendChild(ttl); sec.appendChild(bod);
+      stack.appendChild(sec);
+    }
+
+    results.forEach(function (r, i) {
+      if (!r.pc.ok) return;
+      note(i + 1);
+
+      // 영상 — mp4 는 길이가 있는 소개 영상이라 컨트롤을 주고,
+      //        webm 은 GIF 대신 쓰는 짧은 클립이라 소리 없이 자동 반복합니다
       if (r.pc.clip) {
+        var long = /\.mp4$/i.test(r.shot.pc);
         var clip = document.createElement('video');
         clip.src = r.shot.pc;
-        clip.autoplay = true; clip.loop = true; clip.muted = true;
-        clip.setAttribute('muted', '');
+        clip.loop = !long;
+        clip.autoplay = !long;
+        clip.muted = true; clip.setAttribute('muted', '');
         clip.playsInline = true; clip.setAttribute('playsinline', '');
-        clip.controls = false;
+        clip.controls = long;
         clip.preload = 'metadata';
         stack.appendChild(clip);
         shown++;
