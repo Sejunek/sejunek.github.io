@@ -1048,14 +1048,17 @@ body.zoom-open { overflow: hidden; }
   margin-left: auto;
   margin-right: auto;
   background: var(--bg-base);
+  /* 위아래 테두리와 간격을 없애 앞뒤 이미지와 한 장처럼 이어집니다 */
   border: 1px solid var(--border-line);
+  border-top: 0;
+  border-bottom: 0;
   padding: var(--s-80) var(--s-40);
   text-align: center;
 }
+.stack .pnote,
 .stack .pnote + picture,
-.stack picture + .pnote,
-.stack video + .pnote,
-.stack .pnote + video { margin-top: var(--s-24); }
+.stack .pnote + video,
+.stack .pnote + img { margin-top: 0; }
 .pnote__label {
   margin: 0 0 var(--s-8);
   font-family: var(--font-latin);
