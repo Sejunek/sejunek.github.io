@@ -153,7 +153,7 @@ window.PROJECTS = [
   role:"UX/UI 및 정책 기획 · UX/UI 디자인 · 판매 제품 목업 및 홍보 자료 제작",
   tool:"Figma · Adobe Ps · Ai",
   summary:"영어 교재를 판매하는 온라인 스토어입니다. 화면 설계뿐 아니라 판매·배송 정책까지 함께 기획했고, 판매 제품 목업과 홍보 자료도 직접 제작했습니다.",
-  pages:[1,19] },
+  pages:[1,21] },
 
 { slug:"erp", title:"Internal Admin / ERP", cat:"UX·UI DESIGN", filter:"uxui",
   year:"2022", period:"2022.10 — 2022.12",
