@@ -234,7 +234,10 @@ window.PJ = {
       if (p.pages.length && typeof p.pages[0] === 'string') {
         p.pages.forEach(function (item) {
           var file = /\.[a-z0-9]+$/i.test(item) ? item : (item + '.webp');
-          out.push({ pc: dir + file, mo: '', name: p.slug + '_' + file.replace(/\.[^.]+$/, '') });
+          var stem = file.replace(/\.[^.]+$/, '');
+          // 모바일 전용 이미지가 있으면 자동으로 씁니다 → <stem>@mo.webp
+          var mo = /\.(mp4|webm)$/i.test(file) ? '' : (dir + stem + '@mo.webp');
+          out.push({ pc: dir + file, mo: mo, name: p.slug + '_' + stem });
         });
         return out;
       }
@@ -242,7 +245,7 @@ window.PJ = {
       // 숫자 범위로 준 경우
       var from = p.pages[0], to = p.pages[1];
       for (var i = from; i <= to; i++) {
-        out.push({ pc: dir + i + '.webp', mo: '', name: p.slug + '_' + i });
+        out.push({ pc: dir + i + '.webp', mo: dir + i + '@mo.webp', name: p.slug + '_' + i });
       }
       return out;
     }
