@@ -40,7 +40,7 @@ window.PROJECTS = [
   summary:"이커머스 채널 전반의 디자인을 관리하고 직접 제작합니다. 웹 상세페이지와 영상을 만들고, AI 생성 이미지를 활용한 목업으로 제품 브랜드 비주얼을 관리합니다." },
 
 { slug:"finpong", title:"Finpong — Kids Investment Literacy", cat:"UX·UI DESIGN", filter:"uxui",
-  year:"2026", period:"졸업연구",
+  year:"2025", period:"2025.03 — 2025.12",
   role:"UX 리서치 · 서비스 기획 · UX/UI 디자인",
   tool:"Figma",
   summary:"아동 투자·금융교육 플랫폼 기획입니다. 학부모 FGI와 금융교육 관계자 인터뷰를 진행했고, 전문 투자자 자문에서 나온 상반된 의견을 반영해 투자 지식 교육이 아닌 '투자 기질 점검과 반복 실수 경고' 방향으로 기획을 좁혔습니다.",
@@ -94,7 +94,7 @@ window.PROJECTS = [
   video:true },
 
 { slug:"vrcx", title:"VR CX — Unified Environment", cat:"UX·UI DESIGN", filter:"uxui",
-  year:"2024", period:"2023.06 — 2023.12",
+  year:"2023", period:"2023.06 — 2023.12",
   role:"통합 환경 UX 기획 · UI 디자인 · 통합 로비 3D 모델링 · 기업 홈페이지 리뉴얼 및 영상 제작",
   tool:"Figma · Blender · Adobe Ae",
   summary:"흩어져 있던 VR 콘텐츠들을 하나의 환경으로 묶는 통합 경험을 기획했습니다. 진입 지점이 되는 통합 로비를 3D로 모델링하고, 기업 홈페이지 리뉴얼과 소개 영상 제작까지 이어서 진행했습니다.",
