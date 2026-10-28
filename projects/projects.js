@@ -152,13 +152,15 @@ window.PROJECTS = [
   year:"2022", period:"2021.12 — 2022.04",
   role:"UX/UI 및 정책 기획 · UX/UI 디자인 · 판매 제품 목업 및 홍보 자료 제작",
   tool:"Figma · Adobe Ps · Ai",
-  summary:"영어 교재를 판매하는 온라인 스토어입니다. 화면 설계뿐 아니라 판매·배송 정책까지 함께 기획했고, 판매 제품 목업과 홍보 자료도 직접 제작했습니다." },
+  summary:"영어 교재를 판매하는 온라인 스토어입니다. 화면 설계뿐 아니라 판매·배송 정책까지 함께 기획했고, 판매 제품 목업과 홍보 자료도 직접 제작했습니다.",
+  pages:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19] },
 
 { slug:"erp", title:"Internal Admin / ERP", cat:"UX·UI DESIGN", filter:"uxui",
   year:"2022", period:"2022.10 — 2022.12",
   role:"CS · ERP · 개발 팀과 커뮤니케이션 담당 및 기획 · UX/UI 디자인",
   tool:"Figma",
-  summary:"사내 운영 업무를 다루는 어드민과 ERP 화면입니다. CS·ERP·개발 팀 사이의 커뮤니케이션을 담당하며 요구사항을 정리해 기획하고, UX/UI 디자인까지 진행했습니다." },
+  summary:"사내 운영 업무를 다루는 어드민과 ERP 화면입니다. CS·ERP·개발 팀 사이의 커뮤니케이션을 담당하며 요구사항을 정리해 기획하고, UX/UI 디자인까지 진행했습니다.",
+  pages:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21] },
 
 { slug:"print", title:"Textbook & Print Design", cat:"VISUAL · PRINT", filter:"visual",
   year:"2022", period:"2021.10 — 2022.12",
@@ -180,7 +182,7 @@ window.PROJECTS = [
    썸네일이 아직 없는 프로젝트를 목록·상세에서 전부 빼둡니다.
    썸네일이 준비되면 그 slug 만 아래 배열에서 지우면 되고,
    전부 되돌리려면 배열을 비우면 됩니다 → window.HIDDEN = []; */
-window.HIDDEN = ["crown","nrp","rsd","homepage","bookstore","erp","print"];
+window.HIDDEN = ["crown","nrp","rsd","homepage","print"];
 
 /* ---------- 여기서부터는 공용 헬퍼 (건드리지 않아도 됩니다) ---------- */
 window.PJ = {
