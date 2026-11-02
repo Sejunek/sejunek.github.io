@@ -54,3 +54,5 @@ LAB_ADD({ slug: "borrowed-gravity", title: "Borrowed Gravity", tech: "CANVAS 2D"
 LAB_ADD({ slug: "fireworks", title: "Fireworks", tech: "CANVAS 2D", year: "2020", by: "human", summary: "대학 시절 Processing 으로 만든 스케치를 웹으로 옮겼습니다. 누른 자리에서 색색의 불꽃이 사방으로 퍼집니다." });
 LAB_ADD({ slug: "point-of-view", title: "Van Gogh's Perspective", tech: "CANVAS 2D", year: "2020", by: "human", summary: "사진을 반 고흐의 붓질처럼 짧은 선 수천 개로 다시 그립니다. 선은 커서를 바라보고, 누르고 있으면 천천히 일렁입니다. 가진 사진을 올리거나 바로 찍어 바꿀 수도 있습니다." });
 LAB_ADD({ slug: "sulky-ball", title: "Sulky Ball", tech: "CANVAS 2D", year: "2026", by: "pair", model: "Claude Opus 5", summary: "2020년 Processing 스케치를 웹으로 옮기며 새로 만든 버전. 커서를 따라오는 공이 누르면 맞은 것처럼 튕겨나가고, 맞을수록 더 멀리 달아납니다. 다섯 번 맞으면 삐져서 피하고, 빈 곳을 열 번 눌러 달래면 다시 따라옵니다." });
+
+LAB_ADD({ slug: "collapsed-ground", title: "무너진 자리", tech: "CANVAS 2D", year: "2026", by: "ai", model: "Codex", summary: "길게 눌러 쌓고, 놓아서 맡깁니다. 무너진 조각이 다음 시도의 출발점으로 남는 실패의 공간.", making: true });
