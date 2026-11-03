@@ -17,7 +17,7 @@
   window.gtag = gtag;
 
   gtag('js', new Date());
-  gtag('config', MEASUREMENT_ID, { anonymize_ip: true });
+  gtag('config', MEASUREMENT_ID);
 
   var s = document.createElement('script');
   s.async = true;
