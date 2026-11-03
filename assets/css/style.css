@@ -391,8 +391,19 @@ ul { margin: 0; padding: 0; list-style: none; }
   .badge__full { display: none; }
   .badge__short { display: inline; }
 
-  .stack { padding: var(--s-32) var(--page-pad); }
-  .stack picture + picture { margin-top: var(--s-16); }
+  /* 모바일에서는 상세 이미지를 화면 가장자리까지 붙이고, 장과 장 사이를 띄우지 않습니다 */
+  .stack { padding: 0; }
+  .stack picture,
+  .stack > img,
+  .stack > video { max-width: none; }
+  .stack picture + picture,
+  .stack > img + img,
+  .stack > video + video,
+  .stack picture + video,
+  .stack video + picture { margin-top: 0; }
+  .stack img,
+  .stack video { border: 0; }
+  .stack .pnote { padding: var(--s-48) var(--page-pad); border-left: 0; border-right: 0; }
 
   .detail-intro__title { font-size: 32px; line-height: 38px; }
   .meta__key { flex-basis: 72px; }
