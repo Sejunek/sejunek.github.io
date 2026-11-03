@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  var MEASUREMENT_ID = ''; // 예: 'G-XXXXXXXXXX'
+  var MEASUREMENT_ID = 'G-2N6S5Z4K9V';
 
   if (!MEASUREMENT_ID) return;
 
